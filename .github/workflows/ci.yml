@@ -1,0 +1,29 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+permissions:
+  contents: read
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        go: ["1.22", "stable"]
+    steps:
+      - uses: actions/checkout@93cb6efe18208431cddfb8368fd83d5badbf9bfd # v5
+      - uses: actions/setup-go@4a3601121dd01d1626a1e23e37211e3254c1c06c # v6
+        with:
+          go-version: ${{ matrix.go }}
+      - run: go vet ./...
+      # The generated wire tests replay recorded requests against WireMock.
+      - name: Start WireMock
+        run: docker compose -f wiremock/docker-compose.test.yml up -d --wait
+      - name: Test
+        run: |
+          port=$(docker compose -f wiremock/docker-compose.test.yml port wiremock 8080 | cut -d: -f2)
+          WIREMOCK_URL="http://localhost:$port" go test ./...

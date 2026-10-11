@@ -1,0 +1,64 @@
+name: Release
+
+on:
+  workflow_dispatch:
+    inputs:
+      version:
+        description: Version to release, such as 0.1.0-alpha.1
+        required: true
+
+permissions:
+  contents: read
+
+concurrency: release
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@93cb6efe18208431cddfb8368fd83d5badbf9bfd # v5
+        with:
+          ref: main
+      - uses: actions/setup-go@4a3601121dd01d1626a1e23e37211e3254c1c06c # v6
+        with:
+          go-version-file: go.mod
+      - name: Check the version
+        env:
+          VERSION: ${{ inputs.version }}
+        run: |
+          if [[ ! "$VERSION" =~ ^[0-9]+\.[0-9]+\.[0-9]+(-[0-9A-Za-z.-]+)?$ ]]; then
+            echo "::error::$VERSION is not a semantic version"
+            exit 1
+          fi
+          # Go requires a /v2 module path from major version 2 on.
+          if (( ${VERSION%%.*} >= 2 )); then
+            echo "::error::Releasing v2 or later needs the module path changed to .../v${VERSION%%.*}"
+            exit 1
+          fi
+      - run: go vet ./...
+      - name: Start WireMock
+        run: docker compose -f wiremock/docker-compose.test.yml up -d --wait
+      - name: Test
+        run: |
+          port=$(docker compose -f wiremock/docker-compose.test.yml port wiremock 8080 | cut -d: -f2)
+          WIREMOCK_URL="http://localhost:$port" go test ./...
+      # Go modules have no registry: the tag is the release.
+      - name: Tag and create the release
+        env:
+          VERSION: ${{ inputs.version }}
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          git tag "v$VERSION"
+          git push origin "v$VERSION"
+          prerelease=()
+          if [[ "$VERSION" == *-* ]]; then
+            prerelease=(--prerelease)
+          fi
+          gh release create "v$VERSION" --generate-notes "${prerelease[@]}"
+      # Asking the module proxy for the version makes it show up on pkg.go.dev.
+      - name: Index the version
+        env:
+          VERSION: ${{ inputs.version }}
+        run: curl -fsS "https://proxy.golang.org/github.com/pylon-labs/pylon-go/@v/v$VERSION.info"

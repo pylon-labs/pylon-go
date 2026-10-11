@@ -1,0 +1,6 @@
+# Hand-maintained files that Fern must not overwrite or delete.
+.fernignore
+.github/
+.gitignore
+LICENSE
+README.md
