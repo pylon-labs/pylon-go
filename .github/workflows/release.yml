@@ -50,6 +50,19 @@ jobs:
           VERSION: ${{ inputs.version }}
           GH_TOKEN: ${{ github.token }}
         run: |
+          # The User-Agent names the version; the next sync regenerates it from VERSION.
+          previous=$(cat VERSION)
+          echo "$VERSION" > VERSION
+          sed -i -e "s|\"v$previous\"|\"v$VERSION\"|" \
+            -e "s|\"github.com/pylon-labs/pylon-go/$previous\"|\"github.com/pylon-labs/pylon-go/$VERSION\"|" core/request_option.go
+          if ! grep -qF "\"github.com/pylon-labs/pylon-go/$VERSION\"" core/request_option.go; then
+            echo "::error::core/request_option.go has no pylon-go/$previous User-Agent to update"
+            exit 1
+          fi
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git commit -am "Release v$VERSION"
+          git push origin HEAD:main
           git tag "v$VERSION"
           git push origin "v$VERSION"
           prerelease=()
