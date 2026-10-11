@@ -62,7 +62,12 @@ func (r *RequestOptions) ToHeader() http.Header {
 }
 
 func (r *RequestOptions) cloneHeader() http.Header {
-	return r.HTTPHeader.Clone()
+	headers := r.HTTPHeader.Clone()
+	headers.Set("X-Fern-Language", "Go")
+	headers.Set("X-Fern-SDK-Name", "github.com/pylon-labs/pylon-go")
+	headers.Set("X-Fern-SDK-Version", "v0.1.0-alpha.1")
+	headers.Set("User-Agent", "github.com/pylon-labs/pylon-go/0.1.0-alpha.1")
+	return headers
 }
 
 // BaseURLOption implements the RequestOption interface.
