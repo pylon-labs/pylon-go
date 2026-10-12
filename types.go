@@ -11996,9 +11996,10 @@ var (
 	messageFieldID               = big.NewInt(1 << 4)
 	messageFieldIsPrivate        = big.NewInt(1 << 5)
 	messageFieldMessageHTML      = big.NewInt(1 << 6)
-	messageFieldSource           = big.NewInt(1 << 7)
-	messageFieldThreadID         = big.NewInt(1 << 8)
-	messageFieldTimestamp        = big.NewInt(1 << 9)
+	messageFieldSlackInfo        = big.NewInt(1 << 7)
+	messageFieldSource           = big.NewInt(1 << 8)
+	messageFieldThreadID         = big.NewInt(1 << 9)
+	messageFieldTimestamp        = big.NewInt(1 << 10)
 )
 
 // messageNullableFields maps the wire names of Message's nullable fields (required or optional) to their field bits.
@@ -12018,7 +12019,8 @@ type Message struct {
 	// Whether the message is an internal note. If true, the message is not visible to the requester; if false, it is customer-visible.
 	IsPrivate bool `json:"is_private" url:"is_private"`
 	// The HTML body of the message.
-	MessageHTML string `json:"message_html" url:"message_html"`
+	MessageHTML string            `json:"message_html" url:"message_html"`
+	SlackInfo   *SlackMessageInfo `json:"slack_info,omitempty" url:"slack_info,omitempty"`
 	// The source of the message.
 	Source string `json:"source" url:"source"`
 	// The Pylon internal thread ID. This is set only for internal notes and can be passed as thread_id when creating an internal note.
@@ -12080,6 +12082,13 @@ func (m *Message) GetMessageHTML() string {
 		return ""
 	}
 	return m.MessageHTML
+}
+
+func (m *Message) GetSlackInfo() *SlackMessageInfo {
+	if m == nil {
+		return nil
+	}
+	return m.SlackInfo
 }
 
 func (m *Message) GetSource() string {
@@ -12166,6 +12175,13 @@ func (m *Message) SetIsPrivate(isPrivate bool) {
 func (m *Message) SetMessageHTML(messageHTML string) {
 	m.MessageHTML = messageHTML
 	m.require(messageFieldMessageHTML)
+}
+
+// SetSlackInfo sets the SlackInfo field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (m *Message) SetSlackInfo(slackInfo *SlackMessageInfo) {
+	m.SlackInfo = slackInfo
+	m.require(messageFieldSlackInfo)
 }
 
 // SetSource sets the Source field and marks it as non-optional;
@@ -13983,6 +13999,144 @@ func (s *SlackInfo) MarshalJSON() ([]byte, error) {
 }
 
 func (s *SlackInfo) String() string {
+	if s == nil {
+		return "<nil>"
+	}
+	if len(s.rawJSON) > 0 {
+		if value, err := internal.StringifyJSON(s.rawJSON); err == nil {
+			return value
+		}
+	}
+	if value, err := internal.StringifyJSON(s); err == nil {
+		return value
+	}
+	return fmt.Sprintf("%#v", s)
+}
+
+var (
+	slackMessageInfoFieldChannelID = big.NewInt(1 << 0)
+	slackMessageInfoFieldMessageTs = big.NewInt(1 << 1)
+	slackMessageInfoFieldPermalink = big.NewInt(1 << 2)
+	slackMessageInfoFieldThreadTs  = big.NewInt(1 << 3)
+)
+
+type SlackMessageInfo struct {
+	// The Slack channel ID the message was posted in.
+	ChannelID string `json:"channel_id" url:"channel_id"`
+	// The Slack timestamp of this message, which is its Slack message ID.
+	MessageTs string `json:"message_ts" url:"message_ts"`
+	// A link that opens this specific message in Slack. Omitted when the workspace's Slack domain is unknown.
+	Permalink *string `json:"permalink,omitempty" url:"permalink,omitempty"`
+	// The timestamp of the thread's root message. Equal to message_ts for the root message itself.
+	ThreadTs string `json:"thread_ts" url:"thread_ts"`
+
+	// Private bitmask of fields set to an explicit value and therefore not to be omitted
+	explicitFields *big.Int `json:"-" url:"-"`
+
+	extraProperties map[string]interface{}
+	rawJSON         json.RawMessage
+}
+
+func (s *SlackMessageInfo) GetChannelID() string {
+	if s == nil {
+		return ""
+	}
+	return s.ChannelID
+}
+
+func (s *SlackMessageInfo) GetMessageTs() string {
+	if s == nil {
+		return ""
+	}
+	return s.MessageTs
+}
+
+func (s *SlackMessageInfo) GetPermalink() *string {
+	if s == nil {
+		return nil
+	}
+	return s.Permalink
+}
+
+func (s *SlackMessageInfo) GetThreadTs() string {
+	if s == nil {
+		return ""
+	}
+	return s.ThreadTs
+}
+
+func (s *SlackMessageInfo) GetExtraProperties() map[string]interface{} {
+	if s == nil {
+		return nil
+	}
+	return s.extraProperties
+}
+
+func (s *SlackMessageInfo) require(field *big.Int) {
+	next := new(big.Int)
+	if s.explicitFields != nil {
+		next.Set(s.explicitFields)
+	}
+	next.Or(next, field)
+	s.explicitFields = next
+}
+
+// SetChannelID sets the ChannelID field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (s *SlackMessageInfo) SetChannelID(channelID string) {
+	s.ChannelID = channelID
+	s.require(slackMessageInfoFieldChannelID)
+}
+
+// SetMessageTs sets the MessageTs field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (s *SlackMessageInfo) SetMessageTs(messageTs string) {
+	s.MessageTs = messageTs
+	s.require(slackMessageInfoFieldMessageTs)
+}
+
+// SetPermalink sets the Permalink field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (s *SlackMessageInfo) SetPermalink(permalink *string) {
+	s.Permalink = permalink
+	s.require(slackMessageInfoFieldPermalink)
+}
+
+// SetThreadTs sets the ThreadTs field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (s *SlackMessageInfo) SetThreadTs(threadTs string) {
+	s.ThreadTs = threadTs
+	s.require(slackMessageInfoFieldThreadTs)
+}
+
+func (s *SlackMessageInfo) UnmarshalJSON(data []byte) error {
+	type unmarshaler SlackMessageInfo
+	var value unmarshaler
+	if err := json.Unmarshal(data, &value); err != nil {
+		return err
+	}
+	*s = SlackMessageInfo(value)
+	extraProperties, err := internal.ExtractExtraProperties(data, *s)
+	if err != nil {
+		return err
+	}
+	s.extraProperties = extraProperties
+	s.rawJSON = json.RawMessage(data)
+	return nil
+}
+
+func (s *SlackMessageInfo) MarshalJSON() ([]byte, error) {
+	type embed SlackMessageInfo
+	var marshaler = struct {
+		embed
+	}{
+		embed: embed(*s),
+	}
+	explicitMarshaler := internal.HandleExplicitFields(marshaler, s.explicitFields)
+	return json.Marshal(explicitMarshaler)
+}
+
+func (s *SlackMessageInfo) String() string {
 	if s == nil {
 		return "<nil>"
 	}
