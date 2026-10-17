@@ -14,13 +14,14 @@ var (
 	knowledgeBasesArticlesCreateRequestFieldKnowledgeBaseID  = big.NewInt(1 << 0)
 	knowledgeBasesArticlesCreateRequestFieldAuthorUserID     = big.NewInt(1 << 1)
 	knowledgeBasesArticlesCreateRequestFieldBodyHTML         = big.NewInt(1 << 2)
-	knowledgeBasesArticlesCreateRequestFieldCollectionID     = big.NewInt(1 << 3)
-	knowledgeBasesArticlesCreateRequestFieldIsPublished      = big.NewInt(1 << 4)
-	knowledgeBasesArticlesCreateRequestFieldIsUnlisted       = big.NewInt(1 << 5)
-	knowledgeBasesArticlesCreateRequestFieldSlug             = big.NewInt(1 << 6)
-	knowledgeBasesArticlesCreateRequestFieldTitle            = big.NewInt(1 << 7)
-	knowledgeBasesArticlesCreateRequestFieldTranslations     = big.NewInt(1 << 8)
-	knowledgeBasesArticlesCreateRequestFieldVisibilityConfig = big.NewInt(1 << 9)
+	knowledgeBasesArticlesCreateRequestFieldBodyMarkdown     = big.NewInt(1 << 3)
+	knowledgeBasesArticlesCreateRequestFieldCollectionID     = big.NewInt(1 << 4)
+	knowledgeBasesArticlesCreateRequestFieldIsPublished      = big.NewInt(1 << 5)
+	knowledgeBasesArticlesCreateRequestFieldIsUnlisted       = big.NewInt(1 << 6)
+	knowledgeBasesArticlesCreateRequestFieldSlug             = big.NewInt(1 << 7)
+	knowledgeBasesArticlesCreateRequestFieldTitle            = big.NewInt(1 << 8)
+	knowledgeBasesArticlesCreateRequestFieldTranslations     = big.NewInt(1 << 9)
+	knowledgeBasesArticlesCreateRequestFieldVisibilityConfig = big.NewInt(1 << 10)
 )
 
 type KnowledgeBasesArticlesCreateRequest struct {
@@ -28,8 +29,10 @@ type KnowledgeBasesArticlesCreateRequest struct {
 	KnowledgeBaseID string `json:"-" url:"-"`
 	// The ID of the user attributed as the author of the article.
 	AuthorUserID string `json:"author_user_id" url:"-"`
-	// The HTML body of the article.
-	BodyHTML string `json:"body_html" url:"-"`
+	// The HTML body of the article. Required unless body_markdown is set.
+	BodyHTML *string `json:"body_html,omitempty" url:"-"`
+	// The body of the article in markdown, instead of body_html.
+	BodyMarkdown *string `json:"body_markdown,omitempty" url:"-"`
 	// The ID of the collection containing the article.
 	CollectionID *string `json:"collection_id,omitempty" url:"-"`
 	// Whether the article should be published. Defaults to false.
@@ -73,9 +76,16 @@ func (k *KnowledgeBasesArticlesCreateRequest) SetAuthorUserID(authorUserID strin
 
 // SetBodyHTML sets the BodyHTML field and marks it as non-optional;
 // this prevents an empty or null value for this field from being omitted during serialization.
-func (k *KnowledgeBasesArticlesCreateRequest) SetBodyHTML(bodyHTML string) {
+func (k *KnowledgeBasesArticlesCreateRequest) SetBodyHTML(bodyHTML *string) {
 	k.BodyHTML = bodyHTML
 	k.require(knowledgeBasesArticlesCreateRequestFieldBodyHTML)
+}
+
+// SetBodyMarkdown sets the BodyMarkdown field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (k *KnowledgeBasesArticlesCreateRequest) SetBodyMarkdown(bodyMarkdown *string) {
+	k.BodyMarkdown = bodyMarkdown
+	k.require(knowledgeBasesArticlesCreateRequestFieldBodyMarkdown)
 }
 
 // SetCollectionID sets the CollectionID field and marks it as non-optional;
@@ -408,14 +418,15 @@ var (
 	knowledgeBasesArticlesUpdateRequestFieldArticleID              = big.NewInt(1 << 1)
 	knowledgeBasesArticlesUpdateRequestFieldAuthorUserID           = big.NewInt(1 << 2)
 	knowledgeBasesArticlesUpdateRequestFieldBodyHTML               = big.NewInt(1 << 3)
-	knowledgeBasesArticlesUpdateRequestFieldCollectionID           = big.NewInt(1 << 4)
-	knowledgeBasesArticlesUpdateRequestFieldIsPublished            = big.NewInt(1 << 5)
-	knowledgeBasesArticlesUpdateRequestFieldIsUnlisted             = big.NewInt(1 << 6)
-	knowledgeBasesArticlesUpdateRequestFieldLanguage               = big.NewInt(1 << 7)
-	knowledgeBasesArticlesUpdateRequestFieldPublishUpdatedBodyHTML = big.NewInt(1 << 8)
-	knowledgeBasesArticlesUpdateRequestFieldTagIDs                 = big.NewInt(1 << 9)
-	knowledgeBasesArticlesUpdateRequestFieldTitle                  = big.NewInt(1 << 10)
-	knowledgeBasesArticlesUpdateRequestFieldVisibilityConfig       = big.NewInt(1 << 11)
+	knowledgeBasesArticlesUpdateRequestFieldBodyMarkdown           = big.NewInt(1 << 4)
+	knowledgeBasesArticlesUpdateRequestFieldCollectionID           = big.NewInt(1 << 5)
+	knowledgeBasesArticlesUpdateRequestFieldIsPublished            = big.NewInt(1 << 6)
+	knowledgeBasesArticlesUpdateRequestFieldIsUnlisted             = big.NewInt(1 << 7)
+	knowledgeBasesArticlesUpdateRequestFieldLanguage               = big.NewInt(1 << 8)
+	knowledgeBasesArticlesUpdateRequestFieldPublishUpdatedBodyHTML = big.NewInt(1 << 9)
+	knowledgeBasesArticlesUpdateRequestFieldTagIDs                 = big.NewInt(1 << 10)
+	knowledgeBasesArticlesUpdateRequestFieldTitle                  = big.NewInt(1 << 11)
+	knowledgeBasesArticlesUpdateRequestFieldVisibilityConfig       = big.NewInt(1 << 12)
 )
 
 type KnowledgeBasesArticlesUpdateRequest struct {
@@ -427,6 +438,8 @@ type KnowledgeBasesArticlesUpdateRequest struct {
 	AuthorUserID *string `json:"author_user_id,omitempty" url:"-"`
 	// The HTML body of the article. Saved as a new draft; the published article changes only if publish_updated_body_html or is_published is true.
 	BodyHTML *string `json:"body_html,omitempty" url:"-"`
+	// The body of the article in markdown, instead of body_html. Saved and published the same way.
+	BodyMarkdown *string `json:"body_markdown,omitempty" url:"-"`
 	// The ID of the collection containing the article.
 	CollectionID *string `json:"collection_id,omitempty" url:"-"`
 	// Whether the article should be published or unpublished.
@@ -482,6 +495,13 @@ func (k *KnowledgeBasesArticlesUpdateRequest) SetAuthorUserID(authorUserID *stri
 func (k *KnowledgeBasesArticlesUpdateRequest) SetBodyHTML(bodyHTML *string) {
 	k.BodyHTML = bodyHTML
 	k.require(knowledgeBasesArticlesUpdateRequestFieldBodyHTML)
+}
+
+// SetBodyMarkdown sets the BodyMarkdown field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (k *KnowledgeBasesArticlesUpdateRequest) SetBodyMarkdown(bodyMarkdown *string) {
+	k.BodyMarkdown = bodyMarkdown
+	k.require(knowledgeBasesArticlesUpdateRequestFieldBodyMarkdown)
 }
 
 // SetCollectionID sets the CollectionID field and marks it as non-optional;

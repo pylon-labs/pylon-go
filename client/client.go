@@ -35,6 +35,7 @@ import (
 	trainingdataclient "github.com/pylon-labs/pylon-go/trainingdata/client"
 	userroles "github.com/pylon-labs/pylon-go/userroles"
 	users "github.com/pylon-labs/pylon-go/users"
+	userstatuses "github.com/pylon-labs/pylon-go/userstatuses"
 )
 
 type Client struct {
@@ -66,6 +67,7 @@ type Client struct {
 	TicketForms       *ticketforms.Client
 	TrainingData      *trainingdataclient.Client
 	UserRoles         *userroles.Client
+	UserStatuses      *userstatuses.Client
 	Users             *users.Client
 
 	options *core.RequestOptions
@@ -104,6 +106,7 @@ func NewClient(opts ...option.RequestOption) *Client {
 		TicketForms:       ticketforms.NewClient(options),
 		TrainingData:      trainingdataclient.NewClient(options),
 		UserRoles:         userroles.NewClient(options),
+		UserStatuses:      userstatuses.NewClient(options),
 		Users:             users.NewClient(options),
 		options:           options,
 		baseURL:           options.BaseURL,

@@ -1618,14 +1618,17 @@ func (a *ArticleApprovalInfo) String() string {
 }
 
 var (
-	articleTranslationInputFieldBodyHTML = big.NewInt(1 << 0)
-	articleTranslationInputFieldLanguage = big.NewInt(1 << 1)
-	articleTranslationInputFieldTitle    = big.NewInt(1 << 2)
+	articleTranslationInputFieldBodyHTML     = big.NewInt(1 << 0)
+	articleTranslationInputFieldBodyMarkdown = big.NewInt(1 << 1)
+	articleTranslationInputFieldLanguage     = big.NewInt(1 << 2)
+	articleTranslationInputFieldTitle        = big.NewInt(1 << 3)
 )
 
 type ArticleTranslationInput struct {
-	// The translated HTML body of the article.
-	BodyHTML string `json:"body_html" url:"body_html"`
+	// The translated HTML body of the article. Required unless body_markdown is set.
+	BodyHTML *string `json:"body_html,omitempty" url:"body_html,omitempty"`
+	// The translated body of the article in markdown, instead of body_html.
+	BodyMarkdown *string `json:"body_markdown,omitempty" url:"body_markdown,omitempty"`
 	// The language code of the translation, for example `fr`, `pt-br`, or `zh-cn`. See https://docs.usepylon.com/pylon-docs/knowledge-base/translations.
 	Language string `json:"language" url:"language"`
 	// The translated title of the article.
@@ -1638,11 +1641,18 @@ type ArticleTranslationInput struct {
 	rawJSON         json.RawMessage
 }
 
-func (a *ArticleTranslationInput) GetBodyHTML() string {
+func (a *ArticleTranslationInput) GetBodyHTML() *string {
 	if a == nil {
-		return ""
+		return nil
 	}
 	return a.BodyHTML
+}
+
+func (a *ArticleTranslationInput) GetBodyMarkdown() *string {
+	if a == nil {
+		return nil
+	}
+	return a.BodyMarkdown
 }
 
 func (a *ArticleTranslationInput) GetLanguage() string {
@@ -1677,9 +1687,16 @@ func (a *ArticleTranslationInput) require(field *big.Int) {
 
 // SetBodyHTML sets the BodyHTML field and marks it as non-optional;
 // this prevents an empty or null value for this field from being omitted during serialization.
-func (a *ArticleTranslationInput) SetBodyHTML(bodyHTML string) {
+func (a *ArticleTranslationInput) SetBodyHTML(bodyHTML *string) {
 	a.BodyHTML = bodyHTML
 	a.require(articleTranslationInputFieldBodyHTML)
+}
+
+// SetBodyMarkdown sets the BodyMarkdown field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (a *ArticleTranslationInput) SetBodyMarkdown(bodyMarkdown *string) {
+	a.BodyMarkdown = bodyMarkdown
+	a.require(articleTranslationInputFieldBodyMarkdown)
 }
 
 // SetLanguage sets the Language field and marks it as non-optional;
@@ -8756,7 +8773,7 @@ type ImportIssueRequest struct {
 	Messages []*ImportIssueMessage `json:"messages" url:"messages"`
 	// The ID of a partner account that serves account_id. Requires account_id.
 	PartnerAccountID *string `json:"partner_account_id,omitempty" url:"partner_account_id,omitempty"`
-	// ContactID that the issue should be on behalf of.
+	// ContactID that the issue should be on behalf of. If omitted, the issue has no requester.
 	RequesterID *string `json:"requester_id,omitempty" url:"requester_id,omitempty"`
 	// ResolutionTime is the time the issue was resolved (RFC3339).
 	ResolutionTime *time.Time `json:"resolution_time,omitempty" url:"resolution_time,omitempty"`
@@ -10428,32 +10445,38 @@ var (
 	issueFieldExternalIncidents                 = big.NewInt(1 << 17)
 	issueFieldExternalIssues                    = big.NewInt(1 << 18)
 	issueFieldFirstResolutionTime               = big.NewInt(1 << 19)
-	issueFieldFirstResponseBreachTime           = big.NewInt(1 << 20)
-	issueFieldFirstResponseSeconds              = big.NewInt(1 << 21)
-	issueFieldFirstResponseTime                 = big.NewInt(1 << 22)
-	issueFieldID                                = big.NewInt(1 << 23)
-	issueFieldIsIssueGroup                      = big.NewInt(1 << 24)
-	issueFieldLatestMessageTime                 = big.NewInt(1 << 25)
-	issueFieldLink                              = big.NewInt(1 << 26)
-	issueFieldNumber                            = big.NewInt(1 << 27)
-	issueFieldNumberOfTouches                   = big.NewInt(1 << 28)
-	issueFieldParentIssueGroup                  = big.NewInt(1 << 29)
-	issueFieldRequester                         = big.NewInt(1 << 30)
-	issueFieldResolutionBreachTime              = big.NewInt(1 << 31)
-	issueFieldResolutionSeconds                 = big.NewInt(1 << 32)
-	issueFieldResolutionTime                    = big.NewInt(1 << 33)
-	issueFieldSlack                             = big.NewInt(1 << 34)
-	issueFieldSnoozedUntilTime                  = big.NewInt(1 << 35)
-	issueFieldSource                            = big.NewInt(1 << 36)
-	issueFieldState                             = big.NewInt(1 << 37)
-	issueFieldTags                              = big.NewInt(1 << 38)
-	issueFieldTeam                              = big.NewInt(1 << 39)
-	issueFieldTeamSlas                          = big.NewInt(1 << 40)
-	issueFieldTimeInStatusSeconds               = big.NewInt(1 << 41)
-	issueFieldTitle                             = big.NewInt(1 << 42)
-	issueFieldType                              = big.NewInt(1 << 43)
-	issueFieldUpdatedAt                         = big.NewInt(1 << 44)
-	issueFieldWorkspaceEmail                    = big.NewInt(1 << 45)
+	issueFieldFirstResponseAssigneeIDAtBreach   = big.NewInt(1 << 20)
+	issueFieldFirstResponseBreachTime           = big.NewInt(1 << 21)
+	issueFieldFirstResponseResolvingUserID      = big.NewInt(1 << 22)
+	issueFieldFirstResponseSeconds              = big.NewInt(1 << 23)
+	issueFieldFirstResponseTime                 = big.NewInt(1 << 24)
+	issueFieldFollowUp                          = big.NewInt(1 << 25)
+	issueFieldID                                = big.NewInt(1 << 26)
+	issueFieldIsIssueGroup                      = big.NewInt(1 << 27)
+	issueFieldLatestMessageTime                 = big.NewInt(1 << 28)
+	issueFieldLink                              = big.NewInt(1 << 29)
+	issueFieldNextReply                         = big.NewInt(1 << 30)
+	issueFieldNumber                            = big.NewInt(1 << 31)
+	issueFieldNumberOfTouches                   = big.NewInt(1 << 32)
+	issueFieldParentIssueGroup                  = big.NewInt(1 << 33)
+	issueFieldRequester                         = big.NewInt(1 << 34)
+	issueFieldResolutionAssigneeIDAtBreach      = big.NewInt(1 << 35)
+	issueFieldResolutionBreachTime              = big.NewInt(1 << 36)
+	issueFieldResolutionResolvingUserID         = big.NewInt(1 << 37)
+	issueFieldResolutionSeconds                 = big.NewInt(1 << 38)
+	issueFieldResolutionTime                    = big.NewInt(1 << 39)
+	issueFieldSlack                             = big.NewInt(1 << 40)
+	issueFieldSnoozedUntilTime                  = big.NewInt(1 << 41)
+	issueFieldSource                            = big.NewInt(1 << 42)
+	issueFieldState                             = big.NewInt(1 << 43)
+	issueFieldTags                              = big.NewInt(1 << 44)
+	issueFieldTeam                              = big.NewInt(1 << 45)
+	issueFieldTeamSlas                          = big.NewInt(1 << 46)
+	issueFieldTimeInStatusSeconds               = big.NewInt(1 << 47)
+	issueFieldTitle                             = big.NewInt(1 << 48)
+	issueFieldType                              = big.NewInt(1 << 49)
+	issueFieldUpdatedAt                         = big.NewInt(1 << 50)
+	issueFieldWorkspaceEmail                    = big.NewInt(1 << 51)
 )
 
 // issueNullableFields maps the wire names of Issue's nullable fields (required or optional) to their field bits.
@@ -10508,12 +10531,17 @@ type Issue struct {
 	ExternalIssues []*ExternalIssue `json:"external_issues,omitempty" url:"external_issues,omitempty"`
 	// The time of the first resolution of the issue, if any. Frozen at the issue's first resolution and never updated on reopen/re-resolve.
 	FirstResolutionTime *time.Time `json:"first_resolution_time,omitempty" url:"first_resolution_time,omitempty"`
+	// The ID of the user the issue was assigned to when its first response SLA breached, if it breached.
+	FirstResponseAssigneeIDAtBreach *string `json:"first_response_assignee_id_at_breach,omitempty" url:"first_response_assignee_id_at_breach,omitempty"`
 	// The time by which the issue's first response SLA will breach, if any. Only present for issues with an active first response SLA.
 	FirstResponseBreachTime *time.Time `json:"first_response_breach_time,omitempty" url:"first_response_breach_time,omitempty"`
+	// The ID of the user whose action resolved the issue's first response SLA. Absent when resolved by a contact or automation.
+	FirstResponseResolvingUserID *string `json:"first_response_resolving_user_id,omitempty" url:"first_response_resolving_user_id,omitempty"`
 	// The time in seconds it took for the first response to the issue, if any.
 	FirstResponseSeconds *int64 `json:"first_response_seconds,omitempty" url:"first_response_seconds,omitempty"`
 	// The time of the first response to the issue, if any.
 	FirstResponseTime *time.Time `json:"first_response_time,omitempty" url:"first_response_time,omitempty"`
+	FollowUp          *SLATimes  `json:"follow_up,omitempty" url:"follow_up,omitempty"`
 	// The ID of the issue.
 	ID string `json:"id" url:"id"`
 	// Whether this issue is an issue group.
@@ -10521,15 +10549,20 @@ type Issue struct {
 	// The time of the latest message in the issue, if any.
 	LatestMessageTime *time.Time `json:"latest_message_time,omitempty" url:"latest_message_time,omitempty"`
 	// The link to the issue in Pylon.
-	Link string `json:"link" url:"link"`
+	Link      string    `json:"link" url:"link"`
+	NextReply *SLATimes `json:"next_reply,omitempty" url:"next_reply,omitempty"`
 	// The number of the issue.
 	Number int64 `json:"number" url:"number"`
 	// The number of times the issue has been touched.
 	NumberOfTouches  int64        `json:"number_of_touches" url:"number_of_touches"`
 	ParentIssueGroup *MiniIssue   `json:"parent_issue_group,omitempty" url:"parent_issue_group,omitempty"`
 	Requester        *MiniContact `json:"requester,omitempty" url:"requester,omitempty"`
+	// The ID of the user the issue was assigned to when its resolution SLA breached, if it breached.
+	ResolutionAssigneeIDAtBreach *string `json:"resolution_assignee_id_at_breach,omitempty" url:"resolution_assignee_id_at_breach,omitempty"`
 	// The time by which the issue's resolution SLA will breach, if any. Only present for open issues with an active resolution SLA.
 	ResolutionBreachTime *time.Time `json:"resolution_breach_time,omitempty" url:"resolution_breach_time,omitempty"`
+	// The ID of the user whose action resolved the issue's resolution SLA. Absent when resolved by a contact or automation.
+	ResolutionResolvingUserID *string `json:"resolution_resolving_user_id,omitempty" url:"resolution_resolving_user_id,omitempty"`
 	// The time in seconds it took for the issue to be resolved, if any.
 	ResolutionSeconds *int64 `json:"resolution_seconds,omitempty" url:"resolution_seconds,omitempty"`
 	// The time of the resolution of the issue, if any.
@@ -10708,11 +10741,25 @@ func (i *Issue) GetFirstResolutionTime() *time.Time {
 	return i.FirstResolutionTime
 }
 
+func (i *Issue) GetFirstResponseAssigneeIDAtBreach() *string {
+	if i == nil {
+		return nil
+	}
+	return i.FirstResponseAssigneeIDAtBreach
+}
+
 func (i *Issue) GetFirstResponseBreachTime() *time.Time {
 	if i == nil {
 		return nil
 	}
 	return i.FirstResponseBreachTime
+}
+
+func (i *Issue) GetFirstResponseResolvingUserID() *string {
+	if i == nil {
+		return nil
+	}
+	return i.FirstResponseResolvingUserID
 }
 
 func (i *Issue) GetFirstResponseSeconds() *int64 {
@@ -10727,6 +10774,13 @@ func (i *Issue) GetFirstResponseTime() *time.Time {
 		return nil
 	}
 	return i.FirstResponseTime
+}
+
+func (i *Issue) GetFollowUp() *SLATimes {
+	if i == nil {
+		return nil
+	}
+	return i.FollowUp
 }
 
 func (i *Issue) GetID() string {
@@ -10757,6 +10811,13 @@ func (i *Issue) GetLink() string {
 	return i.Link
 }
 
+func (i *Issue) GetNextReply() *SLATimes {
+	if i == nil {
+		return nil
+	}
+	return i.NextReply
+}
+
 func (i *Issue) GetNumber() int64 {
 	if i == nil {
 		return 0
@@ -10785,11 +10846,25 @@ func (i *Issue) GetRequester() *MiniContact {
 	return i.Requester
 }
 
+func (i *Issue) GetResolutionAssigneeIDAtBreach() *string {
+	if i == nil {
+		return nil
+	}
+	return i.ResolutionAssigneeIDAtBreach
+}
+
 func (i *Issue) GetResolutionBreachTime() *time.Time {
 	if i == nil {
 		return nil
 	}
 	return i.ResolutionBreachTime
+}
+
+func (i *Issue) GetResolutionResolvingUserID() *string {
+	if i == nil {
+		return nil
+	}
+	return i.ResolutionResolvingUserID
 }
 
 func (i *Issue) GetResolutionSeconds() *int64 {
@@ -11046,11 +11121,25 @@ func (i *Issue) SetFirstResolutionTime(firstResolutionTime *time.Time) {
 	i.require(issueFieldFirstResolutionTime)
 }
 
+// SetFirstResponseAssigneeIDAtBreach sets the FirstResponseAssigneeIDAtBreach field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (i *Issue) SetFirstResponseAssigneeIDAtBreach(firstResponseAssigneeIDAtBreach *string) {
+	i.FirstResponseAssigneeIDAtBreach = firstResponseAssigneeIDAtBreach
+	i.require(issueFieldFirstResponseAssigneeIDAtBreach)
+}
+
 // SetFirstResponseBreachTime sets the FirstResponseBreachTime field and marks it as non-optional;
 // this prevents an empty or null value for this field from being omitted during serialization.
 func (i *Issue) SetFirstResponseBreachTime(firstResponseBreachTime *time.Time) {
 	i.FirstResponseBreachTime = firstResponseBreachTime
 	i.require(issueFieldFirstResponseBreachTime)
+}
+
+// SetFirstResponseResolvingUserID sets the FirstResponseResolvingUserID field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (i *Issue) SetFirstResponseResolvingUserID(firstResponseResolvingUserID *string) {
+	i.FirstResponseResolvingUserID = firstResponseResolvingUserID
+	i.require(issueFieldFirstResponseResolvingUserID)
 }
 
 // SetFirstResponseSeconds sets the FirstResponseSeconds field and marks it as non-optional;
@@ -11065,6 +11154,13 @@ func (i *Issue) SetFirstResponseSeconds(firstResponseSeconds *int64) {
 func (i *Issue) SetFirstResponseTime(firstResponseTime *time.Time) {
 	i.FirstResponseTime = firstResponseTime
 	i.require(issueFieldFirstResponseTime)
+}
+
+// SetFollowUp sets the FollowUp field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (i *Issue) SetFollowUp(followUp *SLATimes) {
+	i.FollowUp = followUp
+	i.require(issueFieldFollowUp)
 }
 
 // SetID sets the ID field and marks it as non-optional;
@@ -11095,6 +11191,13 @@ func (i *Issue) SetLink(link string) {
 	i.require(issueFieldLink)
 }
 
+// SetNextReply sets the NextReply field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (i *Issue) SetNextReply(nextReply *SLATimes) {
+	i.NextReply = nextReply
+	i.require(issueFieldNextReply)
+}
+
 // SetNumber sets the Number field and marks it as non-optional;
 // this prevents an empty or null value for this field from being omitted during serialization.
 func (i *Issue) SetNumber(number int64) {
@@ -11123,11 +11226,25 @@ func (i *Issue) SetRequester(requester *MiniContact) {
 	i.require(issueFieldRequester)
 }
 
+// SetResolutionAssigneeIDAtBreach sets the ResolutionAssigneeIDAtBreach field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (i *Issue) SetResolutionAssigneeIDAtBreach(resolutionAssigneeIDAtBreach *string) {
+	i.ResolutionAssigneeIDAtBreach = resolutionAssigneeIDAtBreach
+	i.require(issueFieldResolutionAssigneeIDAtBreach)
+}
+
 // SetResolutionBreachTime sets the ResolutionBreachTime field and marks it as non-optional;
 // this prevents an empty or null value for this field from being omitted during serialization.
 func (i *Issue) SetResolutionBreachTime(resolutionBreachTime *time.Time) {
 	i.ResolutionBreachTime = resolutionBreachTime
 	i.require(issueFieldResolutionBreachTime)
+}
+
+// SetResolutionResolvingUserID sets the ResolutionResolvingUserID field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (i *Issue) SetResolutionResolvingUserID(resolutionResolvingUserID *string) {
+	i.ResolutionResolvingUserID = resolutionResolvingUserID
+	i.require(issueFieldResolutionResolvingUserID)
 }
 
 // SetResolutionSeconds sets the ResolutionSeconds field and marks it as non-optional;
@@ -13731,10 +13848,12 @@ func (r *RouteRedirect) String() string {
 }
 
 var (
-	sLATimesFieldBreachTime           = big.NewInt(1 << 0)
-	sLATimesFieldBusinessHoursSeconds = big.NewInt(1 << 1)
-	sLATimesFieldSeconds              = big.NewInt(1 << 2)
-	sLATimesFieldTime                 = big.NewInt(1 << 3)
+	sLATimesFieldAssigneeIDAtBreach   = big.NewInt(1 << 0)
+	sLATimesFieldBreachTime           = big.NewInt(1 << 1)
+	sLATimesFieldBusinessHoursSeconds = big.NewInt(1 << 2)
+	sLATimesFieldResolvingUserID      = big.NewInt(1 << 3)
+	sLATimesFieldSeconds              = big.NewInt(1 << 4)
+	sLATimesFieldTime                 = big.NewInt(1 << 5)
 )
 
 // sLATimesNullableFields maps the wire names of SLATimes's nullable fields (required or optional) to their field bits.
@@ -13743,11 +13862,15 @@ var sLATimesNullableFields = map[string]*big.Int{
 }
 
 type SLATimes struct {
+	// The ID of the user the issue was assigned to when the breach was detected, if it breached.
+	AssigneeIDAtBreach *string `json:"assignee_id_at_breach,omitempty" url:"assignee_id_at_breach,omitempty"`
 	// The time at which it breaches (or has breached), if any.
 	BreachTime *time.Time `json:"breach_time,omitempty" url:"breach_time,omitempty"`
-	// The elapsed business-hours time in seconds, if any.
+	// The part of `seconds` that falls within support hours, if any.
 	BusinessHoursSeconds *int64 `json:"business_hours_seconds,omitempty" url:"business_hours_seconds,omitempty"`
-	// The elapsed time in seconds, if any.
+	// The ID of the user whose action resolved it, if any. Absent when it was resolved by a contact or automation.
+	ResolvingUserID *string `json:"resolving_user_id,omitempty" url:"resolving_user_id,omitempty"`
+	// The elapsed time in seconds, counting only time the issue spent in states that count toward this SLA. May be less than the time between the SLA's start and `time`.
 	Seconds *int64 `json:"seconds,omitempty" url:"seconds,omitempty"`
 	// The time it was reached, if any.
 	Time *time.Time `json:"time,omitempty" url:"time,omitempty"`
@@ -13757,6 +13880,13 @@ type SLATimes struct {
 
 	extraProperties map[string]interface{}
 	rawJSON         json.RawMessage
+}
+
+func (s *SLATimes) GetAssigneeIDAtBreach() *string {
+	if s == nil {
+		return nil
+	}
+	return s.AssigneeIDAtBreach
 }
 
 func (s *SLATimes) GetBreachTime() *time.Time {
@@ -13771,6 +13901,13 @@ func (s *SLATimes) GetBusinessHoursSeconds() *int64 {
 		return nil
 	}
 	return s.BusinessHoursSeconds
+}
+
+func (s *SLATimes) GetResolvingUserID() *string {
+	if s == nil {
+		return nil
+	}
+	return s.ResolvingUserID
 }
 
 func (s *SLATimes) GetSeconds() *int64 {
@@ -13803,6 +13940,13 @@ func (s *SLATimes) require(field *big.Int) {
 	s.explicitFields = next
 }
 
+// SetAssigneeIDAtBreach sets the AssigneeIDAtBreach field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (s *SLATimes) SetAssigneeIDAtBreach(assigneeIDAtBreach *string) {
+	s.AssigneeIDAtBreach = assigneeIDAtBreach
+	s.require(sLATimesFieldAssigneeIDAtBreach)
+}
+
 // SetBreachTime sets the BreachTime field and marks it as non-optional;
 // this prevents an empty or null value for this field from being omitted during serialization.
 func (s *SLATimes) SetBreachTime(breachTime *time.Time) {
@@ -13815,6 +13959,13 @@ func (s *SLATimes) SetBreachTime(breachTime *time.Time) {
 func (s *SLATimes) SetBusinessHoursSeconds(businessHoursSeconds *int64) {
 	s.BusinessHoursSeconds = businessHoursSeconds
 	s.require(sLATimesFieldBusinessHoursSeconds)
+}
+
+// SetResolvingUserID sets the ResolvingUserID field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (s *SLATimes) SetResolvingUserID(resolvingUserID *string) {
+	s.ResolvingUserID = resolvingUserID
+	s.require(sLATimesFieldResolvingUserID)
 }
 
 // SetSeconds sets the Seconds field and marks it as non-optional;
@@ -14931,13 +15082,17 @@ func (t *TaskComment) String() string {
 var (
 	teamSLAFieldFirstResolution = big.NewInt(1 << 0)
 	teamSLAFieldFirstResponse   = big.NewInt(1 << 1)
-	teamSLAFieldResolution      = big.NewInt(1 << 2)
-	teamSLAFieldTeamID          = big.NewInt(1 << 3)
+	teamSLAFieldFollowUp        = big.NewInt(1 << 2)
+	teamSLAFieldNextReply       = big.NewInt(1 << 3)
+	teamSLAFieldResolution      = big.NewInt(1 << 4)
+	teamSLAFieldTeamID          = big.NewInt(1 << 5)
 )
 
 type TeamSLA struct {
 	FirstResolution *SLATimes `json:"first_resolution,omitempty" url:"first_resolution,omitempty"`
 	FirstResponse   *SLATimes `json:"first_response,omitempty" url:"first_response,omitempty"`
+	FollowUp        *SLATimes `json:"follow_up,omitempty" url:"follow_up,omitempty"`
+	NextReply       *SLATimes `json:"next_reply,omitempty" url:"next_reply,omitempty"`
 	Resolution      *SLATimes `json:"resolution,omitempty" url:"resolution,omitempty"`
 	// The ID of the team these are scoped to.
 	TeamID string `json:"team_id" url:"team_id"`
@@ -14961,6 +15116,20 @@ func (t *TeamSLA) GetFirstResponse() *SLATimes {
 		return nil
 	}
 	return t.FirstResponse
+}
+
+func (t *TeamSLA) GetFollowUp() *SLATimes {
+	if t == nil {
+		return nil
+	}
+	return t.FollowUp
+}
+
+func (t *TeamSLA) GetNextReply() *SLATimes {
+	if t == nil {
+		return nil
+	}
+	return t.NextReply
 }
 
 func (t *TeamSLA) GetResolution() *SLATimes {
@@ -15005,6 +15174,20 @@ func (t *TeamSLA) SetFirstResolution(firstResolution *SLATimes) {
 func (t *TeamSLA) SetFirstResponse(firstResponse *SLATimes) {
 	t.FirstResponse = firstResponse
 	t.require(teamSLAFieldFirstResponse)
+}
+
+// SetFollowUp sets the FollowUp field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (t *TeamSLA) SetFollowUp(followUp *SLATimes) {
+	t.FollowUp = followUp
+	t.require(teamSLAFieldFollowUp)
+}
+
+// SetNextReply sets the NextReply field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (t *TeamSLA) SetNextReply(nextReply *SLATimes) {
+	t.NextReply = nextReply
+	t.require(teamSLAFieldNextReply)
 }
 
 // SetResolution sets the Resolution field and marks it as non-optional;

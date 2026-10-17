@@ -522,15 +522,16 @@ var (
 	accountFieldID                         = big.NewInt(1 << 8)
 	accountFieldIsDisabled                 = big.NewInt(1 << 9)
 	accountFieldLatestCustomerActivityTime = big.NewInt(1 << 10)
-	accountFieldLogoURL                    = big.NewInt(1 << 11)
-	accountFieldName                       = big.NewInt(1 << 12)
-	accountFieldOwner                      = big.NewInt(1 << 13)
-	accountFieldParentAccountID            = big.NewInt(1 << 14)
-	accountFieldPrimaryDomain              = big.NewInt(1 << 15)
-	accountFieldSubaccountIDs              = big.NewInt(1 << 16)
-	accountFieldTags                       = big.NewInt(1 << 17)
-	accountFieldType                       = big.NewInt(1 << 18)
-	accountFieldUpdatedAt                  = big.NewInt(1 << 19)
+	accountFieldLatestVendorActivityTime   = big.NewInt(1 << 11)
+	accountFieldLogoURL                    = big.NewInt(1 << 12)
+	accountFieldName                       = big.NewInt(1 << 13)
+	accountFieldOwner                      = big.NewInt(1 << 14)
+	accountFieldParentAccountID            = big.NewInt(1 << 15)
+	accountFieldPrimaryDomain              = big.NewInt(1 << 16)
+	accountFieldSubaccountIDs              = big.NewInt(1 << 17)
+	accountFieldTags                       = big.NewInt(1 << 18)
+	accountFieldType                       = big.NewInt(1 << 19)
+	accountFieldUpdatedAt                  = big.NewInt(1 << 20)
 )
 
 // accountNullableFields maps the wire names of Account's nullable fields (required or optional) to their field bits.
@@ -569,6 +570,8 @@ type Account struct {
 	IsDisabled bool `json:"is_disabled" url:"is_disabled"`
 	// The time of the latest customer activity.
 	LatestCustomerActivityTime string `json:"latest_customer_activity_time" url:"latest_customer_activity_time"`
+	// The time of the latest vendor activity.
+	LatestVendorActivityTime string `json:"latest_vendor_activity_time" url:"latest_vendor_activity_time"`
 	// The logo URL of the account.
 	LogoURL string `json:"logo_url" url:"logo_url"`
 	// The name of the account.
@@ -671,6 +674,13 @@ func (a *Account) GetLatestCustomerActivityTime() string {
 		return ""
 	}
 	return a.LatestCustomerActivityTime
+}
+
+func (a *Account) GetLatestVendorActivityTime() string {
+	if a == nil {
+		return ""
+	}
+	return a.LatestVendorActivityTime
 }
 
 func (a *Account) GetLogoURL() string {
@@ -827,6 +837,13 @@ func (a *Account) SetIsDisabled(isDisabled bool) {
 func (a *Account) SetLatestCustomerActivityTime(latestCustomerActivityTime string) {
 	a.LatestCustomerActivityTime = latestCustomerActivityTime
 	a.require(accountFieldLatestCustomerActivityTime)
+}
+
+// SetLatestVendorActivityTime sets the LatestVendorActivityTime field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (a *Account) SetLatestVendorActivityTime(latestVendorActivityTime string) {
+	a.LatestVendorActivityTime = latestVendorActivityTime
+	a.require(accountFieldLatestVendorActivityTime)
 }
 
 // SetLogoURL sets the LogoURL field and marks it as non-optional;

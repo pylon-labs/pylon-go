@@ -138,18 +138,19 @@ var (
 	issuesCreateRequestFieldContactID             = big.NewInt(1 << 5)
 	issuesCreateRequestFieldCreatedAt             = big.NewInt(1 << 6)
 	issuesCreateRequestFieldCustomFields          = big.NewInt(1 << 7)
-	issuesCreateRequestFieldCustomerPortalVisible = big.NewInt(1 << 8)
-	issuesCreateRequestFieldDestinationMetadata   = big.NewInt(1 << 9)
-	issuesCreateRequestFieldPriority              = big.NewInt(1 << 10)
-	issuesCreateRequestFieldRequesterAvatarURL    = big.NewInt(1 << 11)
-	issuesCreateRequestFieldRequesterEmail        = big.NewInt(1 << 12)
-	issuesCreateRequestFieldRequesterID           = big.NewInt(1 << 13)
-	issuesCreateRequestFieldRequesterName         = big.NewInt(1 << 14)
-	issuesCreateRequestFieldRequesterPhoneNumber  = big.NewInt(1 << 15)
-	issuesCreateRequestFieldTags                  = big.NewInt(1 << 16)
-	issuesCreateRequestFieldTeamID                = big.NewInt(1 << 17)
-	issuesCreateRequestFieldTitle                 = big.NewInt(1 << 18)
-	issuesCreateRequestFieldUserID                = big.NewInt(1 << 19)
+	issuesCreateRequestFieldCustomIssueSourceID   = big.NewInt(1 << 8)
+	issuesCreateRequestFieldCustomerPortalVisible = big.NewInt(1 << 9)
+	issuesCreateRequestFieldDestinationMetadata   = big.NewInt(1 << 10)
+	issuesCreateRequestFieldPriority              = big.NewInt(1 << 11)
+	issuesCreateRequestFieldRequesterAvatarURL    = big.NewInt(1 << 12)
+	issuesCreateRequestFieldRequesterEmail        = big.NewInt(1 << 13)
+	issuesCreateRequestFieldRequesterID           = big.NewInt(1 << 14)
+	issuesCreateRequestFieldRequesterName         = big.NewInt(1 << 15)
+	issuesCreateRequestFieldRequesterPhoneNumber  = big.NewInt(1 << 16)
+	issuesCreateRequestFieldTags                  = big.NewInt(1 << 17)
+	issuesCreateRequestFieldTeamID                = big.NewInt(1 << 18)
+	issuesCreateRequestFieldTitle                 = big.NewInt(1 << 19)
+	issuesCreateRequestFieldUserID                = big.NewInt(1 << 20)
 )
 
 type IssuesCreateRequest struct {
@@ -169,6 +170,8 @@ type IssuesCreateRequest struct {
 	CreatedAt *time.Time `json:"created_at,omitempty" url:"-"`
 	// An array of custom fields to be used on this issue.
 	CustomFields []*CustomFieldValue `json:"custom_fields,omitempty" url:"-"`
+	// The ID of a custom issue source (created in the App Directory under Chat > Add Custom Chat App). Sets the issue source to the custom source's slug. Use this for channels Pylon doesn't natively support (e.g. WeChat). Cannot be combined with destination_metadata.
+	CustomIssueSourceID *string `json:"custom_issue_source_id,omitempty" url:"-"`
 	// Whether the issue should be visible in the customer portal. When destination is "customer_portal", this is set to true and cannot be false.
 	CustomerPortalVisible *bool                `json:"customer_portal_visible,omitempty" url:"-"`
 	DestinationMetadata   *DestinationMetadata `json:"destination_metadata,omitempty" url:"-"`
@@ -260,6 +263,13 @@ func (i *IssuesCreateRequest) SetCreatedAt(createdAt *time.Time) {
 func (i *IssuesCreateRequest) SetCustomFields(customFields []*CustomFieldValue) {
 	i.CustomFields = customFields
 	i.require(issuesCreateRequestFieldCustomFields)
+}
+
+// SetCustomIssueSourceID sets the CustomIssueSourceID field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (i *IssuesCreateRequest) SetCustomIssueSourceID(customIssueSourceID *string) {
+	i.CustomIssueSourceID = customIssueSourceID
+	i.require(issuesCreateRequestFieldCustomIssueSourceID)
 }
 
 // SetCustomerPortalVisible sets the CustomerPortalVisible field and marks it as non-optional;
@@ -445,16 +455,25 @@ func (i *IssuesCreateAiResponseRequest) MarshalJSON() ([]byte, error) {
 }
 
 var (
-	issuesCreateDraftReplyRequestFieldIssueID  = big.NewInt(1 << 0)
-	issuesCreateDraftReplyRequestFieldBodyHTML = big.NewInt(1 << 1)
-	issuesCreateDraftReplyRequestFieldUserID   = big.NewInt(1 << 2)
+	issuesCreateDraftReplyRequestFieldIssueID   = big.NewInt(1 << 0)
+	issuesCreateDraftReplyRequestFieldBccEmails = big.NewInt(1 << 1)
+	issuesCreateDraftReplyRequestFieldBodyHTML  = big.NewInt(1 << 2)
+	issuesCreateDraftReplyRequestFieldCcEmails  = big.NewInt(1 << 3)
+	issuesCreateDraftReplyRequestFieldToEmails  = big.NewInt(1 << 4)
+	issuesCreateDraftReplyRequestFieldUserID    = big.NewInt(1 << 5)
 )
 
 type IssuesCreateDraftReplyRequest struct {
 	// The ID of the issue.
 	IssueID string `json:"-" url:"-"`
+	// The draft's BCC recipients. See to_emails.
+	BccEmails []string `json:"bcc_emails,omitempty" url:"-"`
 	// The draft body in HTML.
 	BodyHTML string `json:"body_html" url:"-"`
+	// The draft's CC recipients. See to_emails.
+	CcEmails []string `json:"cc_emails,omitempty" url:"-"`
+	// The draft's To recipients. If any of to_emails, cc_emails, or bcc_emails is provided, the draft uses exactly those lists and an omitted list is saved empty; omit all three to use the composer's default recipients.
+	ToEmails []string `json:"to_emails,omitempty" url:"-"`
 	// The active Pylon user who should own and see the draft. Defaults to the API-token user when it is a human Pylon user; required for unlinked or service API tokens.
 	UserID *string `json:"user_id,omitempty" url:"-"`
 
@@ -478,11 +497,32 @@ func (i *IssuesCreateDraftReplyRequest) SetIssueID(issueID string) {
 	i.require(issuesCreateDraftReplyRequestFieldIssueID)
 }
 
+// SetBccEmails sets the BccEmails field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (i *IssuesCreateDraftReplyRequest) SetBccEmails(bccEmails []string) {
+	i.BccEmails = bccEmails
+	i.require(issuesCreateDraftReplyRequestFieldBccEmails)
+}
+
 // SetBodyHTML sets the BodyHTML field and marks it as non-optional;
 // this prevents an empty or null value for this field from being omitted during serialization.
 func (i *IssuesCreateDraftReplyRequest) SetBodyHTML(bodyHTML string) {
 	i.BodyHTML = bodyHTML
 	i.require(issuesCreateDraftReplyRequestFieldBodyHTML)
+}
+
+// SetCcEmails sets the CcEmails field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (i *IssuesCreateDraftReplyRequest) SetCcEmails(ccEmails []string) {
+	i.CcEmails = ccEmails
+	i.require(issuesCreateDraftReplyRequestFieldCcEmails)
+}
+
+// SetToEmails sets the ToEmails field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (i *IssuesCreateDraftReplyRequest) SetToEmails(toEmails []string) {
+	i.ToEmails = toEmails
+	i.require(issuesCreateDraftReplyRequestFieldToEmails)
 }
 
 // SetUserID sets the UserID field and marks it as non-optional;

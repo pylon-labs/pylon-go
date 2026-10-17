@@ -640,9 +640,7 @@ type User struct {
 	RoleIDs []string `json:"role_ids,omitempty" url:"role_ids,omitempty"`
 	// All assigned roles, including SCIM-derived roles, sorted by ID. Empty when no roles are assigned.
 	Roles []*MiniRole `json:"roles,omitempty" url:"roles,omitempty"`
-	// The status of the user.
-	//
-	// Known values: “, `active`, `away`, `out_of_office`. This list is not exhaustive.
+	// The status of the user. Standard values are `active`, `away`, and `out_of_office`; custom status slugs are also supported. See GET /user-statuses for each status's category.
 	Status string `json:"status" url:"status"`
 
 	// Private bitmask of fields set to an explicit value and therefore not to be omitted
@@ -871,32 +869,6 @@ func (u *User) String() string {
 	return fmt.Sprintf("%#v", u)
 }
 
-// The new user status for the user. Can be one of `active`, `away`, or `out_of_office`.
-type UpdateUserRequestBodyStatus string
-
-const (
-	UpdateUserRequestBodyStatusActive      UpdateUserRequestBodyStatus = "active"
-	UpdateUserRequestBodyStatusAway        UpdateUserRequestBodyStatus = "away"
-	UpdateUserRequestBodyStatusOutOfOffice UpdateUserRequestBodyStatus = "out_of_office"
-)
-
-func NewUpdateUserRequestBodyStatusFromString(s string) (UpdateUserRequestBodyStatus, error) {
-	switch s {
-	case "active":
-		return UpdateUserRequestBodyStatusActive, nil
-	case "away":
-		return UpdateUserRequestBodyStatusAway, nil
-	case "out_of_office":
-		return UpdateUserRequestBodyStatusOutOfOffice, nil
-	}
-	var t UpdateUserRequestBodyStatus
-	return "", fmt.Errorf("%s is not a valid %T", s, t)
-}
-
-func (u UpdateUserRequestBodyStatus) Ptr() *UpdateUserRequestBodyStatus {
-	return &u
-}
-
 var (
 	usersUpdateRequestFieldID        = big.NewInt(1 << 0)
 	usersUpdateRequestFieldAvatarURL = big.NewInt(1 << 1)
@@ -914,8 +886,8 @@ type UsersUpdateRequest struct {
 	Name *string `json:"name,omitempty" url:"-"`
 	// The role_id of the user.
 	RoleID *string `json:"role_id,omitempty" url:"-"`
-	// The new user status for the user. Can be one of `active`, `away`, or `out_of_office`.
-	Status *UpdateUserRequestBodyStatus `json:"status,omitempty" url:"-"`
+	// The new status for the user: `active`, `away`, `out_of_office`, or a custom status slug from GET /user-statuses.
+	Status *string `json:"status,omitempty" url:"-"`
 
 	// Private bitmask of fields set to an explicit value and therefore not to be omitted
 	explicitFields *big.Int `json:"-" url:"-"`
@@ -960,7 +932,7 @@ func (u *UsersUpdateRequest) SetRoleID(roleID *string) {
 
 // SetStatus sets the Status field and marks it as non-optional;
 // this prevents an empty or null value for this field from being omitted during serialization.
-func (u *UsersUpdateRequest) SetStatus(status *UpdateUserRequestBodyStatus) {
+func (u *UsersUpdateRequest) SetStatus(status *string) {
 	u.Status = status
 	u.require(usersUpdateRequestFieldStatus)
 }

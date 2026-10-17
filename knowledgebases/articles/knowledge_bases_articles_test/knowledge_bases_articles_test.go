@@ -117,7 +117,6 @@ func TestKnowledgeBasesArticlesCreateWithWireMock(
 	request := &knowledgebases.KnowledgeBasesArticlesCreateRequest{
 		KnowledgeBaseID: "id",
 		AuthorUserID:    "author_user_id",
-		BodyHTML:        "body_html",
 		Title:           "title",
 	}
 	_, invocationErr := client.KnowledgeBases.Articles.Create(
