@@ -121,7 +121,6 @@ func (c *Client) List(
 //	request := &knowledgebases.KnowledgeBasesArticlesCreateRequest{
 //	    KnowledgeBaseID: "id",
 //	    AuthorUserID: "author_user_id",
-//	    BodyHTML: "body_html",
 //	    Title: "title",
 //	}
 //	client.KnowledgeBases.Articles.Create(
