@@ -1756,7 +1756,7 @@ func TestSettersUsersUpdateRequest(t *testing.T) {
 
 	t.Run("SetStatus", func(t *testing.T) {
 		obj := &UsersUpdateRequest{}
-		var fernTestValueStatus *UpdateUserRequestBodyStatus
+		var fernTestValueStatus *string
 		obj.SetStatus(fernTestValueStatus)
 		assert.Equal(t, fernTestValueStatus, obj.Status)
 		assert.NotNil(t, obj.explicitFields)
@@ -1893,7 +1893,7 @@ func TestSettersMarkExplicitUsersUpdateRequest(t *testing.T) {
 		t.Parallel()
 		// Arrange
 		obj := &UsersUpdateRequest{}
-		var fernTestValueStatus *UpdateUserRequestBodyStatus
+		var fernTestValueStatus *string
 
 		// Act
 		obj.SetStatus(fernTestValueStatus)
@@ -2210,42 +2210,6 @@ func TestStringUser(t *testing.T) {
 		var obj *User
 		result := obj.String()
 		assert.Equal(t, "<nil>", result, "String() should return <nil> for nil receiver")
-	})
-}
-
-func TestEnumUpdateUserRequestBodyStatus(t *testing.T) {
-	t.Run("NewFromString_active", func(t *testing.T) {
-		t.Parallel()
-		val, err := NewUpdateUserRequestBodyStatusFromString("active")
-		assert.NoError(t, err, "valid enum value should not return error")
-		assert.Equal(t, UpdateUserRequestBodyStatus("active"), val, "enum value should match expected wire value")
-	})
-
-	t.Run("NewFromString_away", func(t *testing.T) {
-		t.Parallel()
-		val, err := NewUpdateUserRequestBodyStatusFromString("away")
-		assert.NoError(t, err, "valid enum value should not return error")
-		assert.Equal(t, UpdateUserRequestBodyStatus("away"), val, "enum value should match expected wire value")
-	})
-
-	t.Run("NewFromString_out_of_office", func(t *testing.T) {
-		t.Parallel()
-		val, err := NewUpdateUserRequestBodyStatusFromString("out_of_office")
-		assert.NoError(t, err, "valid enum value should not return error")
-		assert.Equal(t, UpdateUserRequestBodyStatus("out_of_office"), val, "enum value should match expected wire value")
-	})
-
-	t.Run("NewFromString_Invalid", func(t *testing.T) {
-		_, err := NewUpdateUserRequestBodyStatusFromString("invalid_value_that_does_not_exist")
-		assert.Error(t, err)
-	})
-
-	t.Run("Ptr", func(t *testing.T) {
-		val, err := NewUpdateUserRequestBodyStatusFromString("active")
-		assert.NoError(t, err)
-		ptr := val.Ptr()
-		assert.NotNil(t, ptr)
-		assert.Equal(t, val, *ptr)
 	})
 }
 

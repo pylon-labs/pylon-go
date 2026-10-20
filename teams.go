@@ -606,16 +606,27 @@ func (t *Team) String() string {
 }
 
 var (
-	teamAssignmentConfigurationFieldAssignmentMethod         = big.NewInt(1 << 0)
-	teamAssignmentConfigurationFieldOnlyAssignIfUserActive   = big.NewInt(1 << 1)
-	teamAssignmentConfigurationFieldOverrideExistingAssignee = big.NewInt(1 << 2)
-	teamAssignmentConfigurationFieldTeamScheduleID           = big.NewInt(1 << 3)
+	teamAssignmentConfigurationFieldAssignableUserStatuses   = big.NewInt(1 << 0)
+	teamAssignmentConfigurationFieldAssignmentMethod         = big.NewInt(1 << 1)
+	teamAssignmentConfigurationFieldOnlyAssignIfUserActive   = big.NewInt(1 << 2)
+	teamAssignmentConfigurationFieldOverrideExistingAssignee = big.NewInt(1 << 3)
+	teamAssignmentConfigurationFieldTeamScheduleID           = big.NewInt(1 << 4)
 )
 
+// teamAssignmentConfigurationNullableFields maps the wire names of TeamAssignmentConfiguration's nullable fields (required or optional) to their field bits.
+var teamAssignmentConfigurationNullableFields = map[string]*big.Int{
+	"assignable_user_statuses": teamAssignmentConfigurationFieldAssignableUserStatuses,
+}
+
 type TeamAssignmentConfiguration struct {
+	// The slugs of the user statuses members must show to be assigned. See GET /user-statuses.
+	// Empty defers to only_assign_if_user_active.
+	AssignableUserStatuses []string `json:"assignable_user_statuses,omitempty" url:"assignable_user_statuses,omitempty"`
 	// How issues are routed to team members. One of routing, schedule, manual, pull_queue.
 	AssignmentMethod string `json:"assignment_method" url:"assignment_method"`
-	// Whether issues are only assigned to members who are currently active.
+	// Whether automatic assignment is restricted by user status. When assignable_user_statuses
+	// is empty, true means only members with an Active status; when it is non-empty, this is
+	// always true and the list decides.
 	OnlyAssignIfUserActive bool `json:"only_assign_if_user_active" url:"only_assign_if_user_active"`
 	// Whether assignment replaces an existing assignee.
 	OverrideExistingAssignee bool `json:"override_existing_assignee" url:"override_existing_assignee"`
@@ -627,6 +638,13 @@ type TeamAssignmentConfiguration struct {
 
 	extraProperties map[string]interface{}
 	rawJSON         json.RawMessage
+}
+
+func (t *TeamAssignmentConfiguration) GetAssignableUserStatuses() []string {
+	if t == nil {
+		return nil
+	}
+	return t.AssignableUserStatuses
 }
 
 func (t *TeamAssignmentConfiguration) GetAssignmentMethod() string {
@@ -673,6 +691,13 @@ func (t *TeamAssignmentConfiguration) require(field *big.Int) {
 	t.explicitFields = next
 }
 
+// SetAssignableUserStatuses sets the AssignableUserStatuses field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (t *TeamAssignmentConfiguration) SetAssignableUserStatuses(assignableUserStatuses []string) {
+	t.AssignableUserStatuses = assignableUserStatuses
+	t.require(teamAssignmentConfigurationFieldAssignableUserStatuses)
+}
+
 // SetAssignmentMethod sets the AssignmentMethod field and marks it as non-optional;
 // this prevents an empty or null value for this field from being omitted during serialization.
 func (t *TeamAssignmentConfiguration) SetAssignmentMethod(assignmentMethod string) {
@@ -713,6 +738,13 @@ func (t *TeamAssignmentConfiguration) UnmarshalJSON(data []byte) error {
 		return err
 	}
 	t.extraProperties = extraProperties
+	presentFields, err := internal.ExplicitFieldsFromJSON(data, teamAssignmentConfigurationNullableFields)
+	if err != nil {
+		return err
+	}
+	if presentFields != nil {
+		t.require(presentFields)
+	}
 	t.rawJSON = json.RawMessage(data)
 	return nil
 }
@@ -744,16 +776,22 @@ func (t *TeamAssignmentConfiguration) String() string {
 }
 
 var (
-	teamAssignmentConfigurationInputFieldAssignmentMethod         = big.NewInt(1 << 0)
-	teamAssignmentConfigurationInputFieldOnlyAssignIfUserActive   = big.NewInt(1 << 1)
-	teamAssignmentConfigurationInputFieldOverrideExistingAssignee = big.NewInt(1 << 2)
+	teamAssignmentConfigurationInputFieldAssignableUserStatuses   = big.NewInt(1 << 0)
+	teamAssignmentConfigurationInputFieldAssignmentMethod         = big.NewInt(1 << 1)
+	teamAssignmentConfigurationInputFieldOnlyAssignIfUserActive   = big.NewInt(1 << 2)
+	teamAssignmentConfigurationInputFieldOverrideExistingAssignee = big.NewInt(1 << 3)
 )
 
 type TeamAssignmentConfigurationInput struct {
+	// The slugs of the user statuses members must show to be assigned. See GET /user-statuses.
+	// A non-empty list takes precedence over only_assign_if_user_active; an empty list clears
+	// the allow-list so only_assign_if_user_active decides.
+	AssignableUserStatuses []string `json:"assignable_user_statuses,omitempty" url:"assignable_user_statuses,omitempty"`
 	// How issues are routed to team members. Setting schedule routes from this team's own
 	// schedule, so the team must already have one or be given one in the same request.
 	AssignmentMethod *TeamAssignmentConfigurationInputAssignmentMethod `json:"assignment_method,omitempty" url:"assignment_method,omitempty"`
-	// Whether issues are only assigned to members who are currently active.
+	// Whether issues are only assigned to members with an Active status. Setting this without
+	// assignable_user_statuses clears any status allow-list.
 	OnlyAssignIfUserActive *bool `json:"only_assign_if_user_active,omitempty" url:"only_assign_if_user_active,omitempty"`
 	// Whether assignment replaces an existing assignee.
 	OverrideExistingAssignee *bool `json:"override_existing_assignee,omitempty" url:"override_existing_assignee,omitempty"`
@@ -763,6 +801,13 @@ type TeamAssignmentConfigurationInput struct {
 
 	extraProperties map[string]interface{}
 	rawJSON         json.RawMessage
+}
+
+func (t *TeamAssignmentConfigurationInput) GetAssignableUserStatuses() []string {
+	if t == nil {
+		return nil
+	}
+	return t.AssignableUserStatuses
 }
 
 func (t *TeamAssignmentConfigurationInput) GetAssignmentMethod() *TeamAssignmentConfigurationInputAssignmentMethod {
@@ -800,6 +845,13 @@ func (t *TeamAssignmentConfigurationInput) require(field *big.Int) {
 	}
 	next.Or(next, field)
 	t.explicitFields = next
+}
+
+// SetAssignableUserStatuses sets the AssignableUserStatuses field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (t *TeamAssignmentConfigurationInput) SetAssignableUserStatuses(assignableUserStatuses []string) {
+	t.AssignableUserStatuses = assignableUserStatuses
+	t.require(teamAssignmentConfigurationInputFieldAssignableUserStatuses)
 }
 
 // SetAssignmentMethod sets the AssignmentMethod field and marks it as non-optional;
