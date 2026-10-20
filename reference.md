@@ -4321,6 +4321,14 @@ client.Issues.Create(
 <dl>
 <dd>
 
+**customIssueSourceID:** `*string` — The ID of a custom issue source (created in the App Directory under Chat > Add Custom Chat App). Sets the issue source to the custom source's slug. Use this for channels Pylon doesn't natively support (e.g. WeChat). Cannot be combined with destination_metadata.
+    
+</dd>
+</dl>
+
+<dl>
+<dd>
+
 **customerPortalVisible:** `*bool` — Whether the issue should be visible in the customer portal. When destination is "customer_portal", this is set to true and cannot be false.
     
 </dd>
@@ -5220,7 +5228,31 @@ client.Issues.CreateDraftReply(
 <dl>
 <dd>
 
+**bccEmails:** `[]string` — The draft's BCC recipients. See to_emails.
+    
+</dd>
+</dl>
+
+<dl>
+<dd>
+
 **bodyHTML:** `string` — The draft body in HTML.
+    
+</dd>
+</dl>
+
+<dl>
+<dd>
+
+**ccEmails:** `[]string` — The draft's CC recipients. See to_emails.
+    
+</dd>
+</dl>
+
+<dl>
+<dd>
+
+**toEmails:** `[]string` — The draft's To recipients. If any of to_emails, cc_emails, or bcc_emails is provided, the draft uses exactly those lists and an omitted list is saved empty; omit all three to use the composer's default recipients.
     
 </dd>
 </dl>
@@ -9417,6 +9449,50 @@ client.UserRoles.List(
 </dl>
 </details>
 
+## UserStatuses
+<details><summary><code>client.UserStatuses.List() -> *pylon.GetUserStatusesResponseBody</code></summary>
+<dl>
+<dd>
+
+#### 📝 Description
+
+<dl>
+<dd>
+
+<dl>
+<dd>
+
+Returns the built-in and custom user statuses for the organization. Use `slug` in a team's `assignment_configuration.assignable_user_statuses`.
+
+**Rate limit:** 30 requests per minute
+</dd>
+</dl>
+</dd>
+</dl>
+
+#### 🔌 Usage
+
+<dl>
+<dd>
+
+<dl>
+<dd>
+
+```go
+client.UserStatuses.List(
+    context.TODO(),
+)
+```
+</dd>
+</dl>
+</dd>
+</dl>
+
+
+</dd>
+</dl>
+</details>
+
 ## Users
 <details><summary><code>client.Users.List() -> *pylon.GetUsersResponseBody</code></summary>
 <dl>
@@ -9702,7 +9778,7 @@ client.Users.Update(
 <dl>
 <dd>
 
-**status:** `*pylon.UpdateUserRequestBodyStatus` — The new user status for the user. Can be one of `active`, `away`, or `out_of_office`.
+**status:** `*string` — The new status for the user: `active`, `away`, `out_of_office`, or a custom status slug from GET /user-statuses.
     
 </dd>
 </dl>
@@ -11893,7 +11969,6 @@ Creates a new article within a knowledge base.
 request := &knowledgebases.KnowledgeBasesArticlesCreateRequest{
     KnowledgeBaseID: "id",
     AuthorUserID: "author_user_id",
-    BodyHTML: "body_html",
     Title: "title",
 }
 client.KnowledgeBases.Articles.Create(
@@ -11930,7 +12005,15 @@ client.KnowledgeBases.Articles.Create(
 <dl>
 <dd>
 
-**bodyHTML:** `string` — The HTML body of the article.
+**bodyHTML:** `*string` — The HTML body of the article. Required unless body_markdown is set.
+    
+</dd>
+</dl>
+
+<dl>
+<dd>
+
+**bodyMarkdown:** `*string` — The body of the article in markdown, instead of body_html.
     
 </dd>
 </dl>
@@ -11955,6 +12038,14 @@ client.KnowledgeBases.Articles.Create(
 <dd>
 
 **isUnlisted:** `*bool` — Whether the article is accessible only via a direct link. Defaults to false.
+    
+</dd>
+</dl>
+
+<dl>
+<dd>
+
+**position:** `*int64` — The zero-based position among the parent's articles and subcollections. Defaults to the end. Positions beyond the end append the article.
     
 </dd>
 </dl>
@@ -12231,6 +12322,14 @@ client.KnowledgeBases.Articles.Update(
 <dl>
 <dd>
 
+**bodyMarkdown:** `*string` — The body of the article in markdown, instead of body_html. Saved and published the same way.
+    
+</dd>
+</dl>
+
+<dl>
+<dd>
+
 **collectionID:** `*string` — The ID of the collection containing the article.
     
 </dd>
@@ -12256,6 +12355,14 @@ client.KnowledgeBases.Articles.Update(
 <dd>
 
 **language:** `*string` — The language code of the translation to update. If not provided, the default language (original article) will be updated.
+    
+</dd>
+</dl>
+
+<dl>
+<dd>
+
+**position:** `*int64` — The zero-based position among the parent's articles and subcollections. Omit to keep the current position, or append when moving to another collection. Positions beyond the end append the article. When collection_id is provided, applies within the destination collection.
     
 </dd>
 </dl>
