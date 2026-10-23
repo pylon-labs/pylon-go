@@ -870,11 +870,13 @@ func (u *User) String() string {
 }
 
 var (
-	usersUpdateRequestFieldID        = big.NewInt(1 << 0)
-	usersUpdateRequestFieldAvatarURL = big.NewInt(1 << 1)
-	usersUpdateRequestFieldName      = big.NewInt(1 << 2)
-	usersUpdateRequestFieldRoleID    = big.NewInt(1 << 3)
-	usersUpdateRequestFieldStatus    = big.NewInt(1 << 4)
+	usersUpdateRequestFieldID                         = big.NewInt(1 << 0)
+	usersUpdateRequestFieldAvatarURL                  = big.NewInt(1 << 1)
+	usersUpdateRequestFieldIsDeactivated              = big.NewInt(1 << 2)
+	usersUpdateRequestFieldName                       = big.NewInt(1 << 3)
+	usersUpdateRequestFieldReassignOpenIssuesToUserID = big.NewInt(1 << 4)
+	usersUpdateRequestFieldRoleID                     = big.NewInt(1 << 5)
+	usersUpdateRequestFieldStatus                     = big.NewInt(1 << 6)
 )
 
 type UsersUpdateRequest struct {
@@ -882,8 +884,14 @@ type UsersUpdateRequest struct {
 	ID string `json:"-" url:"-"`
 	// The avatar URL of the user. Must be a square .png, .jpg or .jpeg.
 	AvatarURL *string `json:"avatar_url,omitempty" url:"-"`
+	// Whether the user is deactivated. Changing it requires admin permissions. Deactivating revokes the user's API tokens, removes their team
+	// schedules and skills, disconnects their calendars, and reassigns their open issues in the background. Reactivating does not
+	// restore any of these. Users provisioned through SCIM must be deactivated and reactivated in the identity provider.
+	IsDeactivated *bool `json:"is_deactivated,omitempty" url:"-"`
 	// The name of the user.
 	Name *string `json:"name,omitempty" url:"-"`
+	// The ID of the user to reassign the deactivated user's open issues to. Only valid with `is_deactivated: true`. If omitted, the issues are unassigned.
+	ReassignOpenIssuesToUserID *string `json:"reassign_open_issues_to_user_id,omitempty" url:"-"`
 	// The role_id of the user.
 	RoleID *string `json:"role_id,omitempty" url:"-"`
 	// The new status for the user: `active`, `away`, `out_of_office`, or a custom status slug from GET /user-statuses.
@@ -916,11 +924,25 @@ func (u *UsersUpdateRequest) SetAvatarURL(avatarURL *string) {
 	u.require(usersUpdateRequestFieldAvatarURL)
 }
 
+// SetIsDeactivated sets the IsDeactivated field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (u *UsersUpdateRequest) SetIsDeactivated(isDeactivated *bool) {
+	u.IsDeactivated = isDeactivated
+	u.require(usersUpdateRequestFieldIsDeactivated)
+}
+
 // SetName sets the Name field and marks it as non-optional;
 // this prevents an empty or null value for this field from being omitted during serialization.
 func (u *UsersUpdateRequest) SetName(name *string) {
 	u.Name = name
 	u.require(usersUpdateRequestFieldName)
+}
+
+// SetReassignOpenIssuesToUserID sets the ReassignOpenIssuesToUserID field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (u *UsersUpdateRequest) SetReassignOpenIssuesToUserID(reassignOpenIssuesToUserID *string) {
+	u.ReassignOpenIssuesToUserID = reassignOpenIssuesToUserID
+	u.require(usersUpdateRequestFieldReassignOpenIssuesToUserID)
 }
 
 // SetRoleID sets the RoleID field and marks it as non-optional;
