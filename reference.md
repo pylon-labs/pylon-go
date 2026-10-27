@@ -1837,6 +1837,77 @@ Known values: `no_access`, `member`, `admin`. This list is not exhaustive.
 </dl>
 </details>
 
+<details><summary><code>client.Contacts.Merge(request) -> *pylon.MergeContactsResponseBody</code></summary>
+<dl>
+<dd>
+
+#### 📝 Description
+
+<dl>
+<dd>
+
+<dl>
+<dd>
+
+Merges a contact into a surviving contact. If the merged contact belongs to a different account, it is first moved to the surviving contact's account. Issues, emails, phone numbers, survey responses, and other associated data are then transferred to the surviving contact, and the merged contact is permanently deleted. This cannot be undone.
+
+**Rate limit:** 30 requests per minute
+</dd>
+</dl>
+</dd>
+</dl>
+
+#### 🔌 Usage
+
+<dl>
+<dd>
+
+<dl>
+<dd>
+
+```go
+request := &pylon.ContactsMergeRequest{
+    MergeContactID: "merge_contact_id",
+    MergeIntoContactID: "merge_into_contact_id",
+}
+client.Contacts.Merge(
+    context.TODO(),
+    request,
+)
+```
+</dd>
+</dl>
+</dd>
+</dl>
+
+#### ⚙️ Parameters
+
+<dl>
+<dd>
+
+<dl>
+<dd>
+
+**mergeContactID:** `string` — The ID of the contact to merge into the surviving contact. This contact is permanently deleted after its data is transferred.
+    
+</dd>
+</dl>
+
+<dl>
+<dd>
+
+**mergeIntoContactID:** `string` — The ID of the contact that will survive the merge and receive the merged data. The contact must belong to an account.
+    
+</dd>
+</dl>
+</dd>
+</dl>
+
+
+</dd>
+</dl>
+</details>
+
 <details><summary><code>client.Contacts.Search(request) -> *pylon.SearchContactsResponseBody</code></summary>
 <dl>
 <dd>
@@ -6768,7 +6839,7 @@ client.Milestones.Update(
 <dl>
 <dd>
 
-Creates a new project for an account. Provide a name or project_template_id. A template supplies defaults; non-empty name and description_html values and supplied customer_portal_visible and owner_id values override them. Supplying either start_date or end_date replaces both template dates.
+Creates a new project for an account. Provide a name or project_template_id. A template supplies defaults; non-empty name and description_html values and supplied ai_instructions, customer_portal_visible, and owner_id values override them. Supplying either start_date or end_date replaces both template dates.
 
 **Rate limit:** 300 requests per minute
 </dd>
@@ -6807,6 +6878,14 @@ client.Projects.Create(
 <dd>
 
 **accountID:** `string` — Account ID for this project
+    
+</dd>
+</dl>
+
+<dl>
+<dd>
+
+**aiInstructions:** `*string` — Instructions the AI follows when keeping this smart project up to date. Overrides the template's instructions when provided.
     
 </dd>
 </dl>
@@ -6854,7 +6933,7 @@ client.Projects.Create(
 <dl>
 <dd>
 
-**projectTemplateID:** `*string` — Project template ID for this project. When provided, it supplies defaults; non-empty name and description_html values and supplied customer_portal_visible and owner_id values override them. Supplying either start_date or end_date replaces both template dates.
+**projectTemplateID:** `*string` — Project template ID for this project. When provided, it supplies defaults; non-empty name and description_html values and supplied ai_instructions, customer_portal_visible, and owner_id values override them. Supplying either start_date or end_date replaces both template dates.
     
 </dd>
 </dl>
@@ -7136,6 +7215,14 @@ client.Projects.Update(
 <dd>
 
 **id:** `string` — The ID of the project to update.
+    
+</dd>
+</dl>
+
+<dl>
+<dd>
+
+**aiInstructions:** `*string` — Instructions the AI follows when keeping this smart project up to date. Set to an empty string to clear them.
     
 </dd>
 </dl>
@@ -7974,7 +8061,23 @@ client.Tasks.Create(
 <dl>
 <dd>
 
+**aiInstructions:** `*string` — Instructions the AI follows when evaluating this task in a smart project
+    
+</dd>
+</dl>
+
+<dl>
+<dd>
+
 **assigneeID:** `*string` — Assignee ID for this task
+    
+</dd>
+</dl>
+
+<dl>
+<dd>
+
+**blockedByTaskIDs:** `[]string` — IDs of existing tasks that block this task
     
 </dd>
 </dl>
@@ -8329,7 +8432,23 @@ client.Tasks.Update(
 <dl>
 <dd>
 
+**aiInstructions:** `*string` — Instructions the AI follows when evaluating this task in a smart project. Set to an empty string to clear them.
+    
+</dd>
+</dl>
+
+<dl>
+<dd>
+
 **assigneeID:** `*string` — Assignee ID for this task
+    
+</dd>
+</dl>
+
+<dl>
+<dd>
+
+**blockedByTaskIDs:** `[]string` — IDs of the tasks that block this task. If provided, replaces the task's current blocking tasks; pass an empty array to remove them all.
     
 </dd>
 </dl>
@@ -9762,7 +9881,27 @@ client.Users.Update(
 <dl>
 <dd>
 
+**isDeactivated:** `*bool` 
+
+Whether the user is deactivated. Changing it requires admin permissions. Deactivating revokes the user's API tokens, removes their team
+schedules and skills, disconnects their calendars, and reassigns their open issues in the background. Reactivating does not
+restore any of these. Users provisioned through SCIM must be deactivated and reactivated in the identity provider.
+    
+</dd>
+</dl>
+
+<dl>
+<dd>
+
 **name:** `*string` — The name of the user.
+    
+</dd>
+</dl>
+
+<dl>
+<dd>
+
+**reassignOpenIssuesToUserID:** `*string` — The ID of the user to reassign the deactivated user's open issues to. Only valid with `is_deactivated: true`. If omitted, the issues are unassigned.
     
 </dd>
 </dl>
@@ -10466,6 +10605,104 @@ client.Accounts.Activities.Create(
 <dd>
 
 **userID:** `*string` — Optional user ID of the actor of the activity.
+    
+</dd>
+</dl>
+</dd>
+</dl>
+
+
+</dd>
+</dl>
+</details>
+
+## Accounts EmailActivities
+<details><summary><code>client.Accounts.EmailActivities.List(AccountID) -> *pylon.GetEmailActivitiesResponseBody</code></summary>
+<dl>
+<dd>
+
+#### 📝 Description
+
+<dl>
+<dd>
+
+<dl>
+<dd>
+
+Returns email threads synced to the specified account from connected Gmail and Outlook inboxes, ordered by their latest email from newest to oldest.
+The {id} parameter accepts either:
+Internal account ID (UUID format)
+External ID (any string format)
+
+**Rate limit:** 120 requests per minute
+</dd>
+</dl>
+</dd>
+</dl>
+
+#### 🔌 Usage
+
+<dl>
+<dd>
+
+<dl>
+<dd>
+
+```go
+request := &accounts.AccountsEmailActivitiesListRequest{
+    AccountID: "id",
+}
+client.Accounts.EmailActivities.List(
+    context.TODO(),
+    request,
+)
+```
+</dd>
+</dl>
+</dd>
+</dl>
+
+#### ⚙️ Parameters
+
+<dl>
+<dd>
+
+<dl>
+<dd>
+
+**accountID:** `string` — The ID or external ID of the account to fetch email activities for.
+    
+</dd>
+</dl>
+
+<dl>
+<dd>
+
+**startTime:** `*time.Time` — The start time (RFC3339) of the activity time range, compared against each thread's latest email.
+    
+</dd>
+</dl>
+
+<dl>
+<dd>
+
+**endTime:** `*time.Time` — The end time (RFC3339) of the activity time range, compared against each thread's latest email.
+    
+</dd>
+</dl>
+
+<dl>
+<dd>
+
+**cursor:** `*string` — The cursor to use for pagination.
+    
+</dd>
+</dl>
+
+<dl>
+<dd>
+
+**limit:** `*int64` — The number of email activities to fetch. Defaults to 20. Must be greater than 0 and less than or equal to 50.
     
 </dd>
 </dl>

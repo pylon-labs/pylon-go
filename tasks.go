@@ -12,23 +12,29 @@ import (
 
 var (
 	tasksCreateRequestFieldAccountID             = big.NewInt(1 << 0)
-	tasksCreateRequestFieldAssigneeID            = big.NewInt(1 << 1)
-	tasksCreateRequestFieldBodyHTML              = big.NewInt(1 << 2)
-	tasksCreateRequestFieldCustomFields          = big.NewInt(1 << 3)
-	tasksCreateRequestFieldCustomerPortalVisible = big.NewInt(1 << 4)
-	tasksCreateRequestFieldDueDate               = big.NewInt(1 << 5)
-	tasksCreateRequestFieldMilestoneID           = big.NewInt(1 << 6)
-	tasksCreateRequestFieldParentTaskID          = big.NewInt(1 << 7)
-	tasksCreateRequestFieldProjectID             = big.NewInt(1 << 8)
-	tasksCreateRequestFieldStatus                = big.NewInt(1 << 9)
-	tasksCreateRequestFieldTitle                 = big.NewInt(1 << 10)
+	tasksCreateRequestFieldAiInstructions        = big.NewInt(1 << 1)
+	tasksCreateRequestFieldAssigneeID            = big.NewInt(1 << 2)
+	tasksCreateRequestFieldBlockedByTaskIDs      = big.NewInt(1 << 3)
+	tasksCreateRequestFieldBodyHTML              = big.NewInt(1 << 4)
+	tasksCreateRequestFieldCustomFields          = big.NewInt(1 << 5)
+	tasksCreateRequestFieldCustomerPortalVisible = big.NewInt(1 << 6)
+	tasksCreateRequestFieldDueDate               = big.NewInt(1 << 7)
+	tasksCreateRequestFieldMilestoneID           = big.NewInt(1 << 8)
+	tasksCreateRequestFieldParentTaskID          = big.NewInt(1 << 9)
+	tasksCreateRequestFieldProjectID             = big.NewInt(1 << 10)
+	tasksCreateRequestFieldStatus                = big.NewInt(1 << 11)
+	tasksCreateRequestFieldTitle                 = big.NewInt(1 << 12)
 )
 
 type TasksCreateRequest struct {
 	// Account ID for this task
 	AccountID *string `json:"account_id,omitempty" url:"-"`
+	// Instructions the AI follows when evaluating this task in a smart project
+	AiInstructions *string `json:"ai_instructions,omitempty" url:"-"`
 	// Assignee ID for this task
 	AssigneeID *string `json:"assignee_id,omitempty" url:"-"`
+	// IDs of existing tasks that block this task
+	BlockedByTaskIDs []string `json:"blocked_by_task_ids,omitempty" url:"-"`
 	// Body HTML for this task
 	BodyHTML *string `json:"body_html,omitempty" url:"-"`
 	// An array of custom fields to be used on this task.
@@ -67,11 +73,25 @@ func (t *TasksCreateRequest) SetAccountID(accountID *string) {
 	t.require(tasksCreateRequestFieldAccountID)
 }
 
+// SetAiInstructions sets the AiInstructions field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (t *TasksCreateRequest) SetAiInstructions(aiInstructions *string) {
+	t.AiInstructions = aiInstructions
+	t.require(tasksCreateRequestFieldAiInstructions)
+}
+
 // SetAssigneeID sets the AssigneeID field and marks it as non-optional;
 // this prevents an empty or null value for this field from being omitted during serialization.
 func (t *TasksCreateRequest) SetAssigneeID(assigneeID *string) {
 	t.AssigneeID = assigneeID
 	t.require(tasksCreateRequestFieldAssigneeID)
+}
+
+// SetBlockedByTaskIDs sets the BlockedByTaskIDs field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (t *TasksCreateRequest) SetBlockedByTaskIDs(blockedByTaskIDs []string) {
+	t.BlockedByTaskIDs = blockedByTaskIDs
+	t.require(tasksCreateRequestFieldBlockedByTaskIDs)
 }
 
 // SetBodyHTML sets the BodyHTML field and marks it as non-optional;
@@ -1302,34 +1322,45 @@ func (s *SearchTasksResponseBody) String() string {
 
 var (
 	taskFieldAccount               = big.NewInt(1 << 0)
-	taskFieldAssignee              = big.NewInt(1 << 1)
-	taskFieldBodyHTML              = big.NewInt(1 << 2)
-	taskFieldCompletedAt           = big.NewInt(1 << 3)
-	taskFieldCreatedAt             = big.NewInt(1 << 4)
-	taskFieldCustomFields          = big.NewInt(1 << 5)
-	taskFieldCustomerPortalVisible = big.NewInt(1 << 6)
-	taskFieldDueDate               = big.NewInt(1 << 7)
-	taskFieldExternalIssues        = big.NewInt(1 << 8)
-	taskFieldID                    = big.NewInt(1 << 9)
-	taskFieldLinkedIssues          = big.NewInt(1 << 10)
-	taskFieldMilestone             = big.NewInt(1 << 11)
-	taskFieldParentTaskID          = big.NewInt(1 << 12)
-	taskFieldProject               = big.NewInt(1 << 13)
-	taskFieldStatus                = big.NewInt(1 << 14)
-	taskFieldSubtaskIDs            = big.NewInt(1 << 15)
-	taskFieldTitle                 = big.NewInt(1 << 16)
-	taskFieldUpdatedAt             = big.NewInt(1 << 17)
+	taskFieldAiInstructions        = big.NewInt(1 << 1)
+	taskFieldAssignee              = big.NewInt(1 << 2)
+	taskFieldBlockedByTaskIDs      = big.NewInt(1 << 3)
+	taskFieldBlocksTaskIDs         = big.NewInt(1 << 4)
+	taskFieldBodyHTML              = big.NewInt(1 << 5)
+	taskFieldCompletedAt           = big.NewInt(1 << 6)
+	taskFieldCreatedAt             = big.NewInt(1 << 7)
+	taskFieldCustomFields          = big.NewInt(1 << 8)
+	taskFieldCustomerPortalVisible = big.NewInt(1 << 9)
+	taskFieldDueDate               = big.NewInt(1 << 10)
+	taskFieldExternalIssues        = big.NewInt(1 << 11)
+	taskFieldID                    = big.NewInt(1 << 12)
+	taskFieldLinkedIssues          = big.NewInt(1 << 13)
+	taskFieldMilestone             = big.NewInt(1 << 14)
+	taskFieldParentTaskID          = big.NewInt(1 << 15)
+	taskFieldProject               = big.NewInt(1 << 16)
+	taskFieldStatus                = big.NewInt(1 << 17)
+	taskFieldSubtaskIDs            = big.NewInt(1 << 18)
+	taskFieldTitle                 = big.NewInt(1 << 19)
+	taskFieldUpdatedAt             = big.NewInt(1 << 20)
 )
 
 // taskNullableFields maps the wire names of Task's nullable fields (required or optional) to their field bits.
 var taskNullableFields = map[string]*big.Int{
-	"custom_fields": taskFieldCustomFields,
-	"subtask_ids":   taskFieldSubtaskIDs,
+	"blocked_by_task_ids": taskFieldBlockedByTaskIDs,
+	"blocks_task_ids":     taskFieldBlocksTaskIDs,
+	"custom_fields":       taskFieldCustomFields,
+	"subtask_ids":         taskFieldSubtaskIDs,
 }
 
 type Task struct {
-	Account  *MiniAccount `json:"account,omitempty" url:"account,omitempty"`
-	Assignee *Actor       `json:"assignee,omitempty" url:"assignee,omitempty"`
+	Account *MiniAccount `json:"account,omitempty" url:"account,omitempty"`
+	// Instructions the AI follows when evaluating this task in a smart project.
+	AiInstructions string `json:"ai_instructions" url:"ai_instructions"`
+	Assignee       *Actor `json:"assignee,omitempty" url:"assignee,omitempty"`
+	// The IDs of tasks that block this task.
+	BlockedByTaskIDs []string `json:"blocked_by_task_ids,omitempty" url:"blocked_by_task_ids,omitempty"`
+	// The IDs of tasks that this task blocks.
+	BlocksTaskIDs []string `json:"blocks_task_ids,omitempty" url:"blocks_task_ids,omitempty"`
 	// The body of the task in HTML format.
 	BodyHTML string `json:"body_html" url:"body_html"`
 	// The completion time of the task in RFC3339 format.
@@ -1374,11 +1405,32 @@ func (t *Task) GetAccount() *MiniAccount {
 	return t.Account
 }
 
+func (t *Task) GetAiInstructions() string {
+	if t == nil {
+		return ""
+	}
+	return t.AiInstructions
+}
+
 func (t *Task) GetAssignee() *Actor {
 	if t == nil {
 		return nil
 	}
 	return t.Assignee
+}
+
+func (t *Task) GetBlockedByTaskIDs() []string {
+	if t == nil {
+		return nil
+	}
+	return t.BlockedByTaskIDs
+}
+
+func (t *Task) GetBlocksTaskIDs() []string {
+	if t == nil {
+		return nil
+	}
+	return t.BlocksTaskIDs
 }
 
 func (t *Task) GetBodyHTML() string {
@@ -1516,11 +1568,32 @@ func (t *Task) SetAccount(account *MiniAccount) {
 	t.require(taskFieldAccount)
 }
 
+// SetAiInstructions sets the AiInstructions field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (t *Task) SetAiInstructions(aiInstructions string) {
+	t.AiInstructions = aiInstructions
+	t.require(taskFieldAiInstructions)
+}
+
 // SetAssignee sets the Assignee field and marks it as non-optional;
 // this prevents an empty or null value for this field from being omitted during serialization.
 func (t *Task) SetAssignee(assignee *Actor) {
 	t.Assignee = assignee
 	t.require(taskFieldAssignee)
+}
+
+// SetBlockedByTaskIDs sets the BlockedByTaskIDs field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (t *Task) SetBlockedByTaskIDs(blockedByTaskIDs []string) {
+	t.BlockedByTaskIDs = blockedByTaskIDs
+	t.require(taskFieldBlockedByTaskIDs)
+}
+
+// SetBlocksTaskIDs sets the BlocksTaskIDs field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (t *Task) SetBlocksTaskIDs(blocksTaskIDs []string) {
+	t.BlocksTaskIDs = blocksTaskIDs
+	t.require(taskFieldBlocksTaskIDs)
 }
 
 // SetBodyHTML sets the BodyHTML field and marks it as non-optional;
@@ -1811,23 +1884,29 @@ func (u *UpdateTaskResponseBody) String() string {
 
 var (
 	tasksUpdateRequestFieldID                    = big.NewInt(1 << 0)
-	tasksUpdateRequestFieldAssigneeID            = big.NewInt(1 << 1)
-	tasksUpdateRequestFieldBodyHTML              = big.NewInt(1 << 2)
-	tasksUpdateRequestFieldCompletedAt           = big.NewInt(1 << 3)
-	tasksUpdateRequestFieldCustomFields          = big.NewInt(1 << 4)
-	tasksUpdateRequestFieldCustomerPortalVisible = big.NewInt(1 << 5)
-	tasksUpdateRequestFieldDueDate               = big.NewInt(1 << 6)
-	tasksUpdateRequestFieldMilestoneID           = big.NewInt(1 << 7)
-	tasksUpdateRequestFieldProjectID             = big.NewInt(1 << 8)
-	tasksUpdateRequestFieldStatus                = big.NewInt(1 << 9)
-	tasksUpdateRequestFieldTitle                 = big.NewInt(1 << 10)
+	tasksUpdateRequestFieldAiInstructions        = big.NewInt(1 << 1)
+	tasksUpdateRequestFieldAssigneeID            = big.NewInt(1 << 2)
+	tasksUpdateRequestFieldBlockedByTaskIDs      = big.NewInt(1 << 3)
+	tasksUpdateRequestFieldBodyHTML              = big.NewInt(1 << 4)
+	tasksUpdateRequestFieldCompletedAt           = big.NewInt(1 << 5)
+	tasksUpdateRequestFieldCustomFields          = big.NewInt(1 << 6)
+	tasksUpdateRequestFieldCustomerPortalVisible = big.NewInt(1 << 7)
+	tasksUpdateRequestFieldDueDate               = big.NewInt(1 << 8)
+	tasksUpdateRequestFieldMilestoneID           = big.NewInt(1 << 9)
+	tasksUpdateRequestFieldProjectID             = big.NewInt(1 << 10)
+	tasksUpdateRequestFieldStatus                = big.NewInt(1 << 11)
+	tasksUpdateRequestFieldTitle                 = big.NewInt(1 << 12)
 )
 
 type TasksUpdateRequest struct {
 	// The ID of the task to update.
 	ID string `json:"-" url:"-"`
+	// Instructions the AI follows when evaluating this task in a smart project. Set to an empty string to clear them.
+	AiInstructions *string `json:"ai_instructions,omitempty" url:"-"`
 	// Assignee ID for this task
 	AssigneeID *string `json:"assignee_id,omitempty" url:"-"`
+	// IDs of the tasks that block this task. If provided, replaces the task's current blocking tasks; pass an empty array to remove them all.
+	BlockedByTaskIDs []string `json:"blocked_by_task_ids,omitempty" url:"-"`
 	// Body HTML for this task
 	BodyHTML *string `json:"body_html,omitempty" url:"-"`
 	// Completed at time for this task, in RFC 3339 format. The task must already have a completed status and completion date.
@@ -1866,11 +1945,25 @@ func (t *TasksUpdateRequest) SetID(id string) {
 	t.require(tasksUpdateRequestFieldID)
 }
 
+// SetAiInstructions sets the AiInstructions field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (t *TasksUpdateRequest) SetAiInstructions(aiInstructions *string) {
+	t.AiInstructions = aiInstructions
+	t.require(tasksUpdateRequestFieldAiInstructions)
+}
+
 // SetAssigneeID sets the AssigneeID field and marks it as non-optional;
 // this prevents an empty or null value for this field from being omitted during serialization.
 func (t *TasksUpdateRequest) SetAssigneeID(assigneeID *string) {
 	t.AssigneeID = assigneeID
 	t.require(tasksUpdateRequestFieldAssigneeID)
+}
+
+// SetBlockedByTaskIDs sets the BlockedByTaskIDs field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (t *TasksUpdateRequest) SetBlockedByTaskIDs(blockedByTaskIDs []string) {
+	t.BlockedByTaskIDs = blockedByTaskIDs
+	t.require(tasksUpdateRequestFieldBlockedByTaskIDs)
 }
 
 // SetBodyHTML sets the BodyHTML field and marks it as non-optional;

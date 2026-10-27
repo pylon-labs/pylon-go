@@ -692,6 +692,37 @@
       }
     },
     {
+      "id": "78609f5f-9f9f-45c8-b44f-c3115a4fa420",
+      "name": "Merge contacts - default",
+      "request": {
+        "urlPathTemplate": "/contacts/merge",
+        "method": "POST",
+        "headers": {
+          "Authorization": {
+            "matches": "Bearer .+"
+          }
+        }
+      },
+      "response": {
+        "status": 200,
+        "body": "{\n  \"data\": {\n    \"account\": {\n      \"external_ids\": [\n        {}\n      ],\n      \"id\": \"id\"\n    },\n    \"avatar_url\": \"avatar_url\",\n    \"custom_fields\": {\n      \"role\": {\n        \"value\": \"admin\"\n      }\n    },\n    \"email\": \"email\",\n    \"emails\": [\n      \"emails\"\n    ],\n    \"external_ids\": [\n      {}\n    ],\n    \"id\": \"id\",\n    \"integration_user_ids\": [\n      {\n        \"id\": \"id\",\n        \"source\": \"source\"\n      }\n    ],\n    \"name\": \"name\",\n    \"phone_numbers\": [\n      \"phone_numbers\"\n    ],\n    \"portal_role\": \"portal_role\",\n    \"portal_role_id\": \"portal_role_id\",\n    \"primary_phone_number\": \"primary_phone_number\"\n  },\n  \"request_id\": \"request_id\"\n}",
+        "headers": {
+          "Content-Type": "application/json"
+        }
+      },
+      "uuid": "78609f5f-9f9f-45c8-b44f-c3115a4fa420",
+      "persistent": true,
+      "priority": 3,
+      "metadata": {
+        "mocklab": {
+          "created": {
+            "at": "2020-01-01T00:00:00.000Z",
+            "via": "SYSTEM"
+          }
+        }
+      }
+    },
+    {
       "id": "9b753f6d-1ff2-41f4-b585-7a69f6943c73",
       "name": "Search for contacts by a given filter - default",
       "request": {
@@ -2713,7 +2744,7 @@
       },
       "response": {
         "status": 200,
-        "body": "{\n  \"data\": {\n    \"account\": {\n      \"external_ids\": [\n        {}\n      ],\n      \"id\": \"id\"\n    },\n    \"archived_at\": \"2024-01-15T09:30:00Z\",\n    \"created_at\": \"2024-01-15T09:30:00Z\",\n    \"custom_fields\": {\n      \"health\": {\n        \"value\": \"on_track\"\n      }\n    },\n    \"customer_portal_visible\": true,\n    \"description_html\": \"description_html\",\n    \"end_date\": \"2024-01-15T09:30:00Z\",\n    \"id\": \"id\",\n    \"is_archived\": true,\n    \"name\": \"name\",\n    \"owner_id\": \"owner_id\",\n    \"progress\": 1.1,\n    \"project_template\": {\n      \"id\": \"id\"\n    },\n    \"start_date\": \"2024-01-15T09:30:00Z\",\n    \"status\": \"status\",\n    \"updated_at\": \"2024-01-15T09:30:00Z\"\n  },\n  \"request_id\": \"request_id\"\n}",
+        "body": "{\n  \"data\": {\n    \"account\": {\n      \"external_ids\": [\n        {}\n      ],\n      \"id\": \"id\"\n    },\n    \"ai_instructions\": \"ai_instructions\",\n    \"archived_at\": \"2024-01-15T09:30:00Z\",\n    \"created_at\": \"2024-01-15T09:30:00Z\",\n    \"custom_fields\": {\n      \"health\": {\n        \"value\": \"on_track\"\n      }\n    },\n    \"customer_portal_visible\": true,\n    \"description_html\": \"description_html\",\n    \"end_date\": \"2024-01-15T09:30:00Z\",\n    \"id\": \"id\",\n    \"is_archived\": true,\n    \"name\": \"name\",\n    \"owner_id\": \"owner_id\",\n    \"progress\": 1.1,\n    \"project_template\": {\n      \"id\": \"id\"\n    },\n    \"start_date\": \"2024-01-15T09:30:00Z\",\n    \"status\": \"status\",\n    \"updated_at\": \"2024-01-15T09:30:00Z\"\n  },\n  \"request_id\": \"request_id\"\n}",
         "headers": {
           "Content-Type": "application/json"
         }
@@ -2744,7 +2775,7 @@
       },
       "response": {
         "status": 200,
-        "body": "{\n  \"data\": [\n    {\n      \"account\": {\n        \"id\": \"id\"\n      },\n      \"archived_at\": \"2024-01-15T09:30:00Z\",\n      \"created_at\": \"2024-01-15T09:30:00Z\",\n      \"custom_fields\": {\n        \"health\": {\n          \"value\": \"on_track\"\n        }\n      },\n      \"customer_portal_visible\": true,\n      \"description_html\": \"description_html\",\n      \"end_date\": \"2024-01-15T09:30:00Z\",\n      \"id\": \"id\",\n      \"is_archived\": true,\n      \"name\": \"name\",\n      \"owner_id\": \"owner_id\",\n      \"progress\": 1.1,\n      \"project_template\": {\n        \"id\": \"id\"\n      },\n      \"start_date\": \"2024-01-15T09:30:00Z\",\n      \"status\": \"status\",\n      \"updated_at\": \"2024-01-15T09:30:00Z\"\n    }\n  ],\n  \"pagination\": {\n    \"cursor\": \"cursor\",\n    \"has_next_page\": true\n  },\n  \"request_id\": \"request_id\"\n}",
+        "body": "{\n  \"data\": [\n    {\n      \"account\": {\n        \"id\": \"id\"\n      },\n      \"ai_instructions\": \"ai_instructions\",\n      \"archived_at\": \"2024-01-15T09:30:00Z\",\n      \"created_at\": \"2024-01-15T09:30:00Z\",\n      \"custom_fields\": {\n        \"health\": {\n          \"value\": \"on_track\"\n        }\n      },\n      \"customer_portal_visible\": true,\n      \"description_html\": \"description_html\",\n      \"end_date\": \"2024-01-15T09:30:00Z\",\n      \"id\": \"id\",\n      \"is_archived\": true,\n      \"name\": \"name\",\n      \"owner_id\": \"owner_id\",\n      \"progress\": 1.1,\n      \"project_template\": {\n        \"id\": \"id\"\n      },\n      \"start_date\": \"2024-01-15T09:30:00Z\",\n      \"status\": \"status\",\n      \"updated_at\": \"2024-01-15T09:30:00Z\"\n    }\n  ],\n  \"pagination\": {\n    \"cursor\": \"cursor\",\n    \"has_next_page\": true\n  },\n  \"request_id\": \"request_id\"\n}",
         "headers": {
           "Content-Type": "application/json"
         }
@@ -2780,7 +2811,7 @@
       },
       "response": {
         "status": 200,
-        "body": "{\n  \"data\": {\n    \"account\": {\n      \"external_ids\": [\n        {}\n      ],\n      \"id\": \"id\"\n    },\n    \"archived_at\": \"2024-01-15T09:30:00Z\",\n    \"created_at\": \"2024-01-15T09:30:00Z\",\n    \"custom_fields\": {\n      \"health\": {\n        \"value\": \"on_track\"\n      }\n    },\n    \"customer_portal_visible\": true,\n    \"description_html\": \"description_html\",\n    \"end_date\": \"2024-01-15T09:30:00Z\",\n    \"id\": \"id\",\n    \"is_archived\": true,\n    \"name\": \"name\",\n    \"owner_id\": \"owner_id\",\n    \"progress\": 1.1,\n    \"project_template\": {\n      \"id\": \"id\"\n    },\n    \"start_date\": \"2024-01-15T09:30:00Z\",\n    \"status\": \"status\",\n    \"updated_at\": \"2024-01-15T09:30:00Z\"\n  },\n  \"request_id\": \"request_id\"\n}",
+        "body": "{\n  \"data\": {\n    \"account\": {\n      \"external_ids\": [\n        {}\n      ],\n      \"id\": \"id\"\n    },\n    \"ai_instructions\": \"ai_instructions\",\n    \"archived_at\": \"2024-01-15T09:30:00Z\",\n    \"created_at\": \"2024-01-15T09:30:00Z\",\n    \"custom_fields\": {\n      \"health\": {\n        \"value\": \"on_track\"\n      }\n    },\n    \"customer_portal_visible\": true,\n    \"description_html\": \"description_html\",\n    \"end_date\": \"2024-01-15T09:30:00Z\",\n    \"id\": \"id\",\n    \"is_archived\": true,\n    \"name\": \"name\",\n    \"owner_id\": \"owner_id\",\n    \"progress\": 1.1,\n    \"project_template\": {\n      \"id\": \"id\"\n    },\n    \"start_date\": \"2024-01-15T09:30:00Z\",\n    \"status\": \"status\",\n    \"updated_at\": \"2024-01-15T09:30:00Z\"\n  },\n  \"request_id\": \"request_id\"\n}",
         "headers": {
           "Content-Type": "application/json"
         }
@@ -2852,7 +2883,7 @@
       },
       "response": {
         "status": 200,
-        "body": "{\n  \"data\": {\n    \"account\": {\n      \"external_ids\": [\n        {}\n      ],\n      \"id\": \"id\"\n    },\n    \"archived_at\": \"2024-01-15T09:30:00Z\",\n    \"created_at\": \"2024-01-15T09:30:00Z\",\n    \"custom_fields\": {\n      \"health\": {\n        \"value\": \"on_track\"\n      }\n    },\n    \"customer_portal_visible\": true,\n    \"description_html\": \"description_html\",\n    \"end_date\": \"2024-01-15T09:30:00Z\",\n    \"id\": \"id\",\n    \"is_archived\": true,\n    \"name\": \"name\",\n    \"owner_id\": \"owner_id\",\n    \"progress\": 1.1,\n    \"project_template\": {\n      \"id\": \"id\"\n    },\n    \"start_date\": \"2024-01-15T09:30:00Z\",\n    \"status\": \"status\",\n    \"updated_at\": \"2024-01-15T09:30:00Z\"\n  },\n  \"request_id\": \"request_id\"\n}",
+        "body": "{\n  \"data\": {\n    \"account\": {\n      \"external_ids\": [\n        {}\n      ],\n      \"id\": \"id\"\n    },\n    \"ai_instructions\": \"ai_instructions\",\n    \"archived_at\": \"2024-01-15T09:30:00Z\",\n    \"created_at\": \"2024-01-15T09:30:00Z\",\n    \"custom_fields\": {\n      \"health\": {\n        \"value\": \"on_track\"\n      }\n    },\n    \"customer_portal_visible\": true,\n    \"description_html\": \"description_html\",\n    \"end_date\": \"2024-01-15T09:30:00Z\",\n    \"id\": \"id\",\n    \"is_archived\": true,\n    \"name\": \"name\",\n    \"owner_id\": \"owner_id\",\n    \"progress\": 1.1,\n    \"project_template\": {\n      \"id\": \"id\"\n    },\n    \"start_date\": \"2024-01-15T09:30:00Z\",\n    \"status\": \"status\",\n    \"updated_at\": \"2024-01-15T09:30:00Z\"\n  },\n  \"request_id\": \"request_id\"\n}",
         "headers": {
           "Content-Type": "application/json"
         }
@@ -3216,7 +3247,7 @@
       },
       "response": {
         "status": 200,
-        "body": "{\n  \"data\": [\n    {\n      \"account\": {\n        \"id\": \"id\"\n      },\n      \"body_html\": \"body_html\",\n      \"completed_at\": \"2024-01-15T09:30:00Z\",\n      \"created_at\": \"2024-01-15T09:30:00Z\",\n      \"custom_fields\": {\n        \"priority\": {\n          \"value\": \"high\"\n        }\n      },\n      \"customer_portal_visible\": true,\n      \"due_date\": \"2024-01-15T09:30:00Z\",\n      \"external_issues\": [\n        {\n          \"external_id\": \"external_id\",\n          \"link\": \"link\",\n          \"source\": \"source\"\n        }\n      ],\n      \"id\": \"id\",\n      \"linked_issues\": [\n        {\n          \"id\": \"id\",\n          \"number\": 1000000,\n          \"title\": \"title\"\n        }\n      ],\n      \"milestone\": {\n        \"id\": \"id\"\n      },\n      \"parent_task_id\": \"parent_task_id\",\n      \"project\": {\n        \"id\": \"id\"\n      },\n      \"status\": \"status\",\n      \"subtask_ids\": [\n        \"subtask_ids\"\n      ],\n      \"title\": \"title\",\n      \"updated_at\": \"2024-01-15T09:30:00Z\"\n    }\n  ],\n  \"pagination\": {\n    \"cursor\": \"cursor\",\n    \"has_next_page\": true\n  },\n  \"request_id\": \"request_id\"\n}",
+        "body": "{\n  \"data\": [\n    {\n      \"account\": {\n        \"id\": \"id\"\n      },\n      \"ai_instructions\": \"ai_instructions\",\n      \"blocked_by_task_ids\": [\n        \"blocked_by_task_ids\"\n      ],\n      \"blocks_task_ids\": [\n        \"blocks_task_ids\"\n      ],\n      \"body_html\": \"body_html\",\n      \"completed_at\": \"2024-01-15T09:30:00Z\",\n      \"created_at\": \"2024-01-15T09:30:00Z\",\n      \"custom_fields\": {\n        \"priority\": {\n          \"value\": \"high\"\n        }\n      },\n      \"customer_portal_visible\": true,\n      \"due_date\": \"2024-01-15T09:30:00Z\",\n      \"external_issues\": [\n        {\n          \"external_id\": \"external_id\",\n          \"link\": \"link\",\n          \"source\": \"source\"\n        }\n      ],\n      \"id\": \"id\",\n      \"linked_issues\": [\n        {\n          \"id\": \"id\",\n          \"number\": 1000000,\n          \"title\": \"title\"\n        }\n      ],\n      \"milestone\": {\n        \"id\": \"id\"\n      },\n      \"parent_task_id\": \"parent_task_id\",\n      \"project\": {\n        \"id\": \"id\"\n      },\n      \"status\": \"status\",\n      \"subtask_ids\": [\n        \"subtask_ids\"\n      ],\n      \"title\": \"title\",\n      \"updated_at\": \"2024-01-15T09:30:00Z\"\n    }\n  ],\n  \"pagination\": {\n    \"cursor\": \"cursor\",\n    \"has_next_page\": true\n  },\n  \"request_id\": \"request_id\"\n}",
         "headers": {
           "Content-Type": "application/json"
         }
@@ -3248,7 +3279,7 @@
       },
       "response": {
         "status": 200,
-        "body": "{\n  \"data\": {\n    \"account\": {\n      \"external_ids\": [\n        {}\n      ],\n      \"id\": \"id\"\n    },\n    \"assignee\": {\n      \"contact\": {\n        \"id\": \"id\"\n      },\n      \"user\": {\n        \"id\": \"id\"\n      }\n    },\n    \"body_html\": \"body_html\",\n    \"completed_at\": \"2024-01-15T09:30:00Z\",\n    \"created_at\": \"2024-01-15T09:30:00Z\",\n    \"custom_fields\": {\n      \"priority\": {\n        \"value\": \"high\"\n      }\n    },\n    \"customer_portal_visible\": true,\n    \"due_date\": \"2024-01-15T09:30:00Z\",\n    \"external_issues\": [\n      {\n        \"external_id\": \"external_id\",\n        \"link\": \"link\",\n        \"source\": \"source\"\n      }\n    ],\n    \"id\": \"id\",\n    \"linked_issues\": [\n      {\n        \"id\": \"id\",\n        \"number\": 1000000,\n        \"title\": \"title\"\n      }\n    ],\n    \"milestone\": {\n      \"id\": \"id\"\n    },\n    \"parent_task_id\": \"parent_task_id\",\n    \"project\": {\n      \"id\": \"id\"\n    },\n    \"status\": \"status\",\n    \"subtask_ids\": [\n      \"subtask_ids\"\n    ],\n    \"title\": \"title\",\n    \"updated_at\": \"2024-01-15T09:30:00Z\"\n  },\n  \"request_id\": \"request_id\"\n}",
+        "body": "{\n  \"data\": {\n    \"account\": {\n      \"external_ids\": [\n        {}\n      ],\n      \"id\": \"id\"\n    },\n    \"ai_instructions\": \"ai_instructions\",\n    \"assignee\": {\n      \"contact\": {\n        \"id\": \"id\"\n      },\n      \"user\": {\n        \"id\": \"id\"\n      }\n    },\n    \"blocked_by_task_ids\": [\n      \"blocked_by_task_ids\"\n    ],\n    \"blocks_task_ids\": [\n      \"blocks_task_ids\"\n    ],\n    \"body_html\": \"body_html\",\n    \"completed_at\": \"2024-01-15T09:30:00Z\",\n    \"created_at\": \"2024-01-15T09:30:00Z\",\n    \"custom_fields\": {\n      \"priority\": {\n        \"value\": \"high\"\n      }\n    },\n    \"customer_portal_visible\": true,\n    \"due_date\": \"2024-01-15T09:30:00Z\",\n    \"external_issues\": [\n      {\n        \"external_id\": \"external_id\",\n        \"link\": \"link\",\n        \"source\": \"source\"\n      }\n    ],\n    \"id\": \"id\",\n    \"linked_issues\": [\n      {\n        \"id\": \"id\",\n        \"number\": 1000000,\n        \"title\": \"title\"\n      }\n    ],\n    \"milestone\": {\n      \"id\": \"id\"\n    },\n    \"parent_task_id\": \"parent_task_id\",\n    \"project\": {\n      \"id\": \"id\"\n    },\n    \"status\": \"status\",\n    \"subtask_ids\": [\n      \"subtask_ids\"\n    ],\n    \"title\": \"title\",\n    \"updated_at\": \"2024-01-15T09:30:00Z\"\n  },\n  \"request_id\": \"request_id\"\n}",
         "headers": {
           "Content-Type": "application/json"
         }
@@ -3279,7 +3310,7 @@
       },
       "response": {
         "status": 200,
-        "body": "{\n  \"data\": [\n    {\n      \"account\": {\n        \"id\": \"id\"\n      },\n      \"body_html\": \"body_html\",\n      \"completed_at\": \"2024-01-15T09:30:00Z\",\n      \"created_at\": \"2024-01-15T09:30:00Z\",\n      \"custom_fields\": {\n        \"priority\": {\n          \"value\": \"high\"\n        }\n      },\n      \"customer_portal_visible\": true,\n      \"due_date\": \"2024-01-15T09:30:00Z\",\n      \"external_issues\": [\n        {\n          \"external_id\": \"external_id\",\n          \"link\": \"link\",\n          \"source\": \"source\"\n        }\n      ],\n      \"id\": \"id\",\n      \"linked_issues\": [\n        {\n          \"id\": \"id\",\n          \"number\": 1000000,\n          \"title\": \"title\"\n        }\n      ],\n      \"milestone\": {\n        \"id\": \"id\"\n      },\n      \"parent_task_id\": \"parent_task_id\",\n      \"project\": {\n        \"id\": \"id\"\n      },\n      \"status\": \"status\",\n      \"subtask_ids\": [\n        \"subtask_ids\"\n      ],\n      \"title\": \"title\",\n      \"updated_at\": \"2024-01-15T09:30:00Z\"\n    }\n  ],\n  \"pagination\": {\n    \"cursor\": \"cursor\",\n    \"has_next_page\": true\n  },\n  \"request_id\": \"request_id\"\n}",
+        "body": "{\n  \"data\": [\n    {\n      \"account\": {\n        \"id\": \"id\"\n      },\n      \"ai_instructions\": \"ai_instructions\",\n      \"blocked_by_task_ids\": [\n        \"blocked_by_task_ids\"\n      ],\n      \"blocks_task_ids\": [\n        \"blocks_task_ids\"\n      ],\n      \"body_html\": \"body_html\",\n      \"completed_at\": \"2024-01-15T09:30:00Z\",\n      \"created_at\": \"2024-01-15T09:30:00Z\",\n      \"custom_fields\": {\n        \"priority\": {\n          \"value\": \"high\"\n        }\n      },\n      \"customer_portal_visible\": true,\n      \"due_date\": \"2024-01-15T09:30:00Z\",\n      \"external_issues\": [\n        {\n          \"external_id\": \"external_id\",\n          \"link\": \"link\",\n          \"source\": \"source\"\n        }\n      ],\n      \"id\": \"id\",\n      \"linked_issues\": [\n        {\n          \"id\": \"id\",\n          \"number\": 1000000,\n          \"title\": \"title\"\n        }\n      ],\n      \"milestone\": {\n        \"id\": \"id\"\n      },\n      \"parent_task_id\": \"parent_task_id\",\n      \"project\": {\n        \"id\": \"id\"\n      },\n      \"status\": \"status\",\n      \"subtask_ids\": [\n        \"subtask_ids\"\n      ],\n      \"title\": \"title\",\n      \"updated_at\": \"2024-01-15T09:30:00Z\"\n    }\n  ],\n  \"pagination\": {\n    \"cursor\": \"cursor\",\n    \"has_next_page\": true\n  },\n  \"request_id\": \"request_id\"\n}",
         "headers": {
           "Content-Type": "application/json"
         }
@@ -3315,7 +3346,7 @@
       },
       "response": {
         "status": 200,
-        "body": "{\n  \"data\": {\n    \"account\": {\n      \"external_ids\": [\n        {}\n      ],\n      \"id\": \"id\"\n    },\n    \"assignee\": {\n      \"contact\": {\n        \"id\": \"id\"\n      },\n      \"user\": {\n        \"id\": \"id\"\n      }\n    },\n    \"body_html\": \"body_html\",\n    \"completed_at\": \"2024-01-15T09:30:00Z\",\n    \"created_at\": \"2024-01-15T09:30:00Z\",\n    \"custom_fields\": {\n      \"priority\": {\n        \"value\": \"high\"\n      }\n    },\n    \"customer_portal_visible\": true,\n    \"due_date\": \"2024-01-15T09:30:00Z\",\n    \"external_issues\": [\n      {\n        \"external_id\": \"external_id\",\n        \"link\": \"link\",\n        \"source\": \"source\"\n      }\n    ],\n    \"id\": \"id\",\n    \"linked_issues\": [\n      {\n        \"id\": \"id\",\n        \"number\": 1000000,\n        \"title\": \"title\"\n      }\n    ],\n    \"milestone\": {\n      \"id\": \"id\"\n    },\n    \"parent_task_id\": \"parent_task_id\",\n    \"project\": {\n      \"id\": \"id\"\n    },\n    \"status\": \"status\",\n    \"subtask_ids\": [\n      \"subtask_ids\"\n    ],\n    \"title\": \"title\",\n    \"updated_at\": \"2024-01-15T09:30:00Z\"\n  },\n  \"request_id\": \"request_id\"\n}",
+        "body": "{\n  \"data\": {\n    \"account\": {\n      \"external_ids\": [\n        {}\n      ],\n      \"id\": \"id\"\n    },\n    \"ai_instructions\": \"ai_instructions\",\n    \"assignee\": {\n      \"contact\": {\n        \"id\": \"id\"\n      },\n      \"user\": {\n        \"id\": \"id\"\n      }\n    },\n    \"blocked_by_task_ids\": [\n      \"blocked_by_task_ids\"\n    ],\n    \"blocks_task_ids\": [\n      \"blocks_task_ids\"\n    ],\n    \"body_html\": \"body_html\",\n    \"completed_at\": \"2024-01-15T09:30:00Z\",\n    \"created_at\": \"2024-01-15T09:30:00Z\",\n    \"custom_fields\": {\n      \"priority\": {\n        \"value\": \"high\"\n      }\n    },\n    \"customer_portal_visible\": true,\n    \"due_date\": \"2024-01-15T09:30:00Z\",\n    \"external_issues\": [\n      {\n        \"external_id\": \"external_id\",\n        \"link\": \"link\",\n        \"source\": \"source\"\n      }\n    ],\n    \"id\": \"id\",\n    \"linked_issues\": [\n      {\n        \"id\": \"id\",\n        \"number\": 1000000,\n        \"title\": \"title\"\n      }\n    ],\n    \"milestone\": {\n      \"id\": \"id\"\n    },\n    \"parent_task_id\": \"parent_task_id\",\n    \"project\": {\n      \"id\": \"id\"\n    },\n    \"status\": \"status\",\n    \"subtask_ids\": [\n      \"subtask_ids\"\n    ],\n    \"title\": \"title\",\n    \"updated_at\": \"2024-01-15T09:30:00Z\"\n  },\n  \"request_id\": \"request_id\"\n}",
         "headers": {
           "Content-Type": "application/json"
         }
@@ -3387,7 +3418,7 @@
       },
       "response": {
         "status": 200,
-        "body": "{\n  \"data\": {\n    \"account\": {\n      \"external_ids\": [\n        {}\n      ],\n      \"id\": \"id\"\n    },\n    \"assignee\": {\n      \"contact\": {\n        \"id\": \"id\"\n      },\n      \"user\": {\n        \"id\": \"id\"\n      }\n    },\n    \"body_html\": \"body_html\",\n    \"completed_at\": \"2024-01-15T09:30:00Z\",\n    \"created_at\": \"2024-01-15T09:30:00Z\",\n    \"custom_fields\": {\n      \"priority\": {\n        \"value\": \"high\"\n      }\n    },\n    \"customer_portal_visible\": true,\n    \"due_date\": \"2024-01-15T09:30:00Z\",\n    \"external_issues\": [\n      {\n        \"external_id\": \"external_id\",\n        \"link\": \"link\",\n        \"source\": \"source\"\n      }\n    ],\n    \"id\": \"id\",\n    \"linked_issues\": [\n      {\n        \"id\": \"id\",\n        \"number\": 1000000,\n        \"title\": \"title\"\n      }\n    ],\n    \"milestone\": {\n      \"id\": \"id\"\n    },\n    \"parent_task_id\": \"parent_task_id\",\n    \"project\": {\n      \"id\": \"id\"\n    },\n    \"status\": \"status\",\n    \"subtask_ids\": [\n      \"subtask_ids\"\n    ],\n    \"title\": \"title\",\n    \"updated_at\": \"2024-01-15T09:30:00Z\"\n  },\n  \"request_id\": \"request_id\"\n}",
+        "body": "{\n  \"data\": {\n    \"account\": {\n      \"external_ids\": [\n        {}\n      ],\n      \"id\": \"id\"\n    },\n    \"ai_instructions\": \"ai_instructions\",\n    \"assignee\": {\n      \"contact\": {\n        \"id\": \"id\"\n      },\n      \"user\": {\n        \"id\": \"id\"\n      }\n    },\n    \"blocked_by_task_ids\": [\n      \"blocked_by_task_ids\"\n    ],\n    \"blocks_task_ids\": [\n      \"blocks_task_ids\"\n    ],\n    \"body_html\": \"body_html\",\n    \"completed_at\": \"2024-01-15T09:30:00Z\",\n    \"created_at\": \"2024-01-15T09:30:00Z\",\n    \"custom_fields\": {\n      \"priority\": {\n        \"value\": \"high\"\n      }\n    },\n    \"customer_portal_visible\": true,\n    \"due_date\": \"2024-01-15T09:30:00Z\",\n    \"external_issues\": [\n      {\n        \"external_id\": \"external_id\",\n        \"link\": \"link\",\n        \"source\": \"source\"\n      }\n    ],\n    \"id\": \"id\",\n    \"linked_issues\": [\n      {\n        \"id\": \"id\",\n        \"number\": 1000000,\n        \"title\": \"title\"\n      }\n    ],\n    \"milestone\": {\n      \"id\": \"id\"\n    },\n    \"parent_task_id\": \"parent_task_id\",\n    \"project\": {\n      \"id\": \"id\"\n    },\n    \"status\": \"status\",\n    \"subtask_ids\": [\n      \"subtask_ids\"\n    ],\n    \"title\": \"title\",\n    \"updated_at\": \"2024-01-15T09:30:00Z\"\n  },\n  \"request_id\": \"request_id\"\n}",
         "headers": {
           "Content-Type": "application/json"
         }
@@ -3423,7 +3454,7 @@
       },
       "response": {
         "status": 200,
-        "body": "{\n  \"data\": {\n    \"account\": {\n      \"external_ids\": [\n        {}\n      ],\n      \"id\": \"id\"\n    },\n    \"assignee\": {\n      \"contact\": {\n        \"id\": \"id\"\n      },\n      \"user\": {\n        \"id\": \"id\"\n      }\n    },\n    \"body_html\": \"body_html\",\n    \"completed_at\": \"2024-01-15T09:30:00Z\",\n    \"created_at\": \"2024-01-15T09:30:00Z\",\n    \"custom_fields\": {\n      \"priority\": {\n        \"value\": \"high\"\n      }\n    },\n    \"customer_portal_visible\": true,\n    \"due_date\": \"2024-01-15T09:30:00Z\",\n    \"external_issues\": [\n      {\n        \"external_id\": \"external_id\",\n        \"link\": \"link\",\n        \"source\": \"source\"\n      }\n    ],\n    \"id\": \"id\",\n    \"linked_issues\": [\n      {\n        \"id\": \"id\",\n        \"number\": 1000000,\n        \"title\": \"title\"\n      }\n    ],\n    \"milestone\": {\n      \"id\": \"id\"\n    },\n    \"parent_task_id\": \"parent_task_id\",\n    \"project\": {\n      \"id\": \"id\"\n    },\n    \"status\": \"status\",\n    \"subtask_ids\": [\n      \"subtask_ids\"\n    ],\n    \"title\": \"title\",\n    \"updated_at\": \"2024-01-15T09:30:00Z\"\n  },\n  \"request_id\": \"request_id\"\n}",
+        "body": "{\n  \"data\": {\n    \"account\": {\n      \"external_ids\": [\n        {}\n      ],\n      \"id\": \"id\"\n    },\n    \"ai_instructions\": \"ai_instructions\",\n    \"assignee\": {\n      \"contact\": {\n        \"id\": \"id\"\n      },\n      \"user\": {\n        \"id\": \"id\"\n      }\n    },\n    \"blocked_by_task_ids\": [\n      \"blocked_by_task_ids\"\n    ],\n    \"blocks_task_ids\": [\n      \"blocks_task_ids\"\n    ],\n    \"body_html\": \"body_html\",\n    \"completed_at\": \"2024-01-15T09:30:00Z\",\n    \"created_at\": \"2024-01-15T09:30:00Z\",\n    \"custom_fields\": {\n      \"priority\": {\n        \"value\": \"high\"\n      }\n    },\n    \"customer_portal_visible\": true,\n    \"due_date\": \"2024-01-15T09:30:00Z\",\n    \"external_issues\": [\n      {\n        \"external_id\": \"external_id\",\n        \"link\": \"link\",\n        \"source\": \"source\"\n      }\n    ],\n    \"id\": \"id\",\n    \"linked_issues\": [\n      {\n        \"id\": \"id\",\n        \"number\": 1000000,\n        \"title\": \"title\"\n      }\n    ],\n    \"milestone\": {\n      \"id\": \"id\"\n    },\n    \"parent_task_id\": \"parent_task_id\",\n    \"project\": {\n      \"id\": \"id\"\n    },\n    \"status\": \"status\",\n    \"subtask_ids\": [\n      \"subtask_ids\"\n    ],\n    \"title\": \"title\",\n    \"updated_at\": \"2024-01-15T09:30:00Z\"\n  },\n  \"request_id\": \"request_id\"\n}",
         "headers": {
           "Content-Type": "application/json"
         }
@@ -3459,7 +3490,7 @@
       },
       "response": {
         "status": 200,
-        "body": "{\n  \"data\": {\n    \"account\": {\n      \"external_ids\": [\n        {}\n      ],\n      \"id\": \"id\"\n    },\n    \"assignee\": {\n      \"contact\": {\n        \"id\": \"id\"\n      },\n      \"user\": {\n        \"id\": \"id\"\n      }\n    },\n    \"body_html\": \"body_html\",\n    \"completed_at\": \"2024-01-15T09:30:00Z\",\n    \"created_at\": \"2024-01-15T09:30:00Z\",\n    \"custom_fields\": {\n      \"priority\": {\n        \"value\": \"high\"\n      }\n    },\n    \"customer_portal_visible\": true,\n    \"due_date\": \"2024-01-15T09:30:00Z\",\n    \"external_issues\": [\n      {\n        \"external_id\": \"external_id\",\n        \"link\": \"link\",\n        \"source\": \"source\"\n      }\n    ],\n    \"id\": \"id\",\n    \"linked_issues\": [\n      {\n        \"id\": \"id\",\n        \"number\": 1000000,\n        \"title\": \"title\"\n      }\n    ],\n    \"milestone\": {\n      \"id\": \"id\"\n    },\n    \"parent_task_id\": \"parent_task_id\",\n    \"project\": {\n      \"id\": \"id\"\n    },\n    \"status\": \"status\",\n    \"subtask_ids\": [\n      \"subtask_ids\"\n    ],\n    \"title\": \"title\",\n    \"updated_at\": \"2024-01-15T09:30:00Z\"\n  },\n  \"request_id\": \"request_id\"\n}",
+        "body": "{\n  \"data\": {\n    \"account\": {\n      \"external_ids\": [\n        {}\n      ],\n      \"id\": \"id\"\n    },\n    \"ai_instructions\": \"ai_instructions\",\n    \"assignee\": {\n      \"contact\": {\n        \"id\": \"id\"\n      },\n      \"user\": {\n        \"id\": \"id\"\n      }\n    },\n    \"blocked_by_task_ids\": [\n      \"blocked_by_task_ids\"\n    ],\n    \"blocks_task_ids\": [\n      \"blocks_task_ids\"\n    ],\n    \"body_html\": \"body_html\",\n    \"completed_at\": \"2024-01-15T09:30:00Z\",\n    \"created_at\": \"2024-01-15T09:30:00Z\",\n    \"custom_fields\": {\n      \"priority\": {\n        \"value\": \"high\"\n      }\n    },\n    \"customer_portal_visible\": true,\n    \"due_date\": \"2024-01-15T09:30:00Z\",\n    \"external_issues\": [\n      {\n        \"external_id\": \"external_id\",\n        \"link\": \"link\",\n        \"source\": \"source\"\n      }\n    ],\n    \"id\": \"id\",\n    \"linked_issues\": [\n      {\n        \"id\": \"id\",\n        \"number\": 1000000,\n        \"title\": \"title\"\n      }\n    ],\n    \"milestone\": {\n      \"id\": \"id\"\n    },\n    \"parent_task_id\": \"parent_task_id\",\n    \"project\": {\n      \"id\": \"id\"\n    },\n    \"status\": \"status\",\n    \"subtask_ids\": [\n      \"subtask_ids\"\n    ],\n    \"title\": \"title\",\n    \"updated_at\": \"2024-01-15T09:30:00Z\"\n  },\n  \"request_id\": \"request_id\"\n}",
         "headers": {
           "Content-Type": "application/json"
         }
@@ -3954,7 +3985,7 @@
       },
       "response": {
         "status": 200,
-        "body": "{\n  \"data\": [\n    {\n      \"avatar_url\": \"avatar_url\",\n      \"email\": \"email\",\n      \"emails\": [\n        \"emails\"\n      ],\n      \"id\": \"id\",\n      \"is_deactivated\": true,\n      \"name\": \"name\",\n      \"role\": {\n        \"id\": \"id\",\n        \"name\": \"name\",\n        \"slug\": \"slug\"\n      },\n      \"role_id\": \"role_id\",\n      \"role_ids\": [\n        \"role_ids\"\n      ],\n      \"roles\": [\n        {\n          \"id\": \"id\",\n          \"name\": \"name\",\n          \"slug\": \"slug\"\n        }\n      ],\n      \"status\": \"active\"\n    }\n  ],\n  \"pagination\": {\n    \"cursor\": \"cursor\",\n    \"has_next_page\": true\n  },\n  \"request_id\": \"request_id\"\n}",
+        "body": "{\n  \"data\": [\n    {\n      \"avatar_url\": \"avatar_url\",\n      \"email\": \"email\",\n      \"emails\": [\n        \"emails\"\n      ],\n      \"id\": \"id\",\n      \"is_deactivated\": true,\n      \"name\": \"name\",\n      \"role\": {\n        \"id\": \"id\",\n        \"name\": \"name\",\n        \"slug\": \"slug\"\n      },\n      \"role_id\": \"role_id\",\n      \"role_ids\": [\n        \"role_ids\"\n      ],\n      \"roles\": [\n        {\n          \"id\": \"id\",\n          \"name\": \"name\",\n          \"slug\": \"slug\"\n        }\n      ],\n      \"skills\": [\n        {\n          \"attribute\": \"attribute\",\n          \"attribute_type\": \"attribute_type\"\n        }\n      ],\n      \"status\": \"active\"\n    }\n  ],\n  \"pagination\": {\n    \"cursor\": \"cursor\",\n    \"has_next_page\": true\n  },\n  \"request_id\": \"request_id\"\n}",
         "headers": {
           "Content-Type": "application/json"
         }
@@ -3986,7 +4017,7 @@
       },
       "response": {
         "status": 200,
-        "body": "{\n  \"data\": [\n    {\n      \"avatar_url\": \"avatar_url\",\n      \"email\": \"email\",\n      \"emails\": [\n        \"emails\"\n      ],\n      \"id\": \"id\",\n      \"is_deactivated\": true,\n      \"name\": \"name\",\n      \"role\": {\n        \"id\": \"id\",\n        \"name\": \"name\",\n        \"slug\": \"slug\"\n      },\n      \"role_id\": \"role_id\",\n      \"role_ids\": [\n        \"role_ids\"\n      ],\n      \"roles\": [\n        {\n          \"id\": \"id\",\n          \"name\": \"name\",\n          \"slug\": \"slug\"\n        }\n      ],\n      \"status\": \"active\"\n    }\n  ],\n  \"pagination\": {\n    \"cursor\": \"cursor\",\n    \"has_next_page\": true\n  },\n  \"request_id\": \"request_id\"\n}",
+        "body": "{\n  \"data\": [\n    {\n      \"avatar_url\": \"avatar_url\",\n      \"email\": \"email\",\n      \"emails\": [\n        \"emails\"\n      ],\n      \"id\": \"id\",\n      \"is_deactivated\": true,\n      \"name\": \"name\",\n      \"role\": {\n        \"id\": \"id\",\n        \"name\": \"name\",\n        \"slug\": \"slug\"\n      },\n      \"role_id\": \"role_id\",\n      \"role_ids\": [\n        \"role_ids\"\n      ],\n      \"roles\": [\n        {\n          \"id\": \"id\",\n          \"name\": \"name\",\n          \"slug\": \"slug\"\n        }\n      ],\n      \"skills\": [\n        {\n          \"attribute\": \"attribute\",\n          \"attribute_type\": \"attribute_type\"\n        }\n      ],\n      \"status\": \"active\"\n    }\n  ],\n  \"pagination\": {\n    \"cursor\": \"cursor\",\n    \"has_next_page\": true\n  },\n  \"request_id\": \"request_id\"\n}",
         "headers": {
           "Content-Type": "application/json"
         }
@@ -4022,7 +4053,7 @@
       },
       "response": {
         "status": 200,
-        "body": "{\n  \"data\": {\n    \"avatar_url\": \"avatar_url\",\n    \"email\": \"email\",\n    \"emails\": [\n      \"emails\"\n    ],\n    \"id\": \"id\",\n    \"is_deactivated\": true,\n    \"name\": \"name\",\n    \"role\": {\n      \"id\": \"id\",\n      \"name\": \"name\",\n      \"slug\": \"slug\"\n    },\n    \"role_id\": \"role_id\",\n    \"role_ids\": [\n      \"role_ids\"\n    ],\n    \"roles\": [\n      {\n        \"id\": \"id\",\n        \"name\": \"name\",\n        \"slug\": \"slug\"\n      }\n    ],\n    \"status\": \"active\"\n  },\n  \"request_id\": \"request_id\"\n}",
+        "body": "{\n  \"data\": {\n    \"avatar_url\": \"avatar_url\",\n    \"email\": \"email\",\n    \"emails\": [\n      \"emails\"\n    ],\n    \"id\": \"id\",\n    \"is_deactivated\": true,\n    \"name\": \"name\",\n    \"role\": {\n      \"id\": \"id\",\n      \"name\": \"name\",\n      \"slug\": \"slug\"\n    },\n    \"role_id\": \"role_id\",\n    \"role_ids\": [\n      \"role_ids\"\n    ],\n    \"roles\": [\n      {\n        \"id\": \"id\",\n        \"name\": \"name\",\n        \"slug\": \"slug\"\n      }\n    ],\n    \"skills\": [\n      {\n        \"attribute\": \"attribute\",\n        \"attribute_type\": \"attribute_type\"\n      }\n    ],\n    \"status\": \"active\"\n  },\n  \"request_id\": \"request_id\"\n}",
         "headers": {
           "Content-Type": "application/json"
         }
@@ -4058,7 +4089,7 @@
       },
       "response": {
         "status": 200,
-        "body": "{\n  \"data\": {\n    \"avatar_url\": \"avatar_url\",\n    \"email\": \"email\",\n    \"emails\": [\n      \"emails\"\n    ],\n    \"id\": \"id\",\n    \"is_deactivated\": true,\n    \"name\": \"name\",\n    \"role\": {\n      \"id\": \"id\",\n      \"name\": \"name\",\n      \"slug\": \"slug\"\n    },\n    \"role_id\": \"role_id\",\n    \"role_ids\": [\n      \"role_ids\"\n    ],\n    \"roles\": [\n      {\n        \"id\": \"id\",\n        \"name\": \"name\",\n        \"slug\": \"slug\"\n      }\n    ],\n    \"status\": \"active\"\n  },\n  \"request_id\": \"request_id\"\n}",
+        "body": "{\n  \"data\": {\n    \"avatar_url\": \"avatar_url\",\n    \"email\": \"email\",\n    \"emails\": [\n      \"emails\"\n    ],\n    \"id\": \"id\",\n    \"is_deactivated\": true,\n    \"name\": \"name\",\n    \"role\": {\n      \"id\": \"id\",\n      \"name\": \"name\",\n      \"slug\": \"slug\"\n    },\n    \"role_id\": \"role_id\",\n    \"role_ids\": [\n      \"role_ids\"\n    ],\n    \"roles\": [\n      {\n        \"id\": \"id\",\n        \"name\": \"name\",\n        \"slug\": \"slug\"\n      }\n    ],\n    \"skills\": [\n      {\n        \"attribute\": \"attribute\",\n        \"attribute_type\": \"attribute_type\"\n      }\n    ],\n    \"status\": \"active\"\n  },\n  \"request_id\": \"request_id\"\n}",
         "headers": {
           "Content-Type": "application/json"
         }
@@ -4361,6 +4392,42 @@
         }
       },
       "uuid": "c796da5f-e587-4de8-b07d-be8192ccb111",
+      "persistent": true,
+      "priority": 3,
+      "metadata": {
+        "mocklab": {
+          "created": {
+            "at": "2020-01-01T00:00:00.000Z",
+            "via": "SYSTEM"
+          }
+        }
+      }
+    },
+    {
+      "id": "d62e839d-adf2-43f1-8bda-f977418681f8",
+      "name": "Get email activities for an account - default",
+      "request": {
+        "urlPathTemplate": "/accounts/{account_id}/email-activities",
+        "method": "GET",
+        "headers": {
+          "Authorization": {
+            "matches": "Bearer .+"
+          }
+        },
+        "pathParameters": {
+          "account_id": {
+            "equalTo": "id"
+          }
+        }
+      },
+      "response": {
+        "status": 200,
+        "body": "{\n  \"data\": [\n    {\n      \"account_id\": \"account_id\",\n      \"happened_at\": \"2024-01-15T09:30:00Z\",\n      \"id\": \"id\",\n      \"messages\": [\n        {\n          \"email_info\": {\n            \"from_email\": \"from_email\",\n            \"message_id\": \"message_id\",\n            \"opens\": [\n              {\n                \"email\": \"email\",\n                \"time\": \"2026-09-30T16:33:54Z\"\n              }\n            ],\n            \"sender_authentication_status\": \"pass\"\n          },\n          \"id\": \"id\",\n          \"message_html\": \"message_html\",\n          \"subject\": \"subject\",\n          \"timestamp\": \"2024-01-15T09:30:00Z\"\n        }\n      ]\n    }\n  ],\n  \"pagination\": {\n    \"cursor\": \"cursor\",\n    \"has_next_page\": true\n  },\n  \"request_id\": \"request_id\"\n}",
+        "headers": {
+          "Content-Type": "application/json"
+        }
+      },
+      "uuid": "d62e839d-adf2-43f1-8bda-f977418681f8",
       "persistent": true,
       "priority": 3,
       "metadata": {
@@ -4734,7 +4801,7 @@
       },
       "response": {
         "status": 200,
-        "body": "{\n  \"data\": [\n    {\n      \"author\": {\n        \"name\": \"name\"\n      },\n      \"author_unverified\": true,\n      \"email_info\": {\n        \"from_email\": \"from_email\",\n        \"message_id\": \"message_id\",\n        \"opens\": [\n          {\n            \"email\": \"email\",\n            \"time\": \"2026-09-30T16:33:54Z\"\n          }\n        ],\n        \"sender_authentication_status\": \"pass\"\n      },\n      \"file_urls\": [\n        \"file_urls\"\n      ],\n      \"id\": \"id\",\n      \"is_private\": true,\n      \"message_html\": \"message_html\",\n      \"slack_info\": {\n        \"channel_id\": \"channel_id\",\n        \"message_ts\": \"message_ts\",\n        \"thread_ts\": \"thread_ts\"\n      },\n      \"source\": \"source\",\n      \"thread_id\": \"thread_id\",\n      \"timestamp\": \"2024-01-15T09:30:00Z\"\n    }\n  ],\n  \"pagination\": {\n    \"cursor\": \"cursor\",\n    \"has_next_page\": true\n  },\n  \"request_id\": \"request_id\"\n}",
+        "body": "{\n  \"data\": [\n    {\n      \"author\": {\n        \"name\": \"name\"\n      },\n      \"author_unverified\": true,\n      \"email_info\": {\n        \"from_email\": \"from_email\",\n        \"message_id\": \"message_id\",\n        \"opens\": [\n          {\n            \"email\": \"email\",\n            \"time\": \"2026-09-30T16:33:54Z\"\n          }\n        ],\n        \"sender_authentication_status\": \"pass\"\n      },\n      \"file_urls\": [\n        \"file_urls\"\n      ],\n      \"id\": \"id\",\n      \"is_private\": true,\n      \"message_html\": \"message_html\",\n      \"reactions\": [\n        {\n          \"count\": 1000000,\n          \"name\": \"name\"\n        }\n      ],\n      \"slack_info\": {\n        \"channel_id\": \"channel_id\",\n        \"message_ts\": \"message_ts\",\n        \"thread_ts\": \"thread_ts\"\n      },\n      \"source\": \"source\",\n      \"thread_id\": \"thread_id\",\n      \"timestamp\": \"2024-01-15T09:30:00Z\"\n    }\n  ],\n  \"pagination\": {\n    \"cursor\": \"cursor\",\n    \"has_next_page\": true\n  },\n  \"request_id\": \"request_id\"\n}",
         "headers": {
           "Content-Type": "application/json"
         }
@@ -4812,7 +4879,7 @@
       },
       "response": {
         "status": 200,
-        "body": "{\n  \"data\": {\n    \"author\": {\n      \"avatar_url\": \"avatar_url\",\n      \"contact\": {\n        \"id\": \"id\"\n      },\n      \"name\": \"name\",\n      \"user\": {\n        \"id\": \"id\"\n      }\n    },\n    \"author_unverified\": true,\n    \"email_info\": {\n      \"bcc_emails\": [\n        \"bcc_emails\"\n      ],\n      \"cc_emails\": [\n        \"cc_emails\"\n      ],\n      \"from_email\": \"from_email\",\n      \"message_id\": \"message_id\",\n      \"opens\": [\n        {\n          \"email\": \"email\",\n          \"time\": \"2026-09-30T16:33:54Z\"\n        }\n      ],\n      \"sender_authentication_status\": \"pass\",\n      \"to_emails\": [\n        \"to_emails\"\n      ]\n    },\n    \"file_urls\": [\n      \"file_urls\"\n    ],\n    \"id\": \"id\",\n    \"is_private\": true,\n    \"message_html\": \"message_html\",\n    \"slack_info\": {\n      \"channel_id\": \"channel_id\",\n      \"message_ts\": \"message_ts\",\n      \"permalink\": \"permalink\",\n      \"thread_ts\": \"thread_ts\"\n    },\n    \"source\": \"source\",\n    \"thread_id\": \"thread_id\",\n    \"timestamp\": \"2024-01-15T09:30:00Z\"\n  },\n  \"request_id\": \"request_id\"\n}",
+        "body": "{\n  \"data\": {\n    \"author\": {\n      \"avatar_url\": \"avatar_url\",\n      \"contact\": {\n        \"id\": \"id\"\n      },\n      \"name\": \"name\",\n      \"user\": {\n        \"id\": \"id\"\n      }\n    },\n    \"author_unverified\": true,\n    \"email_info\": {\n      \"bcc_emails\": [\n        \"bcc_emails\"\n      ],\n      \"cc_emails\": [\n        \"cc_emails\"\n      ],\n      \"from_email\": \"from_email\",\n      \"message_id\": \"message_id\",\n      \"opens\": [\n        {\n          \"email\": \"email\",\n          \"time\": \"2026-09-30T16:33:54Z\"\n        }\n      ],\n      \"sender_authentication_status\": \"pass\",\n      \"to_emails\": [\n        \"to_emails\"\n      ]\n    },\n    \"file_urls\": [\n      \"file_urls\"\n    ],\n    \"id\": \"id\",\n    \"is_private\": true,\n    \"message_html\": \"message_html\",\n    \"reactions\": [\n      {\n        \"count\": 1000000,\n        \"name\": \"name\"\n      }\n    ],\n    \"slack_info\": {\n      \"channel_id\": \"channel_id\",\n      \"message_ts\": \"message_ts\",\n      \"permalink\": \"permalink\",\n      \"thread_ts\": \"thread_ts\"\n    },\n    \"source\": \"source\",\n    \"thread_id\": \"thread_id\",\n    \"timestamp\": \"2024-01-15T09:30:00Z\"\n  },\n  \"request_id\": \"request_id\"\n}",
         "headers": {
           "Content-Type": "application/json"
         }
@@ -4851,7 +4918,7 @@
       },
       "response": {
         "status": 200,
-        "body": "{\n  \"data\": {\n    \"author\": {\n      \"avatar_url\": \"avatar_url\",\n      \"contact\": {\n        \"id\": \"id\"\n      },\n      \"name\": \"name\",\n      \"user\": {\n        \"id\": \"id\"\n      }\n    },\n    \"author_unverified\": true,\n    \"email_info\": {\n      \"bcc_emails\": [\n        \"bcc_emails\"\n      ],\n      \"cc_emails\": [\n        \"cc_emails\"\n      ],\n      \"from_email\": \"from_email\",\n      \"message_id\": \"message_id\",\n      \"opens\": [\n        {\n          \"email\": \"email\",\n          \"time\": \"2026-09-30T16:33:54Z\"\n        }\n      ],\n      \"sender_authentication_status\": \"pass\",\n      \"to_emails\": [\n        \"to_emails\"\n      ]\n    },\n    \"file_urls\": [\n      \"file_urls\"\n    ],\n    \"id\": \"id\",\n    \"is_private\": true,\n    \"message_html\": \"message_html\",\n    \"slack_info\": {\n      \"channel_id\": \"channel_id\",\n      \"message_ts\": \"message_ts\",\n      \"permalink\": \"permalink\",\n      \"thread_ts\": \"thread_ts\"\n    },\n    \"source\": \"source\",\n    \"thread_id\": \"thread_id\",\n    \"timestamp\": \"2024-01-15T09:30:00Z\"\n  },\n  \"request_id\": \"request_id\"\n}",
+        "body": "{\n  \"data\": {\n    \"author\": {\n      \"avatar_url\": \"avatar_url\",\n      \"contact\": {\n        \"id\": \"id\"\n      },\n      \"name\": \"name\",\n      \"user\": {\n        \"id\": \"id\"\n      }\n    },\n    \"author_unverified\": true,\n    \"email_info\": {\n      \"bcc_emails\": [\n        \"bcc_emails\"\n      ],\n      \"cc_emails\": [\n        \"cc_emails\"\n      ],\n      \"from_email\": \"from_email\",\n      \"message_id\": \"message_id\",\n      \"opens\": [\n        {\n          \"email\": \"email\",\n          \"time\": \"2026-09-30T16:33:54Z\"\n        }\n      ],\n      \"sender_authentication_status\": \"pass\",\n      \"to_emails\": [\n        \"to_emails\"\n      ]\n    },\n    \"file_urls\": [\n      \"file_urls\"\n    ],\n    \"id\": \"id\",\n    \"is_private\": true,\n    \"message_html\": \"message_html\",\n    \"reactions\": [\n      {\n        \"count\": 1000000,\n        \"name\": \"name\"\n      }\n    ],\n    \"slack_info\": {\n      \"channel_id\": \"channel_id\",\n      \"message_ts\": \"message_ts\",\n      \"permalink\": \"permalink\",\n      \"thread_ts\": \"thread_ts\"\n    },\n    \"source\": \"source\",\n    \"thread_id\": \"thread_id\",\n    \"timestamp\": \"2024-01-15T09:30:00Z\"\n  },\n  \"request_id\": \"request_id\"\n}",
         "headers": {
           "Content-Type": "application/json"
         }
@@ -5806,6 +5873,6 @@
     }
   ],
   "meta": {
-    "total": 166
+    "total": 168
   }
 }

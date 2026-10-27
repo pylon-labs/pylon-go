@@ -255,6 +255,65 @@ func (c *ContactsListRequest) SetLimit(limit *int64) {
 }
 
 var (
+	contactsMergeRequestFieldMergeContactID     = big.NewInt(1 << 0)
+	contactsMergeRequestFieldMergeIntoContactID = big.NewInt(1 << 1)
+)
+
+type ContactsMergeRequest struct {
+	// The ID of the contact to merge into the surviving contact. This contact is permanently deleted after its data is transferred.
+	MergeContactID string `json:"merge_contact_id" url:"-"`
+	// The ID of the contact that will survive the merge and receive the merged data. The contact must belong to an account.
+	MergeIntoContactID string `json:"merge_into_contact_id" url:"-"`
+
+	// Private bitmask of fields set to an explicit value and therefore not to be omitted
+	explicitFields *big.Int `json:"-" url:"-"`
+}
+
+func (c *ContactsMergeRequest) require(field *big.Int) {
+	next := new(big.Int)
+	if c.explicitFields != nil {
+		next.Set(c.explicitFields)
+	}
+	next.Or(next, field)
+	c.explicitFields = next
+}
+
+// SetMergeContactID sets the MergeContactID field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (c *ContactsMergeRequest) SetMergeContactID(mergeContactID string) {
+	c.MergeContactID = mergeContactID
+	c.require(contactsMergeRequestFieldMergeContactID)
+}
+
+// SetMergeIntoContactID sets the MergeIntoContactID field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (c *ContactsMergeRequest) SetMergeIntoContactID(mergeIntoContactID string) {
+	c.MergeIntoContactID = mergeIntoContactID
+	c.require(contactsMergeRequestFieldMergeIntoContactID)
+}
+
+func (c *ContactsMergeRequest) UnmarshalJSON(data []byte) error {
+	type unmarshaler ContactsMergeRequest
+	var body unmarshaler
+	if err := json.Unmarshal(data, &body); err != nil {
+		return err
+	}
+	*c = ContactsMergeRequest(body)
+	return nil
+}
+
+func (c *ContactsMergeRequest) MarshalJSON() ([]byte, error) {
+	type embed ContactsMergeRequest
+	var marshaler = struct {
+		embed
+	}{
+		embed: embed(*c),
+	}
+	explicitMarshaler := internal.HandleExplicitFields(marshaler, c.explicitFields)
+	return json.Marshal(explicitMarshaler)
+}
+
+var (
 	contactsSearchRequestFieldCursor     = big.NewInt(1 << 0)
 	contactsSearchRequestFieldFilter     = big.NewInt(1 << 1)
 	contactsSearchRequestFieldLimit      = big.NewInt(1 << 2)
@@ -1156,6 +1215,109 @@ func (i *IntegrationUserID) String() string {
 		return value
 	}
 	return fmt.Sprintf("%#v", i)
+}
+
+var (
+	mergeContactsResponseBodyFieldData      = big.NewInt(1 << 0)
+	mergeContactsResponseBodyFieldRequestID = big.NewInt(1 << 1)
+)
+
+type MergeContactsResponseBody struct {
+	Data *Contact `json:"data" url:"data"`
+	// The request ID for tracking.
+	RequestID string `json:"request_id" url:"request_id"`
+
+	// Private bitmask of fields set to an explicit value and therefore not to be omitted
+	explicitFields *big.Int `json:"-" url:"-"`
+
+	extraProperties map[string]interface{}
+	rawJSON         json.RawMessage
+}
+
+func (m *MergeContactsResponseBody) GetData() *Contact {
+	if m == nil {
+		return nil
+	}
+	return m.Data
+}
+
+func (m *MergeContactsResponseBody) GetRequestID() string {
+	if m == nil {
+		return ""
+	}
+	return m.RequestID
+}
+
+func (m *MergeContactsResponseBody) GetExtraProperties() map[string]interface{} {
+	if m == nil {
+		return nil
+	}
+	return m.extraProperties
+}
+
+func (m *MergeContactsResponseBody) require(field *big.Int) {
+	next := new(big.Int)
+	if m.explicitFields != nil {
+		next.Set(m.explicitFields)
+	}
+	next.Or(next, field)
+	m.explicitFields = next
+}
+
+// SetData sets the Data field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (m *MergeContactsResponseBody) SetData(data *Contact) {
+	m.Data = data
+	m.require(mergeContactsResponseBodyFieldData)
+}
+
+// SetRequestID sets the RequestID field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (m *MergeContactsResponseBody) SetRequestID(requestID string) {
+	m.RequestID = requestID
+	m.require(mergeContactsResponseBodyFieldRequestID)
+}
+
+func (m *MergeContactsResponseBody) UnmarshalJSON(data []byte) error {
+	type unmarshaler MergeContactsResponseBody
+	var value unmarshaler
+	if err := json.Unmarshal(data, &value); err != nil {
+		return err
+	}
+	*m = MergeContactsResponseBody(value)
+	extraProperties, err := internal.ExtractExtraProperties(data, *m)
+	if err != nil {
+		return err
+	}
+	m.extraProperties = extraProperties
+	m.rawJSON = json.RawMessage(data)
+	return nil
+}
+
+func (m *MergeContactsResponseBody) MarshalJSON() ([]byte, error) {
+	type embed MergeContactsResponseBody
+	var marshaler = struct {
+		embed
+	}{
+		embed: embed(*m),
+	}
+	explicitMarshaler := internal.HandleExplicitFields(marshaler, m.explicitFields)
+	return json.Marshal(explicitMarshaler)
+}
+
+func (m *MergeContactsResponseBody) String() string {
+	if m == nil {
+		return "<nil>"
+	}
+	if len(m.rawJSON) > 0 {
+		if value, err := internal.StringifyJSON(m.rawJSON); err == nil {
+			return value
+		}
+	}
+	if value, err := internal.StringifyJSON(m); err == nil {
+		return value
+	}
+	return fmt.Sprintf("%#v", m)
 }
 
 var (

@@ -608,7 +608,8 @@ var (
 	userFieldRoleID        = big.NewInt(1 << 7)
 	userFieldRoleIDs       = big.NewInt(1 << 8)
 	userFieldRoles         = big.NewInt(1 << 9)
-	userFieldStatus        = big.NewInt(1 << 10)
+	userFieldSkills        = big.NewInt(1 << 10)
+	userFieldStatus        = big.NewInt(1 << 11)
 )
 
 // userNullableFields maps the wire names of User's nullable fields (required or optional) to their field bits.
@@ -617,6 +618,7 @@ var userNullableFields = map[string]*big.Int{
 	"role":     userFieldRole,
 	"role_ids": userFieldRoleIDs,
 	"roles":    userFieldRoles,
+	"skills":   userFieldSkills,
 }
 
 type User struct {
@@ -640,6 +642,8 @@ type User struct {
 	RoleIDs []string `json:"role_ids,omitempty" url:"role_ids,omitempty"`
 	// All assigned roles, including SCIM-derived roles, sorted by ID. Empty when no roles are assigned.
 	Roles []*MiniRole `json:"roles,omitempty" url:"roles,omitempty"`
+	// The user's routing skills. Null when the caller lacks permission to read team settings.
+	Skills []*UserSkill `json:"skills,omitempty" url:"skills,omitempty"`
 	// The status of the user. Standard values are `active`, `away`, and `out_of_office`; custom status slugs are also supported. See GET /user-statuses for each status's category.
 	Status string `json:"status" url:"status"`
 
@@ -718,6 +722,13 @@ func (u *User) GetRoles() []*MiniRole {
 		return nil
 	}
 	return u.Roles
+}
+
+func (u *User) GetSkills() []*UserSkill {
+	if u == nil {
+		return nil
+	}
+	return u.Skills
 }
 
 func (u *User) GetStatus() string {
@@ -813,6 +824,13 @@ func (u *User) SetRoles(roles []*MiniRole) {
 	u.require(userFieldRoles)
 }
 
+// SetSkills sets the Skills field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (u *User) SetSkills(skills []*UserSkill) {
+	u.Skills = skills
+	u.require(userFieldSkills)
+}
+
 // SetStatus sets the Status field and marks it as non-optional;
 // this prevents an empty or null value for this field from being omitted during serialization.
 func (u *User) SetStatus(status string) {
@@ -870,11 +888,252 @@ func (u *User) String() string {
 }
 
 var (
-	usersUpdateRequestFieldID        = big.NewInt(1 << 0)
-	usersUpdateRequestFieldAvatarURL = big.NewInt(1 << 1)
-	usersUpdateRequestFieldName      = big.NewInt(1 << 2)
-	usersUpdateRequestFieldRoleID    = big.NewInt(1 << 3)
-	usersUpdateRequestFieldStatus    = big.NewInt(1 << 4)
+	userSkillFieldAttribute     = big.NewInt(1 << 0)
+	userSkillFieldAttributeType = big.NewInt(1 << 1)
+	userSkillFieldValues        = big.NewInt(1 << 2)
+)
+
+// userSkillNullableFields maps the wire names of UserSkill's nullable fields (required or optional) to their field bits.
+var userSkillNullableFields = map[string]*big.Int{
+	"values": userSkillFieldValues,
+}
+
+type UserSkill struct {
+	// The issue custom field ID when attribute_type is `custom_field`, or the issue property, such as `language`, when attribute_type is `default_field`.
+	Attribute string `json:"attribute" url:"attribute"`
+	// The kind of attribute the skill routes on.
+	//
+	// Known values: `custom_field`, `default_field`. This list is not exhaustive.
+	AttributeType string `json:"attribute_type" url:"attribute_type"`
+	// The attribute values the user is skilled in, with their levels.
+	Values []*UserSkillValue `json:"values,omitempty" url:"values,omitempty"`
+
+	// Private bitmask of fields set to an explicit value and therefore not to be omitted
+	explicitFields *big.Int `json:"-" url:"-"`
+
+	extraProperties map[string]interface{}
+	rawJSON         json.RawMessage
+}
+
+func (u *UserSkill) GetAttribute() string {
+	if u == nil {
+		return ""
+	}
+	return u.Attribute
+}
+
+func (u *UserSkill) GetAttributeType() string {
+	if u == nil {
+		return ""
+	}
+	return u.AttributeType
+}
+
+func (u *UserSkill) GetValues() []*UserSkillValue {
+	if u == nil {
+		return nil
+	}
+	return u.Values
+}
+
+func (u *UserSkill) GetExtraProperties() map[string]interface{} {
+	if u == nil {
+		return nil
+	}
+	return u.extraProperties
+}
+
+func (u *UserSkill) require(field *big.Int) {
+	next := new(big.Int)
+	if u.explicitFields != nil {
+		next.Set(u.explicitFields)
+	}
+	next.Or(next, field)
+	u.explicitFields = next
+}
+
+// SetAttribute sets the Attribute field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (u *UserSkill) SetAttribute(attribute string) {
+	u.Attribute = attribute
+	u.require(userSkillFieldAttribute)
+}
+
+// SetAttributeType sets the AttributeType field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (u *UserSkill) SetAttributeType(attributeType string) {
+	u.AttributeType = attributeType
+	u.require(userSkillFieldAttributeType)
+}
+
+// SetValues sets the Values field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (u *UserSkill) SetValues(values []*UserSkillValue) {
+	u.Values = values
+	u.require(userSkillFieldValues)
+}
+
+func (u *UserSkill) UnmarshalJSON(data []byte) error {
+	type unmarshaler UserSkill
+	var value unmarshaler
+	if err := json.Unmarshal(data, &value); err != nil {
+		return err
+	}
+	*u = UserSkill(value)
+	extraProperties, err := internal.ExtractExtraProperties(data, *u)
+	if err != nil {
+		return err
+	}
+	u.extraProperties = extraProperties
+	presentFields, err := internal.ExplicitFieldsFromJSON(data, userSkillNullableFields)
+	if err != nil {
+		return err
+	}
+	if presentFields != nil {
+		u.require(presentFields)
+	}
+	u.rawJSON = json.RawMessage(data)
+	return nil
+}
+
+func (u *UserSkill) MarshalJSON() ([]byte, error) {
+	type embed UserSkill
+	var marshaler = struct {
+		embed
+	}{
+		embed: embed(*u),
+	}
+	explicitMarshaler := internal.HandleExplicitFields(marshaler, u.explicitFields)
+	return json.Marshal(explicitMarshaler)
+}
+
+func (u *UserSkill) String() string {
+	if u == nil {
+		return "<nil>"
+	}
+	if len(u.rawJSON) > 0 {
+		if value, err := internal.StringifyJSON(u.rawJSON); err == nil {
+			return value
+		}
+	}
+	if value, err := internal.StringifyJSON(u); err == nil {
+		return value
+	}
+	return fmt.Sprintf("%#v", u)
+}
+
+var (
+	userSkillValueFieldLevel = big.NewInt(1 << 0)
+	userSkillValueFieldValue = big.NewInt(1 << 1)
+)
+
+type UserSkillValue struct {
+	// The skill level, where 1 is the lowest. Pylon assigns levels 1 to 3.
+	Level int64 `json:"level" url:"level"`
+	// The attribute value, such as a select option slug, a user ID, or a language code.
+	Value string `json:"value" url:"value"`
+
+	// Private bitmask of fields set to an explicit value and therefore not to be omitted
+	explicitFields *big.Int `json:"-" url:"-"`
+
+	extraProperties map[string]interface{}
+	rawJSON         json.RawMessage
+}
+
+func (u *UserSkillValue) GetLevel() int64 {
+	if u == nil {
+		return 0
+	}
+	return u.Level
+}
+
+func (u *UserSkillValue) GetValue() string {
+	if u == nil {
+		return ""
+	}
+	return u.Value
+}
+
+func (u *UserSkillValue) GetExtraProperties() map[string]interface{} {
+	if u == nil {
+		return nil
+	}
+	return u.extraProperties
+}
+
+func (u *UserSkillValue) require(field *big.Int) {
+	next := new(big.Int)
+	if u.explicitFields != nil {
+		next.Set(u.explicitFields)
+	}
+	next.Or(next, field)
+	u.explicitFields = next
+}
+
+// SetLevel sets the Level field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (u *UserSkillValue) SetLevel(level int64) {
+	u.Level = level
+	u.require(userSkillValueFieldLevel)
+}
+
+// SetValue sets the Value field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (u *UserSkillValue) SetValue(value string) {
+	u.Value = value
+	u.require(userSkillValueFieldValue)
+}
+
+func (u *UserSkillValue) UnmarshalJSON(data []byte) error {
+	type unmarshaler UserSkillValue
+	var value unmarshaler
+	if err := json.Unmarshal(data, &value); err != nil {
+		return err
+	}
+	*u = UserSkillValue(value)
+	extraProperties, err := internal.ExtractExtraProperties(data, *u)
+	if err != nil {
+		return err
+	}
+	u.extraProperties = extraProperties
+	u.rawJSON = json.RawMessage(data)
+	return nil
+}
+
+func (u *UserSkillValue) MarshalJSON() ([]byte, error) {
+	type embed UserSkillValue
+	var marshaler = struct {
+		embed
+	}{
+		embed: embed(*u),
+	}
+	explicitMarshaler := internal.HandleExplicitFields(marshaler, u.explicitFields)
+	return json.Marshal(explicitMarshaler)
+}
+
+func (u *UserSkillValue) String() string {
+	if u == nil {
+		return "<nil>"
+	}
+	if len(u.rawJSON) > 0 {
+		if value, err := internal.StringifyJSON(u.rawJSON); err == nil {
+			return value
+		}
+	}
+	if value, err := internal.StringifyJSON(u); err == nil {
+		return value
+	}
+	return fmt.Sprintf("%#v", u)
+}
+
+var (
+	usersUpdateRequestFieldID                         = big.NewInt(1 << 0)
+	usersUpdateRequestFieldAvatarURL                  = big.NewInt(1 << 1)
+	usersUpdateRequestFieldIsDeactivated              = big.NewInt(1 << 2)
+	usersUpdateRequestFieldName                       = big.NewInt(1 << 3)
+	usersUpdateRequestFieldReassignOpenIssuesToUserID = big.NewInt(1 << 4)
+	usersUpdateRequestFieldRoleID                     = big.NewInt(1 << 5)
+	usersUpdateRequestFieldStatus                     = big.NewInt(1 << 6)
 )
 
 type UsersUpdateRequest struct {
@@ -882,8 +1141,14 @@ type UsersUpdateRequest struct {
 	ID string `json:"-" url:"-"`
 	// The avatar URL of the user. Must be a square .png, .jpg or .jpeg.
 	AvatarURL *string `json:"avatar_url,omitempty" url:"-"`
+	// Whether the user is deactivated. Changing it requires admin permissions. Deactivating revokes the user's API tokens, removes their team
+	// schedules and skills, disconnects their calendars, and reassigns their open issues in the background. Reactivating does not
+	// restore any of these. Users provisioned through SCIM must be deactivated and reactivated in the identity provider.
+	IsDeactivated *bool `json:"is_deactivated,omitempty" url:"-"`
 	// The name of the user.
 	Name *string `json:"name,omitempty" url:"-"`
+	// The ID of the user to reassign the deactivated user's open issues to. Only valid with `is_deactivated: true`. If omitted, the issues are unassigned.
+	ReassignOpenIssuesToUserID *string `json:"reassign_open_issues_to_user_id,omitempty" url:"-"`
 	// The role_id of the user.
 	RoleID *string `json:"role_id,omitempty" url:"-"`
 	// The new status for the user: `active`, `away`, `out_of_office`, or a custom status slug from GET /user-statuses.
@@ -916,11 +1181,25 @@ func (u *UsersUpdateRequest) SetAvatarURL(avatarURL *string) {
 	u.require(usersUpdateRequestFieldAvatarURL)
 }
 
+// SetIsDeactivated sets the IsDeactivated field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (u *UsersUpdateRequest) SetIsDeactivated(isDeactivated *bool) {
+	u.IsDeactivated = isDeactivated
+	u.require(usersUpdateRequestFieldIsDeactivated)
+}
+
 // SetName sets the Name field and marks it as non-optional;
 // this prevents an empty or null value for this field from being omitted during serialization.
 func (u *UsersUpdateRequest) SetName(name *string) {
 	u.Name = name
 	u.require(usersUpdateRequestFieldName)
+}
+
+// SetReassignOpenIssuesToUserID sets the ReassignOpenIssuesToUserID field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (u *UsersUpdateRequest) SetReassignOpenIssuesToUserID(reassignOpenIssuesToUserID *string) {
+	u.ReassignOpenIssuesToUserID = reassignOpenIssuesToUserID
+	u.require(usersUpdateRequestFieldReassignOpenIssuesToUserID)
 }
 
 // SetRoleID sets the RoleID field and marks it as non-optional;

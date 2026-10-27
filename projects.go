@@ -12,18 +12,21 @@ import (
 
 var (
 	projectsCreateRequestFieldAccountID             = big.NewInt(1 << 0)
-	projectsCreateRequestFieldCustomerPortalVisible = big.NewInt(1 << 1)
-	projectsCreateRequestFieldDescriptionHTML       = big.NewInt(1 << 2)
-	projectsCreateRequestFieldEndDate               = big.NewInt(1 << 3)
-	projectsCreateRequestFieldName                  = big.NewInt(1 << 4)
-	projectsCreateRequestFieldOwnerID               = big.NewInt(1 << 5)
-	projectsCreateRequestFieldProjectTemplateID     = big.NewInt(1 << 6)
-	projectsCreateRequestFieldStartDate             = big.NewInt(1 << 7)
+	projectsCreateRequestFieldAiInstructions        = big.NewInt(1 << 1)
+	projectsCreateRequestFieldCustomerPortalVisible = big.NewInt(1 << 2)
+	projectsCreateRequestFieldDescriptionHTML       = big.NewInt(1 << 3)
+	projectsCreateRequestFieldEndDate               = big.NewInt(1 << 4)
+	projectsCreateRequestFieldName                  = big.NewInt(1 << 5)
+	projectsCreateRequestFieldOwnerID               = big.NewInt(1 << 6)
+	projectsCreateRequestFieldProjectTemplateID     = big.NewInt(1 << 7)
+	projectsCreateRequestFieldStartDate             = big.NewInt(1 << 8)
 )
 
 type ProjectsCreateRequest struct {
 	// Account ID for this project
 	AccountID string `json:"account_id" url:"-"`
+	// Instructions the AI follows when keeping this smart project up to date. Overrides the template's instructions when provided.
+	AiInstructions *string `json:"ai_instructions,omitempty" url:"-"`
 	// Customer portal visible for this project
 	CustomerPortalVisible *bool `json:"customer_portal_visible,omitempty" url:"-"`
 	// Description HTML for this project
@@ -34,7 +37,7 @@ type ProjectsCreateRequest struct {
 	Name *string `json:"name,omitempty" url:"-"`
 	// Owner ID for this project
 	OwnerID *string `json:"owner_id,omitempty" url:"-"`
-	// Project template ID for this project. When provided, it supplies defaults; non-empty name and description_html values and supplied customer_portal_visible and owner_id values override them. Supplying either start_date or end_date replaces both template dates.
+	// Project template ID for this project. When provided, it supplies defaults; non-empty name and description_html values and supplied ai_instructions, customer_portal_visible, and owner_id values override them. Supplying either start_date or end_date replaces both template dates.
 	ProjectTemplateID *string `json:"project_template_id,omitempty" url:"-"`
 	// Start date for this project, in RFC 3339 format
 	StartDate *time.Time `json:"start_date,omitempty" url:"-"`
@@ -57,6 +60,13 @@ func (p *ProjectsCreateRequest) require(field *big.Int) {
 func (p *ProjectsCreateRequest) SetAccountID(accountID string) {
 	p.AccountID = accountID
 	p.require(projectsCreateRequestFieldAccountID)
+}
+
+// SetAiInstructions sets the AiInstructions field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (p *ProjectsCreateRequest) SetAiInstructions(aiInstructions *string) {
+	p.AiInstructions = aiInstructions
+	p.require(projectsCreateRequestFieldAiInstructions)
 }
 
 // SetCustomerPortalVisible sets the CustomerPortalVisible field and marks it as non-optional;
@@ -647,21 +657,22 @@ func (m *MiniProjectTemplate) String() string {
 
 var (
 	projectFieldAccount               = big.NewInt(1 << 0)
-	projectFieldArchivedAt            = big.NewInt(1 << 1)
-	projectFieldCreatedAt             = big.NewInt(1 << 2)
-	projectFieldCustomFields          = big.NewInt(1 << 3)
-	projectFieldCustomerPortalVisible = big.NewInt(1 << 4)
-	projectFieldDescriptionHTML       = big.NewInt(1 << 5)
-	projectFieldEndDate               = big.NewInt(1 << 6)
-	projectFieldID                    = big.NewInt(1 << 7)
-	projectFieldIsArchived            = big.NewInt(1 << 8)
-	projectFieldName                  = big.NewInt(1 << 9)
-	projectFieldOwnerID               = big.NewInt(1 << 10)
-	projectFieldProgress              = big.NewInt(1 << 11)
-	projectFieldProjectTemplate       = big.NewInt(1 << 12)
-	projectFieldStartDate             = big.NewInt(1 << 13)
-	projectFieldStatus                = big.NewInt(1 << 14)
-	projectFieldUpdatedAt             = big.NewInt(1 << 15)
+	projectFieldAiInstructions        = big.NewInt(1 << 1)
+	projectFieldArchivedAt            = big.NewInt(1 << 2)
+	projectFieldCreatedAt             = big.NewInt(1 << 3)
+	projectFieldCustomFields          = big.NewInt(1 << 4)
+	projectFieldCustomerPortalVisible = big.NewInt(1 << 5)
+	projectFieldDescriptionHTML       = big.NewInt(1 << 6)
+	projectFieldEndDate               = big.NewInt(1 << 7)
+	projectFieldID                    = big.NewInt(1 << 8)
+	projectFieldIsArchived            = big.NewInt(1 << 9)
+	projectFieldName                  = big.NewInt(1 << 10)
+	projectFieldOwnerID               = big.NewInt(1 << 11)
+	projectFieldProgress              = big.NewInt(1 << 12)
+	projectFieldProjectTemplate       = big.NewInt(1 << 13)
+	projectFieldStartDate             = big.NewInt(1 << 14)
+	projectFieldStatus                = big.NewInt(1 << 15)
+	projectFieldUpdatedAt             = big.NewInt(1 << 16)
 )
 
 // projectNullableFields maps the wire names of Project's nullable fields (required or optional) to their field bits.
@@ -671,6 +682,8 @@ var projectNullableFields = map[string]*big.Int{
 
 type Project struct {
 	Account *MiniAccount `json:"account,omitempty" url:"account,omitempty"`
+	// Instructions the AI follows when keeping this smart project up to date.
+	AiInstructions string `json:"ai_instructions" url:"ai_instructions"`
 	// The archived at time of the project in RFC3339 format.
 	ArchivedAt *time.Time `json:"archived_at,omitempty" url:"archived_at,omitempty"`
 	// The created at time of the project.
@@ -715,6 +728,13 @@ func (p *Project) GetAccount() *MiniAccount {
 		return nil
 	}
 	return p.Account
+}
+
+func (p *Project) GetAiInstructions() string {
+	if p == nil {
+		return ""
+	}
+	return p.AiInstructions
 }
 
 func (p *Project) GetArchivedAt() *time.Time {
@@ -843,6 +863,13 @@ func (p *Project) require(field *big.Int) {
 func (p *Project) SetAccount(account *MiniAccount) {
 	p.Account = account
 	p.require(projectFieldAccount)
+}
+
+// SetAiInstructions sets the AiInstructions field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (p *Project) SetAiInstructions(aiInstructions string) {
+	p.AiInstructions = aiInstructions
+	p.require(projectFieldAiInstructions)
 }
 
 // SetArchivedAt sets the ArchivedAt field and marks it as non-optional;
@@ -1246,19 +1273,22 @@ func (u *UpdateProjectResponseBody) String() string {
 
 var (
 	projectsUpdateRequestFieldID                    = big.NewInt(1 << 0)
-	projectsUpdateRequestFieldCustomFields          = big.NewInt(1 << 1)
-	projectsUpdateRequestFieldCustomerPortalVisible = big.NewInt(1 << 2)
-	projectsUpdateRequestFieldDescriptionHTML       = big.NewInt(1 << 3)
-	projectsUpdateRequestFieldEndDate               = big.NewInt(1 << 4)
-	projectsUpdateRequestFieldIsArchived            = big.NewInt(1 << 5)
-	projectsUpdateRequestFieldName                  = big.NewInt(1 << 6)
-	projectsUpdateRequestFieldOwnerID               = big.NewInt(1 << 7)
-	projectsUpdateRequestFieldStartDate             = big.NewInt(1 << 8)
+	projectsUpdateRequestFieldAiInstructions        = big.NewInt(1 << 1)
+	projectsUpdateRequestFieldCustomFields          = big.NewInt(1 << 2)
+	projectsUpdateRequestFieldCustomerPortalVisible = big.NewInt(1 << 3)
+	projectsUpdateRequestFieldDescriptionHTML       = big.NewInt(1 << 4)
+	projectsUpdateRequestFieldEndDate               = big.NewInt(1 << 5)
+	projectsUpdateRequestFieldIsArchived            = big.NewInt(1 << 6)
+	projectsUpdateRequestFieldName                  = big.NewInt(1 << 7)
+	projectsUpdateRequestFieldOwnerID               = big.NewInt(1 << 8)
+	projectsUpdateRequestFieldStartDate             = big.NewInt(1 << 9)
 )
 
 type ProjectsUpdateRequest struct {
 	// The ID of the project to update.
 	ID string `json:"-" url:"-"`
+	// Instructions the AI follows when keeping this smart project up to date. Set to an empty string to clear them.
+	AiInstructions *string `json:"ai_instructions,omitempty" url:"-"`
 	// An array of custom fields to be used on this project. Only passed in fields will be modified.
 	CustomFields []*CustomFieldValue `json:"custom_fields,omitempty" url:"-"`
 	// Customer portal visible for this project
@@ -1294,6 +1324,13 @@ func (p *ProjectsUpdateRequest) require(field *big.Int) {
 func (p *ProjectsUpdateRequest) SetID(id string) {
 	p.ID = id
 	p.require(projectsUpdateRequestFieldID)
+}
+
+// SetAiInstructions sets the AiInstructions field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (p *ProjectsUpdateRequest) SetAiInstructions(aiInstructions *string) {
+	p.AiInstructions = aiInstructions
+	p.require(projectsUpdateRequestFieldAiInstructions)
 }
 
 // SetCustomFields sets the CustomFields field and marks it as non-optional;

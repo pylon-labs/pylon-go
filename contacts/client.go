@@ -135,6 +135,36 @@ func (c *Client) Create(
 	return response.Body, nil
 }
 
+// Merges a contact into a surviving contact. If the merged contact belongs to a different account, it is first moved to the surviving contact's account. Issues, emails, phone numbers, survey responses, and other associated data are then transferred to the surviving contact, and the merged contact is permanently deleted. This cannot be undone.
+//
+// **Rate limit:** 30 requests per minute
+//
+// Example:
+//
+//	request := &pylon.ContactsMergeRequest{
+//	    MergeContactID: "merge_contact_id",
+//	    MergeIntoContactID: "merge_into_contact_id",
+//	}
+//	client.Contacts.Merge(
+//	    context.TODO(),
+//	    request,
+//	)
+func (c *Client) Merge(
+	ctx context.Context,
+	request *pylon.ContactsMergeRequest,
+	opts ...option.RequestOption,
+) (*pylon.MergeContactsResponseBody, error) {
+	response, err := c.WithRawResponse.Merge(
+		ctx,
+		request,
+		opts...,
+	)
+	if err != nil {
+		return nil, err
+	}
+	return response.Body, nil
+}
+
 // Filterable fields and their allowed operators:
 //
 //	Field | Allowed operators |
