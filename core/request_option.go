@@ -65,8 +65,8 @@ func (r *RequestOptions) cloneHeader() http.Header {
 	headers := r.HTTPHeader.Clone()
 	headers.Set("X-Fern-Language", "Go")
 	headers.Set("X-Fern-SDK-Name", "github.com/pylon-labs/pylon-go")
-	headers.Set("X-Fern-SDK-Version", "v0.1.0-alpha.2")
-	headers.Set("User-Agent", "github.com/pylon-labs/pylon-go/0.1.0-alpha.2")
+	headers.Set("X-Fern-SDK-Version", "v0.1.0-alpha.3")
+	headers.Set("User-Agent", "github.com/pylon-labs/pylon-go/0.1.0-alpha.3")
 	return headers
 }
 
