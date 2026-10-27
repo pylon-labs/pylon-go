@@ -19,11 +19,27 @@ func TestSettersTasksCreateRequest(t *testing.T) {
 		assert.NotNil(t, obj.explicitFields)
 	})
 
+	t.Run("SetAiInstructions", func(t *testing.T) {
+		obj := &TasksCreateRequest{}
+		var fernTestValueAiInstructions *string
+		obj.SetAiInstructions(fernTestValueAiInstructions)
+		assert.Equal(t, fernTestValueAiInstructions, obj.AiInstructions)
+		assert.NotNil(t, obj.explicitFields)
+	})
+
 	t.Run("SetAssigneeID", func(t *testing.T) {
 		obj := &TasksCreateRequest{}
 		var fernTestValueAssigneeID *string
 		obj.SetAssigneeID(fernTestValueAssigneeID)
 		assert.Equal(t, fernTestValueAssigneeID, obj.AssigneeID)
+		assert.NotNil(t, obj.explicitFields)
+	})
+
+	t.Run("SetBlockedByTaskIDs", func(t *testing.T) {
+		obj := &TasksCreateRequest{}
+		var fernTestValueBlockedByTaskIDs []string
+		obj.SetBlockedByTaskIDs(fernTestValueBlockedByTaskIDs)
+		assert.Equal(t, fernTestValueBlockedByTaskIDs, obj.BlockedByTaskIDs)
 		assert.NotNil(t, obj.explicitFields)
 	})
 
@@ -133,6 +149,37 @@ func TestSettersMarkExplicitTasksCreateRequest(t *testing.T) {
 		// It verifies that setting a field via setter allows successful JSON round-trip
 	})
 
+	t.Run("SetAiInstructions_MarksExplicit", func(t *testing.T) {
+		t.Parallel()
+		// Arrange
+		obj := &TasksCreateRequest{}
+		var fernTestValueAiInstructions *string
+
+		// Act
+		obj.SetAiInstructions(fernTestValueAiInstructions)
+
+		// Assert - object with explicitly set field can be marshaled/unmarshaled
+		bytes, err := json.Marshal(obj)
+		require.NoError(t, err, "marshaling should succeed for test setup")
+
+		// This test ensures JSON marshaling and unmarshaling succeed when the field has a zero/nil value
+		// Detect if marshaled JSON is an object or primitive to use correct unmarshal target
+		if len(bytes) > 0 && bytes[0] == '{' {
+			// JSON object - unmarshal into map
+			var unmarshaled map[string]interface{}
+			err = json.Unmarshal(bytes, &unmarshaled)
+			require.NoError(t, err, "unmarshaling should succeed for test verification")
+		} else {
+			// JSON primitive (string, number, boolean, null) - unmarshal into interface{}
+			var unmarshaled interface{}
+			err = json.Unmarshal(bytes, &unmarshaled)
+			require.NoError(t, err, "unmarshaling should succeed for test verification")
+		}
+
+		// Note: This does not explicitly assert the presence of a specific JSON field
+		// It verifies that setting a field via setter allows successful JSON round-trip
+	})
+
 	t.Run("SetAssigneeID_MarksExplicit", func(t *testing.T) {
 		t.Parallel()
 		// Arrange
@@ -141,6 +188,37 @@ func TestSettersMarkExplicitTasksCreateRequest(t *testing.T) {
 
 		// Act
 		obj.SetAssigneeID(fernTestValueAssigneeID)
+
+		// Assert - object with explicitly set field can be marshaled/unmarshaled
+		bytes, err := json.Marshal(obj)
+		require.NoError(t, err, "marshaling should succeed for test setup")
+
+		// This test ensures JSON marshaling and unmarshaling succeed when the field has a zero/nil value
+		// Detect if marshaled JSON is an object or primitive to use correct unmarshal target
+		if len(bytes) > 0 && bytes[0] == '{' {
+			// JSON object - unmarshal into map
+			var unmarshaled map[string]interface{}
+			err = json.Unmarshal(bytes, &unmarshaled)
+			require.NoError(t, err, "unmarshaling should succeed for test verification")
+		} else {
+			// JSON primitive (string, number, boolean, null) - unmarshal into interface{}
+			var unmarshaled interface{}
+			err = json.Unmarshal(bytes, &unmarshaled)
+			require.NoError(t, err, "unmarshaling should succeed for test verification")
+		}
+
+		// Note: This does not explicitly assert the presence of a specific JSON field
+		// It verifies that setting a field via setter allows successful JSON round-trip
+	})
+
+	t.Run("SetBlockedByTaskIDs_MarksExplicit", func(t *testing.T) {
+		t.Parallel()
+		// Arrange
+		obj := &TasksCreateRequest{}
+		var fernTestValueBlockedByTaskIDs []string
+
+		// Act
+		obj.SetBlockedByTaskIDs(fernTestValueBlockedByTaskIDs)
 
 		// Assert - object with explicitly set field can be marshaled/unmarshaled
 		bytes, err := json.Marshal(obj)
@@ -2180,11 +2258,35 @@ func TestSettersTask(t *testing.T) {
 		assert.NotNil(t, obj.explicitFields)
 	})
 
+	t.Run("SetAiInstructions", func(t *testing.T) {
+		obj := &Task{}
+		var fernTestValueAiInstructions string
+		obj.SetAiInstructions(fernTestValueAiInstructions)
+		assert.Equal(t, fernTestValueAiInstructions, obj.AiInstructions)
+		assert.NotNil(t, obj.explicitFields)
+	})
+
 	t.Run("SetAssignee", func(t *testing.T) {
 		obj := &Task{}
 		var fernTestValueAssignee *Actor
 		obj.SetAssignee(fernTestValueAssignee)
 		assert.Equal(t, fernTestValueAssignee, obj.Assignee)
+		assert.NotNil(t, obj.explicitFields)
+	})
+
+	t.Run("SetBlockedByTaskIDs", func(t *testing.T) {
+		obj := &Task{}
+		var fernTestValueBlockedByTaskIDs []string
+		obj.SetBlockedByTaskIDs(fernTestValueBlockedByTaskIDs)
+		assert.Equal(t, fernTestValueBlockedByTaskIDs, obj.BlockedByTaskIDs)
+		assert.NotNil(t, obj.explicitFields)
+	})
+
+	t.Run("SetBlocksTaskIDs", func(t *testing.T) {
+		obj := &Task{}
+		var fernTestValueBlocksTaskIDs []string
+		obj.SetBlocksTaskIDs(fernTestValueBlocksTaskIDs)
+		assert.Equal(t, fernTestValueBlocksTaskIDs, obj.BlocksTaskIDs)
 		assert.NotNil(t, obj.explicitFields)
 	})
 
@@ -2352,6 +2454,29 @@ func TestGettersTask(t *testing.T) {
 		_ = obj.GetAccount() // Should return zero value
 	})
 
+	t.Run("GetAiInstructions", func(t *testing.T) {
+		t.Parallel()
+		// Arrange
+		obj := &Task{}
+		var expected string
+		obj.AiInstructions = expected
+
+		// Act & Assert
+		assert.Equal(t, expected, obj.GetAiInstructions(), "getter should return the property value")
+	})
+
+	t.Run("GetAiInstructions_NilReceiver", func(t *testing.T) {
+		t.Parallel()
+		var obj *Task
+		// Should not panic - getters should handle nil receiver gracefully
+		defer func() {
+			if r := recover(); r != nil {
+				t.Errorf("Getter panicked on nil receiver: %v", r)
+			}
+		}()
+		_ = obj.GetAiInstructions() // Should return zero value
+	})
+
 	t.Run("GetAssignee", func(t *testing.T) {
 		t.Parallel()
 		// Arrange
@@ -2383,6 +2508,72 @@ func TestGettersTask(t *testing.T) {
 			}
 		}()
 		_ = obj.GetAssignee() // Should return zero value
+	})
+
+	t.Run("GetBlockedByTaskIDs", func(t *testing.T) {
+		t.Parallel()
+		// Arrange
+		obj := &Task{}
+		var expected []string
+		obj.BlockedByTaskIDs = expected
+
+		// Act & Assert
+		assert.Equal(t, expected, obj.GetBlockedByTaskIDs(), "getter should return the property value")
+	})
+
+	t.Run("GetBlockedByTaskIDs_NilValue", func(t *testing.T) {
+		t.Parallel()
+		// Arrange
+		obj := &Task{}
+		obj.BlockedByTaskIDs = nil
+
+		// Act & Assert
+		assert.Nil(t, obj.GetBlockedByTaskIDs(), "getter should return nil when property is nil")
+	})
+
+	t.Run("GetBlockedByTaskIDs_NilReceiver", func(t *testing.T) {
+		t.Parallel()
+		var obj *Task
+		// Should not panic - getters should handle nil receiver gracefully
+		defer func() {
+			if r := recover(); r != nil {
+				t.Errorf("Getter panicked on nil receiver: %v", r)
+			}
+		}()
+		_ = obj.GetBlockedByTaskIDs() // Should return zero value
+	})
+
+	t.Run("GetBlocksTaskIDs", func(t *testing.T) {
+		t.Parallel()
+		// Arrange
+		obj := &Task{}
+		var expected []string
+		obj.BlocksTaskIDs = expected
+
+		// Act & Assert
+		assert.Equal(t, expected, obj.GetBlocksTaskIDs(), "getter should return the property value")
+	})
+
+	t.Run("GetBlocksTaskIDs_NilValue", func(t *testing.T) {
+		t.Parallel()
+		// Arrange
+		obj := &Task{}
+		obj.BlocksTaskIDs = nil
+
+		// Act & Assert
+		assert.Nil(t, obj.GetBlocksTaskIDs(), "getter should return nil when property is nil")
+	})
+
+	t.Run("GetBlocksTaskIDs_NilReceiver", func(t *testing.T) {
+		t.Parallel()
+		var obj *Task
+		// Should not panic - getters should handle nil receiver gracefully
+		defer func() {
+			if r := recover(); r != nil {
+				t.Errorf("Getter panicked on nil receiver: %v", r)
+			}
+		}()
+		_ = obj.GetBlocksTaskIDs() // Should return zero value
 	})
 
 	t.Run("GetBodyHTML", func(t *testing.T) {
@@ -2877,6 +3068,37 @@ func TestSettersMarkExplicitTask(t *testing.T) {
 		// It verifies that setting a field via setter allows successful JSON round-trip
 	})
 
+	t.Run("SetAiInstructions_MarksExplicit", func(t *testing.T) {
+		t.Parallel()
+		// Arrange
+		obj := &Task{}
+		var fernTestValueAiInstructions string
+
+		// Act
+		obj.SetAiInstructions(fernTestValueAiInstructions)
+
+		// Assert - object with explicitly set field can be marshaled/unmarshaled
+		bytes, err := json.Marshal(obj)
+		require.NoError(t, err, "marshaling should succeed for test setup")
+
+		// This test ensures JSON marshaling and unmarshaling succeed when the field has a zero/nil value
+		// Detect if marshaled JSON is an object or primitive to use correct unmarshal target
+		if len(bytes) > 0 && bytes[0] == '{' {
+			// JSON object - unmarshal into map
+			var unmarshaled map[string]interface{}
+			err = json.Unmarshal(bytes, &unmarshaled)
+			require.NoError(t, err, "unmarshaling should succeed for test verification")
+		} else {
+			// JSON primitive (string, number, boolean, null) - unmarshal into interface{}
+			var unmarshaled interface{}
+			err = json.Unmarshal(bytes, &unmarshaled)
+			require.NoError(t, err, "unmarshaling should succeed for test verification")
+		}
+
+		// Note: This does not explicitly assert the presence of a specific JSON field
+		// It verifies that setting a field via setter allows successful JSON round-trip
+	})
+
 	t.Run("SetAssignee_MarksExplicit", func(t *testing.T) {
 		t.Parallel()
 		// Arrange
@@ -2885,6 +3107,68 @@ func TestSettersMarkExplicitTask(t *testing.T) {
 
 		// Act
 		obj.SetAssignee(fernTestValueAssignee)
+
+		// Assert - object with explicitly set field can be marshaled/unmarshaled
+		bytes, err := json.Marshal(obj)
+		require.NoError(t, err, "marshaling should succeed for test setup")
+
+		// This test ensures JSON marshaling and unmarshaling succeed when the field has a zero/nil value
+		// Detect if marshaled JSON is an object or primitive to use correct unmarshal target
+		if len(bytes) > 0 && bytes[0] == '{' {
+			// JSON object - unmarshal into map
+			var unmarshaled map[string]interface{}
+			err = json.Unmarshal(bytes, &unmarshaled)
+			require.NoError(t, err, "unmarshaling should succeed for test verification")
+		} else {
+			// JSON primitive (string, number, boolean, null) - unmarshal into interface{}
+			var unmarshaled interface{}
+			err = json.Unmarshal(bytes, &unmarshaled)
+			require.NoError(t, err, "unmarshaling should succeed for test verification")
+		}
+
+		// Note: This does not explicitly assert the presence of a specific JSON field
+		// It verifies that setting a field via setter allows successful JSON round-trip
+	})
+
+	t.Run("SetBlockedByTaskIDs_MarksExplicit", func(t *testing.T) {
+		t.Parallel()
+		// Arrange
+		obj := &Task{}
+		var fernTestValueBlockedByTaskIDs []string
+
+		// Act
+		obj.SetBlockedByTaskIDs(fernTestValueBlockedByTaskIDs)
+
+		// Assert - object with explicitly set field can be marshaled/unmarshaled
+		bytes, err := json.Marshal(obj)
+		require.NoError(t, err, "marshaling should succeed for test setup")
+
+		// This test ensures JSON marshaling and unmarshaling succeed when the field has a zero/nil value
+		// Detect if marshaled JSON is an object or primitive to use correct unmarshal target
+		if len(bytes) > 0 && bytes[0] == '{' {
+			// JSON object - unmarshal into map
+			var unmarshaled map[string]interface{}
+			err = json.Unmarshal(bytes, &unmarshaled)
+			require.NoError(t, err, "unmarshaling should succeed for test verification")
+		} else {
+			// JSON primitive (string, number, boolean, null) - unmarshal into interface{}
+			var unmarshaled interface{}
+			err = json.Unmarshal(bytes, &unmarshaled)
+			require.NoError(t, err, "unmarshaling should succeed for test verification")
+		}
+
+		// Note: This does not explicitly assert the presence of a specific JSON field
+		// It verifies that setting a field via setter allows successful JSON round-trip
+	})
+
+	t.Run("SetBlocksTaskIDs_MarksExplicit", func(t *testing.T) {
+		t.Parallel()
+		// Arrange
+		obj := &Task{}
+		var fernTestValueBlocksTaskIDs []string
+
+		// Act
+		obj.SetBlocksTaskIDs(fernTestValueBlocksTaskIDs)
 
 		// Assert - object with explicitly set field can be marshaled/unmarshaled
 		bytes, err := json.Marshal(obj)
@@ -3558,11 +3842,27 @@ func TestSettersTasksUpdateRequest(t *testing.T) {
 		assert.NotNil(t, obj.explicitFields)
 	})
 
+	t.Run("SetAiInstructions", func(t *testing.T) {
+		obj := &TasksUpdateRequest{}
+		var fernTestValueAiInstructions *string
+		obj.SetAiInstructions(fernTestValueAiInstructions)
+		assert.Equal(t, fernTestValueAiInstructions, obj.AiInstructions)
+		assert.NotNil(t, obj.explicitFields)
+	})
+
 	t.Run("SetAssigneeID", func(t *testing.T) {
 		obj := &TasksUpdateRequest{}
 		var fernTestValueAssigneeID *string
 		obj.SetAssigneeID(fernTestValueAssigneeID)
 		assert.Equal(t, fernTestValueAssigneeID, obj.AssigneeID)
+		assert.NotNil(t, obj.explicitFields)
+	})
+
+	t.Run("SetBlockedByTaskIDs", func(t *testing.T) {
+		obj := &TasksUpdateRequest{}
+		var fernTestValueBlockedByTaskIDs []string
+		obj.SetBlockedByTaskIDs(fernTestValueBlockedByTaskIDs)
+		assert.Equal(t, fernTestValueBlockedByTaskIDs, obj.BlockedByTaskIDs)
 		assert.NotNil(t, obj.explicitFields)
 	})
 
@@ -3672,6 +3972,37 @@ func TestSettersMarkExplicitTasksUpdateRequest(t *testing.T) {
 		// It verifies that setting a field via setter allows successful JSON round-trip
 	})
 
+	t.Run("SetAiInstructions_MarksExplicit", func(t *testing.T) {
+		t.Parallel()
+		// Arrange
+		obj := &TasksUpdateRequest{}
+		var fernTestValueAiInstructions *string
+
+		// Act
+		obj.SetAiInstructions(fernTestValueAiInstructions)
+
+		// Assert - object with explicitly set field can be marshaled/unmarshaled
+		bytes, err := json.Marshal(obj)
+		require.NoError(t, err, "marshaling should succeed for test setup")
+
+		// This test ensures JSON marshaling and unmarshaling succeed when the field has a zero/nil value
+		// Detect if marshaled JSON is an object or primitive to use correct unmarshal target
+		if len(bytes) > 0 && bytes[0] == '{' {
+			// JSON object - unmarshal into map
+			var unmarshaled map[string]interface{}
+			err = json.Unmarshal(bytes, &unmarshaled)
+			require.NoError(t, err, "unmarshaling should succeed for test verification")
+		} else {
+			// JSON primitive (string, number, boolean, null) - unmarshal into interface{}
+			var unmarshaled interface{}
+			err = json.Unmarshal(bytes, &unmarshaled)
+			require.NoError(t, err, "unmarshaling should succeed for test verification")
+		}
+
+		// Note: This does not explicitly assert the presence of a specific JSON field
+		// It verifies that setting a field via setter allows successful JSON round-trip
+	})
+
 	t.Run("SetAssigneeID_MarksExplicit", func(t *testing.T) {
 		t.Parallel()
 		// Arrange
@@ -3680,6 +4011,37 @@ func TestSettersMarkExplicitTasksUpdateRequest(t *testing.T) {
 
 		// Act
 		obj.SetAssigneeID(fernTestValueAssigneeID)
+
+		// Assert - object with explicitly set field can be marshaled/unmarshaled
+		bytes, err := json.Marshal(obj)
+		require.NoError(t, err, "marshaling should succeed for test setup")
+
+		// This test ensures JSON marshaling and unmarshaling succeed when the field has a zero/nil value
+		// Detect if marshaled JSON is an object or primitive to use correct unmarshal target
+		if len(bytes) > 0 && bytes[0] == '{' {
+			// JSON object - unmarshal into map
+			var unmarshaled map[string]interface{}
+			err = json.Unmarshal(bytes, &unmarshaled)
+			require.NoError(t, err, "unmarshaling should succeed for test verification")
+		} else {
+			// JSON primitive (string, number, boolean, null) - unmarshal into interface{}
+			var unmarshaled interface{}
+			err = json.Unmarshal(bytes, &unmarshaled)
+			require.NoError(t, err, "unmarshaling should succeed for test verification")
+		}
+
+		// Note: This does not explicitly assert the presence of a specific JSON field
+		// It verifies that setting a field via setter allows successful JSON round-trip
+	})
+
+	t.Run("SetBlockedByTaskIDs_MarksExplicit", func(t *testing.T) {
+		t.Parallel()
+		// Arrange
+		obj := &TasksUpdateRequest{}
+		var fernTestValueBlockedByTaskIDs []string
+
+		// Act
+		obj.SetBlockedByTaskIDs(fernTestValueBlockedByTaskIDs)
 
 		// Assert - object with explicitly set field can be marshaled/unmarshaled
 		bytes, err := json.Marshal(obj)
@@ -4316,6 +4678,8 @@ func TestJSONMarshalingUpdateTaskResponseBody(t *testing.T) {
 
 func TestOptionalNullableRoundTripTask(t *testing.T) {
 	optionalNullableKeys := []string{
+		"blocked_by_task_ids",
+		"blocks_task_ids",
 		"custom_fields",
 		"subtask_ids",
 	}
@@ -4330,7 +4694,7 @@ func TestOptionalNullableRoundTripTask(t *testing.T) {
 	t.Run("NullPreserved", func(t *testing.T) {
 		t.Parallel()
 		var obj Task
-		require.NoError(t, json.Unmarshal([]byte(`{"custom_fields":null,"subtask_ids":null}`), &obj))
+		require.NoError(t, json.Unmarshal([]byte(`{"blocked_by_task_ids":null,"blocks_task_ids":null,"custom_fields":null,"subtask_ids":null}`), &obj))
 		result := marshalToMap(t, &obj)
 		for _, key := range optionalNullableKeys {
 			value, ok := result[key]

@@ -127,6 +127,33 @@ func TestContactsCreateWithWireMock(
 	VerifyRequestCount(t, "TestContactsCreateWithWireMock", "POST", "/contacts", nil, 1)
 }
 
+func TestContactsMergeWithWireMock(
+	t *testing.T,
+) {
+	WireMockBaseURL := os.Getenv("WIREMOCK_URL")
+	if WireMockBaseURL == "" {
+		WireMockBaseURL = "http://localhost:8080"
+	}
+	client := client.NewClient(
+		option.WithBaseURL(WireMockBaseURL),
+		option.WithToken("test-token"),
+	)
+	request := &pylon.ContactsMergeRequest{
+		MergeContactID:     "merge_contact_id",
+		MergeIntoContactID: "merge_into_contact_id",
+	}
+	_, invocationErr := client.Contacts.Merge(
+		context.TODO(),
+		request,
+		option.WithHTTPHeader(
+			http.Header{"X-Test-Id": []string{"TestContactsMergeWithWireMock"}},
+		),
+	)
+
+	require.NoError(t, invocationErr, "Client method call should succeed")
+	VerifyRequestCount(t, "TestContactsMergeWithWireMock", "POST", "/contacts/merge", nil, 1)
+}
+
 func TestContactsSearchWithWireMock(
 	t *testing.T,
 ) {

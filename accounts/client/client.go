@@ -8,6 +8,7 @@ import (
 
 	pylon "github.com/pylon-labs/pylon-go"
 	activities "github.com/pylon-labs/pylon-go/accounts/activities"
+	emailactivities "github.com/pylon-labs/pylon-go/accounts/emailactivities"
 	highlights "github.com/pylon-labs/pylon-go/accounts/highlights"
 	client "github.com/pylon-labs/pylon-go/accounts/notebookblocks/client"
 	relationships "github.com/pylon-labs/pylon-go/accounts/relationships"
@@ -21,6 +22,7 @@ type Client struct {
 	Highlights      *highlights.Client
 	Relationships   *relationships.Client
 	Activities      *activities.Client
+	EmailActivities *emailactivities.Client
 	NotebookBlocks  *client.Client
 
 	options *core.RequestOptions
@@ -33,6 +35,7 @@ func NewClient(options *core.RequestOptions) *Client {
 		Highlights:      highlights.NewClient(options),
 		Relationships:   relationships.NewClient(options),
 		Activities:      activities.NewClient(options),
+		EmailActivities: emailactivities.NewClient(options),
 		NotebookBlocks:  client.NewClient(options),
 		WithRawResponse: NewRawClient(options),
 		options:         options,

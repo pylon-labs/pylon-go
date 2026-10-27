@@ -5190,6 +5190,365 @@ func (d *DeleteTrainingDataDocumentsResponseBody) String() string {
 }
 
 var (
+	emailActivityFieldAccountID  = big.NewInt(1 << 0)
+	emailActivityFieldHappenedAt = big.NewInt(1 << 1)
+	emailActivityFieldID         = big.NewInt(1 << 2)
+	emailActivityFieldMessages   = big.NewInt(1 << 3)
+)
+
+type EmailActivity struct {
+	// The ID of the account that the activity belongs to.
+	AccountID string `json:"account_id" url:"account_id"`
+	// The timestamp (RFC3339) when the thread's latest email was sent. A thread moves forward as it gets replies.
+	HappenedAt time.Time `json:"happened_at" url:"happened_at"`
+	// The ID of the activity.
+	ID string `json:"id" url:"id"`
+	// The thread's emails sent from or to an account you can read, oldest first. Emails only between teammates are omitted.
+	Messages []*EmailActivityMessage `json:"messages" url:"messages"`
+
+	// Private bitmask of fields set to an explicit value and therefore not to be omitted
+	explicitFields *big.Int `json:"-" url:"-"`
+
+	extraProperties map[string]interface{}
+	rawJSON         json.RawMessage
+}
+
+func (e *EmailActivity) GetAccountID() string {
+	if e == nil {
+		return ""
+	}
+	return e.AccountID
+}
+
+func (e *EmailActivity) GetHappenedAt() time.Time {
+	if e == nil {
+		return time.Time{}
+	}
+	return e.HappenedAt
+}
+
+func (e *EmailActivity) GetID() string {
+	if e == nil {
+		return ""
+	}
+	return e.ID
+}
+
+func (e *EmailActivity) GetMessages() []*EmailActivityMessage {
+	if e == nil {
+		return nil
+	}
+	return e.Messages
+}
+
+func (e *EmailActivity) GetExtraProperties() map[string]interface{} {
+	if e == nil {
+		return nil
+	}
+	return e.extraProperties
+}
+
+func (e *EmailActivity) require(field *big.Int) {
+	next := new(big.Int)
+	if e.explicitFields != nil {
+		next.Set(e.explicitFields)
+	}
+	next.Or(next, field)
+	e.explicitFields = next
+}
+
+// SetAccountID sets the AccountID field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (e *EmailActivity) SetAccountID(accountID string) {
+	e.AccountID = accountID
+	e.require(emailActivityFieldAccountID)
+}
+
+// SetHappenedAt sets the HappenedAt field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (e *EmailActivity) SetHappenedAt(happenedAt time.Time) {
+	e.HappenedAt = happenedAt
+	e.require(emailActivityFieldHappenedAt)
+}
+
+// SetID sets the ID field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (e *EmailActivity) SetID(id string) {
+	e.ID = id
+	e.require(emailActivityFieldID)
+}
+
+// SetMessages sets the Messages field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (e *EmailActivity) SetMessages(messages []*EmailActivityMessage) {
+	e.Messages = messages
+	e.require(emailActivityFieldMessages)
+}
+
+func (e *EmailActivity) UnmarshalJSON(data []byte) error {
+	type embed EmailActivity
+	var unmarshaler = struct {
+		embed
+		HappenedAt *internal.DateTime `json:"happened_at"`
+	}{
+		embed: embed(*e),
+	}
+	if err := json.Unmarshal(data, &unmarshaler); err != nil {
+		return err
+	}
+	*e = EmailActivity(unmarshaler.embed)
+	e.HappenedAt = unmarshaler.HappenedAt.Time()
+	extraProperties, err := internal.ExtractExtraProperties(data, *e)
+	if err != nil {
+		return err
+	}
+	e.extraProperties = extraProperties
+	e.rawJSON = json.RawMessage(data)
+	return nil
+}
+
+func (e *EmailActivity) MarshalJSON() ([]byte, error) {
+	type embed EmailActivity
+	var marshaler = struct {
+		embed
+		HappenedAt *internal.DateTime `json:"happened_at"`
+	}{
+		embed:      embed(*e),
+		HappenedAt: internal.NewDateTime(e.HappenedAt),
+	}
+	explicitMarshaler := internal.HandleExplicitFields(marshaler, e.explicitFields)
+	return json.Marshal(explicitMarshaler)
+}
+
+func (e *EmailActivity) String() string {
+	if e == nil {
+		return "<nil>"
+	}
+	if len(e.rawJSON) > 0 {
+		if value, err := internal.StringifyJSON(e.rawJSON); err == nil {
+			return value
+		}
+	}
+	if value, err := internal.StringifyJSON(e); err == nil {
+		return value
+	}
+	return fmt.Sprintf("%#v", e)
+}
+
+var (
+	emailActivityMessageFieldContactID   = big.NewInt(1 << 0)
+	emailActivityMessageFieldEmailInfo   = big.NewInt(1 << 1)
+	emailActivityMessageFieldID          = big.NewInt(1 << 2)
+	emailActivityMessageFieldIssueID     = big.NewInt(1 << 3)
+	emailActivityMessageFieldMessageHTML = big.NewInt(1 << 4)
+	emailActivityMessageFieldSubject     = big.NewInt(1 << 5)
+	emailActivityMessageFieldTimestamp   = big.NewInt(1 << 6)
+	emailActivityMessageFieldUserID      = big.NewInt(1 << 7)
+)
+
+type EmailActivityMessage struct {
+	// The ID of the contact who sent the email, if the sender is a contact.
+	ContactID *string           `json:"contact_id,omitempty" url:"contact_id,omitempty"`
+	EmailInfo *EmailMessageInfo `json:"email_info" url:"email_info"`
+	// The ID of the email message.
+	ID string `json:"id" url:"id"`
+	// The ID of the issue this email is on, if any. The issue messages endpoint also returns issue emails; match them by email_info.message_id.
+	IssueID *string `json:"issue_id,omitempty" url:"issue_id,omitempty"`
+	// The HTML body of the email.
+	MessageHTML string `json:"message_html" url:"message_html"`
+	// The subject of the email.
+	Subject string `json:"subject" url:"subject"`
+	// The time the email was sent.
+	Timestamp time.Time `json:"timestamp" url:"timestamp"`
+	// The ID of the user who sent the email, if the sender is a Pylon user.
+	UserID *string `json:"user_id,omitempty" url:"user_id,omitempty"`
+
+	// Private bitmask of fields set to an explicit value and therefore not to be omitted
+	explicitFields *big.Int `json:"-" url:"-"`
+
+	extraProperties map[string]interface{}
+	rawJSON         json.RawMessage
+}
+
+func (e *EmailActivityMessage) GetContactID() *string {
+	if e == nil {
+		return nil
+	}
+	return e.ContactID
+}
+
+func (e *EmailActivityMessage) GetEmailInfo() *EmailMessageInfo {
+	if e == nil {
+		return nil
+	}
+	return e.EmailInfo
+}
+
+func (e *EmailActivityMessage) GetID() string {
+	if e == nil {
+		return ""
+	}
+	return e.ID
+}
+
+func (e *EmailActivityMessage) GetIssueID() *string {
+	if e == nil {
+		return nil
+	}
+	return e.IssueID
+}
+
+func (e *EmailActivityMessage) GetMessageHTML() string {
+	if e == nil {
+		return ""
+	}
+	return e.MessageHTML
+}
+
+func (e *EmailActivityMessage) GetSubject() string {
+	if e == nil {
+		return ""
+	}
+	return e.Subject
+}
+
+func (e *EmailActivityMessage) GetTimestamp() time.Time {
+	if e == nil {
+		return time.Time{}
+	}
+	return e.Timestamp
+}
+
+func (e *EmailActivityMessage) GetUserID() *string {
+	if e == nil {
+		return nil
+	}
+	return e.UserID
+}
+
+func (e *EmailActivityMessage) GetExtraProperties() map[string]interface{} {
+	if e == nil {
+		return nil
+	}
+	return e.extraProperties
+}
+
+func (e *EmailActivityMessage) require(field *big.Int) {
+	next := new(big.Int)
+	if e.explicitFields != nil {
+		next.Set(e.explicitFields)
+	}
+	next.Or(next, field)
+	e.explicitFields = next
+}
+
+// SetContactID sets the ContactID field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (e *EmailActivityMessage) SetContactID(contactID *string) {
+	e.ContactID = contactID
+	e.require(emailActivityMessageFieldContactID)
+}
+
+// SetEmailInfo sets the EmailInfo field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (e *EmailActivityMessage) SetEmailInfo(emailInfo *EmailMessageInfo) {
+	e.EmailInfo = emailInfo
+	e.require(emailActivityMessageFieldEmailInfo)
+}
+
+// SetID sets the ID field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (e *EmailActivityMessage) SetID(id string) {
+	e.ID = id
+	e.require(emailActivityMessageFieldID)
+}
+
+// SetIssueID sets the IssueID field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (e *EmailActivityMessage) SetIssueID(issueID *string) {
+	e.IssueID = issueID
+	e.require(emailActivityMessageFieldIssueID)
+}
+
+// SetMessageHTML sets the MessageHTML field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (e *EmailActivityMessage) SetMessageHTML(messageHTML string) {
+	e.MessageHTML = messageHTML
+	e.require(emailActivityMessageFieldMessageHTML)
+}
+
+// SetSubject sets the Subject field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (e *EmailActivityMessage) SetSubject(subject string) {
+	e.Subject = subject
+	e.require(emailActivityMessageFieldSubject)
+}
+
+// SetTimestamp sets the Timestamp field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (e *EmailActivityMessage) SetTimestamp(timestamp time.Time) {
+	e.Timestamp = timestamp
+	e.require(emailActivityMessageFieldTimestamp)
+}
+
+// SetUserID sets the UserID field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (e *EmailActivityMessage) SetUserID(userID *string) {
+	e.UserID = userID
+	e.require(emailActivityMessageFieldUserID)
+}
+
+func (e *EmailActivityMessage) UnmarshalJSON(data []byte) error {
+	type embed EmailActivityMessage
+	var unmarshaler = struct {
+		embed
+		Timestamp *internal.DateTime `json:"timestamp"`
+	}{
+		embed: embed(*e),
+	}
+	if err := json.Unmarshal(data, &unmarshaler); err != nil {
+		return err
+	}
+	*e = EmailActivityMessage(unmarshaler.embed)
+	e.Timestamp = unmarshaler.Timestamp.Time()
+	extraProperties, err := internal.ExtractExtraProperties(data, *e)
+	if err != nil {
+		return err
+	}
+	e.extraProperties = extraProperties
+	e.rawJSON = json.RawMessage(data)
+	return nil
+}
+
+func (e *EmailActivityMessage) MarshalJSON() ([]byte, error) {
+	type embed EmailActivityMessage
+	var marshaler = struct {
+		embed
+		Timestamp *internal.DateTime `json:"timestamp"`
+	}{
+		embed:     embed(*e),
+		Timestamp: internal.NewDateTime(e.Timestamp),
+	}
+	explicitMarshaler := internal.HandleExplicitFields(marshaler, e.explicitFields)
+	return json.Marshal(explicitMarshaler)
+}
+
+func (e *EmailActivityMessage) String() string {
+	if e == nil {
+		return "<nil>"
+	}
+	if len(e.rawJSON) > 0 {
+		if value, err := internal.StringifyJSON(e.rawJSON); err == nil {
+			return value
+		}
+	}
+	if value, err := internal.StringifyJSON(e); err == nil {
+		return value
+	}
+	return fmt.Sprintf("%#v", e)
+}
+
+var (
 	emailEventFieldEmail = big.NewInt(1 << 0)
 	emailEventFieldTime  = big.NewInt(1 << 1)
 )
@@ -7128,6 +7487,126 @@ func (g *GetCollectionsResponseBody) MarshalJSON() ([]byte, error) {
 }
 
 func (g *GetCollectionsResponseBody) String() string {
+	if g == nil {
+		return "<nil>"
+	}
+	if len(g.rawJSON) > 0 {
+		if value, err := internal.StringifyJSON(g.rawJSON); err == nil {
+			return value
+		}
+	}
+	if value, err := internal.StringifyJSON(g); err == nil {
+		return value
+	}
+	return fmt.Sprintf("%#v", g)
+}
+
+var (
+	getEmailActivitiesResponseBodyFieldData       = big.NewInt(1 << 0)
+	getEmailActivitiesResponseBodyFieldPagination = big.NewInt(1 << 1)
+	getEmailActivitiesResponseBodyFieldRequestID  = big.NewInt(1 << 2)
+)
+
+type GetEmailActivitiesResponseBody struct {
+	// The data payload of the response.
+	Data       []*EmailActivity `json:"data" url:"data"`
+	Pagination *Pagination      `json:"pagination,omitempty" url:"pagination,omitempty"`
+	// The request ID for tracking.
+	RequestID string `json:"request_id" url:"request_id"`
+
+	// Private bitmask of fields set to an explicit value and therefore not to be omitted
+	explicitFields *big.Int `json:"-" url:"-"`
+
+	extraProperties map[string]interface{}
+	rawJSON         json.RawMessage
+}
+
+func (g *GetEmailActivitiesResponseBody) GetData() []*EmailActivity {
+	if g == nil {
+		return nil
+	}
+	return g.Data
+}
+
+func (g *GetEmailActivitiesResponseBody) GetPagination() *Pagination {
+	if g == nil {
+		return nil
+	}
+	return g.Pagination
+}
+
+func (g *GetEmailActivitiesResponseBody) GetRequestID() string {
+	if g == nil {
+		return ""
+	}
+	return g.RequestID
+}
+
+func (g *GetEmailActivitiesResponseBody) GetExtraProperties() map[string]interface{} {
+	if g == nil {
+		return nil
+	}
+	return g.extraProperties
+}
+
+func (g *GetEmailActivitiesResponseBody) require(field *big.Int) {
+	next := new(big.Int)
+	if g.explicitFields != nil {
+		next.Set(g.explicitFields)
+	}
+	next.Or(next, field)
+	g.explicitFields = next
+}
+
+// SetData sets the Data field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (g *GetEmailActivitiesResponseBody) SetData(data []*EmailActivity) {
+	g.Data = data
+	g.require(getEmailActivitiesResponseBodyFieldData)
+}
+
+// SetPagination sets the Pagination field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (g *GetEmailActivitiesResponseBody) SetPagination(pagination *Pagination) {
+	g.Pagination = pagination
+	g.require(getEmailActivitiesResponseBodyFieldPagination)
+}
+
+// SetRequestID sets the RequestID field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (g *GetEmailActivitiesResponseBody) SetRequestID(requestID string) {
+	g.RequestID = requestID
+	g.require(getEmailActivitiesResponseBodyFieldRequestID)
+}
+
+func (g *GetEmailActivitiesResponseBody) UnmarshalJSON(data []byte) error {
+	type unmarshaler GetEmailActivitiesResponseBody
+	var value unmarshaler
+	if err := json.Unmarshal(data, &value); err != nil {
+		return err
+	}
+	*g = GetEmailActivitiesResponseBody(value)
+	extraProperties, err := internal.ExtractExtraProperties(data, *g)
+	if err != nil {
+		return err
+	}
+	g.extraProperties = extraProperties
+	g.rawJSON = json.RawMessage(data)
+	return nil
+}
+
+func (g *GetEmailActivitiesResponseBody) MarshalJSON() ([]byte, error) {
+	type embed GetEmailActivitiesResponseBody
+	var marshaler = struct {
+		embed
+	}{
+		embed: embed(*g),
+	}
+	explicitMarshaler := internal.HandleExplicitFields(marshaler, g.explicitFields)
+	return json.Marshal(explicitMarshaler)
+}
+
+func (g *GetEmailActivitiesResponseBody) String() string {
 	if g == nil {
 		return "<nil>"
 	}
@@ -12164,15 +12643,17 @@ var (
 	messageFieldID               = big.NewInt(1 << 4)
 	messageFieldIsPrivate        = big.NewInt(1 << 5)
 	messageFieldMessageHTML      = big.NewInt(1 << 6)
-	messageFieldSlackInfo        = big.NewInt(1 << 7)
-	messageFieldSource           = big.NewInt(1 << 8)
-	messageFieldThreadID         = big.NewInt(1 << 9)
-	messageFieldTimestamp        = big.NewInt(1 << 10)
+	messageFieldReactions        = big.NewInt(1 << 7)
+	messageFieldSlackInfo        = big.NewInt(1 << 8)
+	messageFieldSource           = big.NewInt(1 << 9)
+	messageFieldThreadID         = big.NewInt(1 << 10)
+	messageFieldTimestamp        = big.NewInt(1 << 11)
 )
 
 // messageNullableFields maps the wire names of Message's nullable fields (required or optional) to their field bits.
 var messageNullableFields = map[string]*big.Int{
-	"author": messageFieldAuthor,
+	"author":    messageFieldAuthor,
+	"reactions": messageFieldReactions,
 }
 
 type Message struct {
@@ -12187,8 +12668,10 @@ type Message struct {
 	// Whether the message is an internal note. If true, the message is not visible to the requester; if false, it is customer-visible.
 	IsPrivate bool `json:"is_private" url:"is_private"`
 	// The HTML body of the message.
-	MessageHTML string            `json:"message_html" url:"message_html"`
-	SlackInfo   *SlackMessageInfo `json:"slack_info,omitempty" url:"slack_info,omitempty"`
+	MessageHTML string `json:"message_html" url:"message_html"`
+	// The emoji reactions currently on the message, grouped by emoji.
+	Reactions []*MessageReaction `json:"reactions,omitempty" url:"reactions,omitempty"`
+	SlackInfo *SlackMessageInfo  `json:"slack_info,omitempty" url:"slack_info,omitempty"`
 	// The source of the message.
 	Source string `json:"source" url:"source"`
 	// The Pylon internal thread ID. This is set only for internal notes and can be passed as thread_id when creating an internal note.
@@ -12250,6 +12733,13 @@ func (m *Message) GetMessageHTML() string {
 		return ""
 	}
 	return m.MessageHTML
+}
+
+func (m *Message) GetReactions() []*MessageReaction {
+	if m == nil {
+		return nil
+	}
+	return m.Reactions
 }
 
 func (m *Message) GetSlackInfo() *SlackMessageInfo {
@@ -12343,6 +12833,13 @@ func (m *Message) SetIsPrivate(isPrivate bool) {
 func (m *Message) SetMessageHTML(messageHTML string) {
 	m.MessageHTML = messageHTML
 	m.require(messageFieldMessageHTML)
+}
+
+// SetReactions sets the Reactions field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (m *Message) SetReactions(reactions []*MessageReaction) {
+	m.Reactions = reactions
+	m.require(messageFieldReactions)
 }
 
 // SetSlackInfo sets the SlackInfo field and marks it as non-optional;
@@ -12550,6 +13047,110 @@ func (m *MessageAuthor) MarshalJSON() ([]byte, error) {
 }
 
 func (m *MessageAuthor) String() string {
+	if m == nil {
+		return "<nil>"
+	}
+	if len(m.rawJSON) > 0 {
+		if value, err := internal.StringifyJSON(m.rawJSON); err == nil {
+			return value
+		}
+	}
+	if value, err := internal.StringifyJSON(m); err == nil {
+		return value
+	}
+	return fmt.Sprintf("%#v", m)
+}
+
+var (
+	messageReactionFieldCount = big.NewInt(1 << 0)
+	messageReactionFieldName  = big.NewInt(1 << 1)
+)
+
+type MessageReaction struct {
+	// The number of people who reacted with this emoji.
+	Count int64 `json:"count" url:"count"`
+	// The emoji's Slack-style shortcode name without colons, such as thumbsup.
+	Name string `json:"name" url:"name"`
+
+	// Private bitmask of fields set to an explicit value and therefore not to be omitted
+	explicitFields *big.Int `json:"-" url:"-"`
+
+	extraProperties map[string]interface{}
+	rawJSON         json.RawMessage
+}
+
+func (m *MessageReaction) GetCount() int64 {
+	if m == nil {
+		return 0
+	}
+	return m.Count
+}
+
+func (m *MessageReaction) GetName() string {
+	if m == nil {
+		return ""
+	}
+	return m.Name
+}
+
+func (m *MessageReaction) GetExtraProperties() map[string]interface{} {
+	if m == nil {
+		return nil
+	}
+	return m.extraProperties
+}
+
+func (m *MessageReaction) require(field *big.Int) {
+	next := new(big.Int)
+	if m.explicitFields != nil {
+		next.Set(m.explicitFields)
+	}
+	next.Or(next, field)
+	m.explicitFields = next
+}
+
+// SetCount sets the Count field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (m *MessageReaction) SetCount(count int64) {
+	m.Count = count
+	m.require(messageReactionFieldCount)
+}
+
+// SetName sets the Name field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (m *MessageReaction) SetName(name string) {
+	m.Name = name
+	m.require(messageReactionFieldName)
+}
+
+func (m *MessageReaction) UnmarshalJSON(data []byte) error {
+	type unmarshaler MessageReaction
+	var value unmarshaler
+	if err := json.Unmarshal(data, &value); err != nil {
+		return err
+	}
+	*m = MessageReaction(value)
+	extraProperties, err := internal.ExtractExtraProperties(data, *m)
+	if err != nil {
+		return err
+	}
+	m.extraProperties = extraProperties
+	m.rawJSON = json.RawMessage(data)
+	return nil
+}
+
+func (m *MessageReaction) MarshalJSON() ([]byte, error) {
+	type embed MessageReaction
+	var marshaler = struct {
+		embed
+	}{
+		embed: embed(*m),
+	}
+	explicitMarshaler := internal.HandleExplicitFields(marshaler, m.explicitFields)
+	return json.Marshal(explicitMarshaler)
+}
+
+func (m *MessageReaction) String() string {
 	if m == nil {
 		return "<nil>"
 	}
