@@ -2687,9 +2687,10 @@ var (
 	destinationMetadataFieldFromSmsPhoneNumber              = big.NewInt(1 << 5)
 	destinationMetadataFieldFromSmsPhoneNumberID            = big.NewInt(1 << 6)
 	destinationMetadataFieldFromWhatsappPhoneNumber         = big.NewInt(1 << 7)
-	destinationMetadataFieldWhatsappAppID                   = big.NewInt(1 << 8)
-	destinationMetadataFieldWhatsappMessageTemplateLanguage = big.NewInt(1 << 9)
-	destinationMetadataFieldWhatsappMessageTemplateName     = big.NewInt(1 << 10)
+	destinationMetadataFieldSlackChannelID                  = big.NewInt(1 << 8)
+	destinationMetadataFieldWhatsappAppID                   = big.NewInt(1 << 9)
+	destinationMetadataFieldWhatsappMessageTemplateLanguage = big.NewInt(1 << 10)
+	destinationMetadataFieldWhatsappMessageTemplateName     = big.NewInt(1 << 11)
 )
 
 // Specifies if/how communication will be delivered to the customer.
@@ -2714,6 +2715,8 @@ type DestinationMetadata struct {
 	FromSmsPhoneNumberID *string `json:"from_sms_phone_number_id,omitempty" url:"from_sms_phone_number_id,omitempty"`
 	// The configured WhatsApp phone number to send messages from. Required if destination is "whatsapp" unless whatsapp_app_id is provided. The number is normalized and used to resolve the WhatsApp app within the organization.
 	FromWhatsappPhoneNumber *string `json:"from_whatsapp_phone_number,omitempty" url:"from_whatsapp_phone_number,omitempty"`
+	// The ID of the Slack channel to start the conversation in, as returned in the account's `channels[].channel_id`. Only valid when destination is "slack". Must be a non-internal Slack channel connected to the issue's account. Defaults to the account's primary Slack channel.
+	SlackChannelID *string `json:"slack_channel_id,omitempty" url:"slack_channel_id,omitempty"`
 	// The ID of the WhatsApp app to send messages from. Required if destination is "whatsapp" unless from_whatsapp_phone_number is provided. Deprecated: Use from_whatsapp_phone_number instead.
 	WhatsappAppID *string `json:"whatsapp_app_id,omitempty" url:"whatsapp_app_id,omitempty"`
 	// The language of the WhatsApp message template to use. Required if destination is "whatsapp".
@@ -2782,6 +2785,13 @@ func (d *DestinationMetadata) GetFromWhatsappPhoneNumber() *string {
 		return nil
 	}
 	return d.FromWhatsappPhoneNumber
+}
+
+func (d *DestinationMetadata) GetSlackChannelID() *string {
+	if d == nil {
+		return nil
+	}
+	return d.SlackChannelID
 }
 
 func (d *DestinationMetadata) GetWhatsappAppID() *string {
@@ -2875,6 +2885,13 @@ func (d *DestinationMetadata) SetFromSmsPhoneNumberID(fromSmsPhoneNumberID *stri
 func (d *DestinationMetadata) SetFromWhatsappPhoneNumber(fromWhatsappPhoneNumber *string) {
 	d.FromWhatsappPhoneNumber = fromWhatsappPhoneNumber
 	d.require(destinationMetadataFieldFromWhatsappPhoneNumber)
+}
+
+// SetSlackChannelID sets the SlackChannelID field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (d *DestinationMetadata) SetSlackChannelID(slackChannelID *string) {
+	d.SlackChannelID = slackChannelID
+	d.require(destinationMetadataFieldSlackChannelID)
 }
 
 // SetWhatsappAppID sets the WhatsappAppID field and marks it as non-optional;

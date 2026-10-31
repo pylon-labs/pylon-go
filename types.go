@@ -6252,8 +6252,10 @@ func (e *ExternalIncident) String() string {
 
 var (
 	externalIssueFieldExternalID = big.NewInt(1 << 0)
-	externalIssueFieldLink       = big.NewInt(1 << 1)
-	externalIssueFieldSource     = big.NewInt(1 << 2)
+	externalIssueFieldKey        = big.NewInt(1 << 1)
+	externalIssueFieldLink       = big.NewInt(1 << 2)
+	externalIssueFieldSource     = big.NewInt(1 << 3)
+	externalIssueFieldState      = big.NewInt(1 << 4)
 )
 
 type ExternalIssue struct {
@@ -6263,10 +6265,16 @@ type ExternalIssue struct {
 	// Linear: ID of the issue (UUID).
 	// Asana: ID of the task (Long number).
 	ExternalID string `json:"external_id" url:"external_id"`
+	// The human-readable key of the external issue, such as ENG-123 for Linear or Jira.
+	Key *string `json:"key,omitempty" url:"key,omitempty"`
 	// Link to the product issue.
 	Link string `json:"link" url:"link"`
 	// The source of the external issue.
 	Source string `json:"source" url:"source"`
+	// Whether the external issue is open, closed (done), or canceled, as last synced from the source.
+	//
+	// Known values: `open`, `closed`, `canceled`. This list is not exhaustive.
+	State *string `json:"state,omitempty" url:"state,omitempty"`
 
 	// Private bitmask of fields set to an explicit value and therefore not to be omitted
 	explicitFields *big.Int `json:"-" url:"-"`
@@ -6282,6 +6290,13 @@ func (e *ExternalIssue) GetExternalID() string {
 	return e.ExternalID
 }
 
+func (e *ExternalIssue) GetKey() *string {
+	if e == nil {
+		return nil
+	}
+	return e.Key
+}
+
 func (e *ExternalIssue) GetLink() string {
 	if e == nil {
 		return ""
@@ -6294,6 +6309,13 @@ func (e *ExternalIssue) GetSource() string {
 		return ""
 	}
 	return e.Source
+}
+
+func (e *ExternalIssue) GetState() *string {
+	if e == nil {
+		return nil
+	}
+	return e.State
 }
 
 func (e *ExternalIssue) GetExtraProperties() map[string]interface{} {
@@ -6319,6 +6341,13 @@ func (e *ExternalIssue) SetExternalID(externalID string) {
 	e.require(externalIssueFieldExternalID)
 }
 
+// SetKey sets the Key field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (e *ExternalIssue) SetKey(key *string) {
+	e.Key = key
+	e.require(externalIssueFieldKey)
+}
+
 // SetLink sets the Link field and marks it as non-optional;
 // this prevents an empty or null value for this field from being omitted during serialization.
 func (e *ExternalIssue) SetLink(link string) {
@@ -6331,6 +6360,13 @@ func (e *ExternalIssue) SetLink(link string) {
 func (e *ExternalIssue) SetSource(source string) {
 	e.Source = source
 	e.require(externalIssueFieldSource)
+}
+
+// SetState sets the State field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (e *ExternalIssue) SetState(state *string) {
+	e.State = state
+	e.require(externalIssueFieldState)
 }
 
 func (e *ExternalIssue) UnmarshalJSON(data []byte) error {
