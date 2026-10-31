@@ -262,7 +262,7 @@ var (
 type ContactsMergeRequest struct {
 	// The ID of the contact to merge into the surviving contact. This contact is permanently deleted after its data is transferred.
 	MergeContactID string `json:"merge_contact_id" url:"-"`
-	// The ID of the contact that will survive the merge and receive the merged data. The contact must belong to an account.
+	// The ID of the contact that will survive the merge and receive the merged data. If the merged contact belongs to an account, this contact must belong to the same account.
 	MergeIntoContactID string `json:"merge_into_contact_id" url:"-"`
 
 	// Private bitmask of fields set to an explicit value and therefore not to be omitted

@@ -5184,6 +5184,14 @@ func TestSettersDestinationMetadata(t *testing.T) {
 		assert.NotNil(t, obj.explicitFields)
 	})
 
+	t.Run("SetSlackChannelID", func(t *testing.T) {
+		obj := &DestinationMetadata{}
+		var fernTestValueSlackChannelID *string
+		obj.SetSlackChannelID(fernTestValueSlackChannelID)
+		assert.Equal(t, fernTestValueSlackChannelID, obj.SlackChannelID)
+		assert.NotNil(t, obj.explicitFields)
+	})
+
 	t.Run("SetWhatsappAppID", func(t *testing.T) {
 		obj := &DestinationMetadata{}
 		var fernTestValueWhatsappAppID *string
@@ -5463,6 +5471,39 @@ func TestGettersDestinationMetadata(t *testing.T) {
 			}
 		}()
 		_ = obj.GetFromWhatsappPhoneNumber() // Should return zero value
+	})
+
+	t.Run("GetSlackChannelID", func(t *testing.T) {
+		t.Parallel()
+		// Arrange
+		obj := &DestinationMetadata{}
+		var expected *string
+		obj.SlackChannelID = expected
+
+		// Act & Assert
+		assert.Equal(t, expected, obj.GetSlackChannelID(), "getter should return the property value")
+	})
+
+	t.Run("GetSlackChannelID_NilValue", func(t *testing.T) {
+		t.Parallel()
+		// Arrange
+		obj := &DestinationMetadata{}
+		obj.SlackChannelID = nil
+
+		// Act & Assert
+		assert.Nil(t, obj.GetSlackChannelID(), "getter should return nil when property is nil")
+	})
+
+	t.Run("GetSlackChannelID_NilReceiver", func(t *testing.T) {
+		t.Parallel()
+		var obj *DestinationMetadata
+		// Should not panic - getters should handle nil receiver gracefully
+		defer func() {
+			if r := recover(); r != nil {
+				t.Errorf("Getter panicked on nil receiver: %v", r)
+			}
+		}()
+		_ = obj.GetSlackChannelID() // Should return zero value
 	})
 
 	t.Run("GetWhatsappAppID", func(t *testing.T) {
@@ -5792,6 +5833,37 @@ func TestSettersMarkExplicitDestinationMetadata(t *testing.T) {
 
 		// Act
 		obj.SetFromWhatsappPhoneNumber(fernTestValueFromWhatsappPhoneNumber)
+
+		// Assert - object with explicitly set field can be marshaled/unmarshaled
+		bytes, err := json.Marshal(obj)
+		require.NoError(t, err, "marshaling should succeed for test setup")
+
+		// This test ensures JSON marshaling and unmarshaling succeed when the field has a zero/nil value
+		// Detect if marshaled JSON is an object or primitive to use correct unmarshal target
+		if len(bytes) > 0 && bytes[0] == '{' {
+			// JSON object - unmarshal into map
+			var unmarshaled map[string]interface{}
+			err = json.Unmarshal(bytes, &unmarshaled)
+			require.NoError(t, err, "unmarshaling should succeed for test verification")
+		} else {
+			// JSON primitive (string, number, boolean, null) - unmarshal into interface{}
+			var unmarshaled interface{}
+			err = json.Unmarshal(bytes, &unmarshaled)
+			require.NoError(t, err, "unmarshaling should succeed for test verification")
+		}
+
+		// Note: This does not explicitly assert the presence of a specific JSON field
+		// It verifies that setting a field via setter allows successful JSON round-trip
+	})
+
+	t.Run("SetSlackChannelID_MarksExplicit", func(t *testing.T) {
+		t.Parallel()
+		// Arrange
+		obj := &DestinationMetadata{}
+		var fernTestValueSlackChannelID *string
+
+		// Act
+		obj.SetSlackChannelID(fernTestValueSlackChannelID)
 
 		// Assert - object with explicitly set field can be marshaled/unmarshaled
 		bytes, err := json.Marshal(obj)
