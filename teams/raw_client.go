@@ -162,6 +162,51 @@ func (r *RawClient) Get(
 	}, nil
 }
 
+func (r *RawClient) Delete(
+	ctx context.Context,
+	request *pylon.TeamsDeleteRequest,
+	opts ...option.RequestOption,
+) (*core.Response[*pylon.DeleteTeamResponseBody], error) {
+	options := core.NewRequestOptions(opts...)
+	baseURL := internal.ResolveBaseURL(
+		options.BaseURL,
+		r.baseURL,
+		"https://api.usepylon.com",
+	)
+	endpointURL := internal.EncodeURL(
+		baseURL+"/teams/%v",
+		request.ID,
+	)
+	headers := internal.MergeHeaders(
+		r.options.ToHeader(),
+		options.ToHeader(),
+	)
+	var response *pylon.DeleteTeamResponseBody
+	raw, err := r.caller.Call(
+		ctx,
+		&internal.CallParams{
+			URL:             endpointURL,
+			Method:          http.MethodDelete,
+			Headers:         headers,
+			MaxAttempts:     options.MaxAttempts,
+			DisableRetries:  options.DisableRetries,
+			BodyProperties:  options.BodyProperties,
+			QueryParameters: options.QueryParameters,
+			Client:          options.HTTPClient,
+			Response:        &response,
+			ErrorDecoder:    internal.NewErrorDecoder(pylon.ErrorCodes),
+		},
+	)
+	if err != nil {
+		return nil, err
+	}
+	return &core.Response[*pylon.DeleteTeamResponseBody]{
+		StatusCode: raw.StatusCode,
+		Header:     raw.Header,
+		Body:       response,
+	}, nil
+}
+
 func (r *RawClient) Update(
 	ctx context.Context,
 	request *pylon.TeamsUpdateRequest,

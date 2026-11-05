@@ -300,3 +300,48 @@ func (r *RawClient) Update(
 		Body:       response,
 	}, nil
 }
+
+func (r *RawClient) PortalInvitation(
+	ctx context.Context,
+	request *pylon.ContactsPortalInvitationRequest,
+	opts ...option.RequestOption,
+) (*core.Response[*pylon.SendCustomerPortalInvitationResponseBody], error) {
+	options := core.NewRequestOptions(opts...)
+	baseURL := internal.ResolveBaseURL(
+		options.BaseURL,
+		r.baseURL,
+		"https://api.usepylon.com",
+	)
+	endpointURL := internal.EncodeURL(
+		baseURL+"/contacts/%v/portal-invitation",
+		request.ContactID,
+	)
+	headers := internal.MergeHeaders(
+		r.options.ToHeader(),
+		options.ToHeader(),
+	)
+	var response *pylon.SendCustomerPortalInvitationResponseBody
+	raw, err := r.caller.Call(
+		ctx,
+		&internal.CallParams{
+			URL:             endpointURL,
+			Method:          http.MethodPost,
+			Headers:         headers,
+			MaxAttempts:     options.MaxAttempts,
+			DisableRetries:  true,
+			BodyProperties:  options.BodyProperties,
+			QueryParameters: options.QueryParameters,
+			Client:          options.HTTPClient,
+			Response:        &response,
+			ErrorDecoder:    internal.NewErrorDecoder(pylon.ErrorCodes),
+		},
+	)
+	if err != nil {
+		return nil, err
+	}
+	return &core.Response[*pylon.SendCustomerPortalInvitationResponseBody]{
+		StatusCode: raw.StatusCode,
+		Header:     raw.Header,
+		Body:       response,
+	}, nil
+}

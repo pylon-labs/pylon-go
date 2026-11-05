@@ -135,7 +135,7 @@ func (c *Client) Create(
 	return response.Body, nil
 }
 
-// Merges a contact into a surviving contact. If the merged contact belongs to a different account, it is first moved to the surviving contact's account. Issues, emails, phone numbers, survey responses, and other associated data are then transferred to the surviving contact, and the merged contact is permanently deleted. This cannot be undone.
+// Merges a contact into a surviving contact. Both contacts must belong to the same account, unless the merged contact has no account, in which case it is first moved to the surviving contact's account. Issues, emails, phone numbers, survey responses, and other associated data are then transferred to the surviving contact, and the merged contact is permanently deleted. This cannot be undone.
 //
 // **Rate limit:** 30 requests per minute
 //
@@ -278,6 +278,35 @@ func (c *Client) Update(
 	opts ...option.RequestOption,
 ) (*pylon.UpdateContactResponseBody, error) {
 	response, err := c.WithRawResponse.Update(
+		ctx,
+		request,
+		opts...,
+	)
+	if err != nil {
+		return nil, err
+	}
+	return response.Body, nil
+}
+
+// Sends or resends a portal invitation to the contact's primary email. The portal must be enabled and the contact must already have portal access. Does not change the contact's role. Requires customer portal settings write permission and write access to the contact's primary account, if any. Each successful call requests another invitation; success does not guarantee email delivery.
+//
+// **Rate limit:** 30 requests per minute
+//
+// Example:
+//
+//	request := &pylon.ContactsPortalInvitationRequest{
+//	    ContactID: "id",
+//	}
+//	client.Contacts.PortalInvitation(
+//	    context.TODO(),
+//	    request,
+//	)
+func (c *Client) PortalInvitation(
+	ctx context.Context,
+	request *pylon.ContactsPortalInvitationRequest,
+	opts ...option.RequestOption,
+) (*pylon.SendCustomerPortalInvitationResponseBody, error) {
+	response, err := c.WithRawResponse.PortalInvitation(
 		ctx,
 		request,
 		opts...,

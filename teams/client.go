@@ -118,6 +118,37 @@ func (c *Client) Get(
 	return response.Body, nil
 }
 
+// Delete an existing team
+// Deletes a team and its memberships and schedules. Subteams are detached and remain available.
+// Teams referenced by other configuration or owning internal accounts cannot be deleted until those references are removed.
+//
+// **Rate limit:** 30 requests per minute
+//
+// Example:
+//
+//	request := &pylon.TeamsDeleteRequest{
+//	    ID: "id",
+//	}
+//	client.Teams.Delete(
+//	    context.TODO(),
+//	    request,
+//	)
+func (c *Client) Delete(
+	ctx context.Context,
+	request *pylon.TeamsDeleteRequest,
+	opts ...option.RequestOption,
+) (*pylon.DeleteTeamResponseBody, error) {
+	response, err := c.WithRawResponse.Delete(
+		ctx,
+		request,
+		opts...,
+	)
+	if err != nil {
+		return nil, err
+	}
+	return response.Body, nil
+}
+
 // Updates an existing team, including how it assigns issues and its recurring assignment
 // schedule. Only provided fields are modified; supplying schedule.blocks replaces the whole
 // rotation, and omitting it leaves the rotation unchanged.

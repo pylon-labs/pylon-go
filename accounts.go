@@ -437,6 +437,7 @@ var (
 	accountsSearchRequestFieldFilter     = big.NewInt(1 << 1)
 	accountsSearchRequestFieldLimit      = big.NewInt(1 << 2)
 	accountsSearchRequestFieldSearchText = big.NewInt(1 << 3)
+	accountsSearchRequestFieldSort       = big.NewInt(1 << 4)
 )
 
 type AccountsSearchRequest struct {
@@ -447,6 +448,8 @@ type AccountsSearchRequest struct {
 	Limit *int64 `json:"limit,omitempty" url:"-"`
 	// Fuzzy text search. Results are intersected with any provided filter.
 	SearchText *string `json:"search_text,omitempty" url:"-"`
+	// The order of results, as a list of sort keys. Only one sort key is supported right now. Omit for the default order. Send the same sort with every page of a cursor.
+	Sort []*SearchAccountsSort `json:"sort,omitempty" url:"-"`
 
 	// Private bitmask of fields set to an explicit value and therefore not to be omitted
 	explicitFields *big.Int `json:"-" url:"-"`
@@ -487,6 +490,13 @@ func (a *AccountsSearchRequest) SetLimit(limit *int64) {
 func (a *AccountsSearchRequest) SetSearchText(searchText *string) {
 	a.SearchText = searchText
 	a.require(accountsSearchRequestFieldSearchText)
+}
+
+// SetSort sets the Sort field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (a *AccountsSearchRequest) SetSort(sort []*SearchAccountsSort) {
+	a.Sort = sort
+	a.require(accountsSearchRequestFieldSort)
 }
 
 func (a *AccountsSearchRequest) UnmarshalJSON(data []byte) error {
@@ -2087,6 +2097,165 @@ func (s *SearchAccountsResponseBody) String() string {
 		return value
 	}
 	return fmt.Sprintf("%#v", s)
+}
+
+var (
+	searchAccountsSortFieldField = big.NewInt(1 << 0)
+	searchAccountsSortFieldOrder = big.NewInt(1 << 1)
+)
+
+type SearchAccountsSort struct {
+	// The field to sort by.
+	Field SearchAccountsSortField `json:"field" url:"field"`
+	// The sort direction. Defaults to desc.
+	Order *SearchAccountsSortOrder `json:"order,omitempty" url:"order,omitempty"`
+
+	// Private bitmask of fields set to an explicit value and therefore not to be omitted
+	explicitFields *big.Int `json:"-" url:"-"`
+
+	extraProperties map[string]interface{}
+	rawJSON         json.RawMessage
+}
+
+func (s *SearchAccountsSort) GetField() SearchAccountsSortField {
+	if s == nil {
+		return ""
+	}
+	return s.Field
+}
+
+func (s *SearchAccountsSort) GetOrder() *SearchAccountsSortOrder {
+	if s == nil {
+		return nil
+	}
+	return s.Order
+}
+
+func (s *SearchAccountsSort) GetExtraProperties() map[string]interface{} {
+	if s == nil {
+		return nil
+	}
+	return s.extraProperties
+}
+
+func (s *SearchAccountsSort) require(field *big.Int) {
+	next := new(big.Int)
+	if s.explicitFields != nil {
+		next.Set(s.explicitFields)
+	}
+	next.Or(next, field)
+	s.explicitFields = next
+}
+
+// SetField sets the Field field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (s *SearchAccountsSort) SetField(field SearchAccountsSortField) {
+	s.Field = field
+	s.require(searchAccountsSortFieldField)
+}
+
+// SetOrder sets the Order field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (s *SearchAccountsSort) SetOrder(order *SearchAccountsSortOrder) {
+	s.Order = order
+	s.require(searchAccountsSortFieldOrder)
+}
+
+func (s *SearchAccountsSort) UnmarshalJSON(data []byte) error {
+	type unmarshaler SearchAccountsSort
+	var value unmarshaler
+	if err := json.Unmarshal(data, &value); err != nil {
+		return err
+	}
+	*s = SearchAccountsSort(value)
+	extraProperties, err := internal.ExtractExtraProperties(data, *s)
+	if err != nil {
+		return err
+	}
+	s.extraProperties = extraProperties
+	s.rawJSON = json.RawMessage(data)
+	return nil
+}
+
+func (s *SearchAccountsSort) MarshalJSON() ([]byte, error) {
+	type embed SearchAccountsSort
+	var marshaler = struct {
+		embed
+	}{
+		embed: embed(*s),
+	}
+	explicitMarshaler := internal.HandleExplicitFields(marshaler, s.explicitFields)
+	return json.Marshal(explicitMarshaler)
+}
+
+func (s *SearchAccountsSort) String() string {
+	if s == nil {
+		return "<nil>"
+	}
+	if len(s.rawJSON) > 0 {
+		if value, err := internal.StringifyJSON(s.rawJSON); err == nil {
+			return value
+		}
+	}
+	if value, err := internal.StringifyJSON(s); err == nil {
+		return value
+	}
+	return fmt.Sprintf("%#v", s)
+}
+
+// The field to sort by.
+type SearchAccountsSortField string
+
+const (
+	SearchAccountsSortFieldName                   SearchAccountsSortField = "name"
+	SearchAccountsSortFieldCreatedAt              SearchAccountsSortField = "created_at"
+	SearchAccountsSortFieldLastCustomerActivityAt SearchAccountsSortField = "last_customer_activity_at"
+	SearchAccountsSortFieldLastVendorActivityAt   SearchAccountsSortField = "last_vendor_activity_at"
+	SearchAccountsSortFieldIssueCountLast90Days   SearchAccountsSortField = "issue_count_last_90_days"
+)
+
+func NewSearchAccountsSortFieldFromString(s string) (SearchAccountsSortField, error) {
+	switch s {
+	case "name":
+		return SearchAccountsSortFieldName, nil
+	case "created_at":
+		return SearchAccountsSortFieldCreatedAt, nil
+	case "last_customer_activity_at":
+		return SearchAccountsSortFieldLastCustomerActivityAt, nil
+	case "last_vendor_activity_at":
+		return SearchAccountsSortFieldLastVendorActivityAt, nil
+	case "issue_count_last_90_days":
+		return SearchAccountsSortFieldIssueCountLast90Days, nil
+	}
+	var t SearchAccountsSortField
+	return "", fmt.Errorf("%s is not a valid %T", s, t)
+}
+
+func (s SearchAccountsSortField) Ptr() *SearchAccountsSortField {
+	return &s
+}
+
+// The sort direction. Defaults to desc.
+type SearchAccountsSortOrder string
+
+const (
+	SearchAccountsSortOrderAsc  SearchAccountsSortOrder = "asc"
+	SearchAccountsSortOrderDesc SearchAccountsSortOrder = "desc"
+)
+
+func NewSearchAccountsSortOrderFromString(s string) (SearchAccountsSortOrder, error) {
+	switch s {
+	case "asc":
+		return SearchAccountsSortOrderAsc, nil
+	case "desc":
+		return SearchAccountsSortOrderDesc, nil
+	}
+	var t SearchAccountsSortOrder
+	return "", fmt.Errorf("%s is not a valid %T", s, t)
+}
+
+func (s SearchAccountsSortOrder) Ptr() *SearchAccountsSortOrder {
+	return &s
 }
 
 var (

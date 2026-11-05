@@ -785,16 +785,19 @@ func (t *TicketForm) String() string {
 }
 
 var (
-	ticketFormLayoutFieldFieldDescriptionHTML      = big.NewInt(1 << 0)
-	ticketFormLayoutFieldFieldHidden               = big.NewInt(1 << 1)
-	ticketFormLayoutFieldFieldName                 = big.NewInt(1 << 2)
-	ticketFormLayoutFieldFieldRequired             = big.NewInt(1 << 3)
-	ticketFormLayoutFieldFieldSlug                 = big.NewInt(1 << 4)
-	ticketFormLayoutFieldFieldType                 = big.NewInt(1 << 5)
-	ticketFormLayoutFieldFieldVisibilityConditions = big.NewInt(1 << 6)
+	ticketFormLayoutFieldFieldCustomFieldID        = big.NewInt(1 << 0)
+	ticketFormLayoutFieldFieldDescriptionHTML      = big.NewInt(1 << 1)
+	ticketFormLayoutFieldFieldHidden               = big.NewInt(1 << 2)
+	ticketFormLayoutFieldFieldName                 = big.NewInt(1 << 3)
+	ticketFormLayoutFieldFieldRequired             = big.NewInt(1 << 4)
+	ticketFormLayoutFieldFieldSlug                 = big.NewInt(1 << 5)
+	ticketFormLayoutFieldFieldType                 = big.NewInt(1 << 6)
+	ticketFormLayoutFieldFieldVisibilityConditions = big.NewInt(1 << 7)
 )
 
 type TicketFormLayoutField struct {
+	// The ID of the custom field definition. Set only when type is custom_field.
+	CustomFieldID *string `json:"custom_field_id,omitempty" url:"custom_field_id,omitempty"`
 	// The description of the ticket form layout field in HTML.
 	DescriptionHTML string `json:"description_html" url:"description_html"`
 	// Indicates whether the field starts hidden. A hidden field is only shown when a
@@ -818,6 +821,13 @@ type TicketFormLayoutField struct {
 
 	extraProperties map[string]interface{}
 	rawJSON         json.RawMessage
+}
+
+func (t *TicketFormLayoutField) GetCustomFieldID() *string {
+	if t == nil {
+		return nil
+	}
+	return t.CustomFieldID
 }
 
 func (t *TicketFormLayoutField) GetDescriptionHTML() string {
@@ -883,6 +893,13 @@ func (t *TicketFormLayoutField) require(field *big.Int) {
 	}
 	next.Or(next, field)
 	t.explicitFields = next
+}
+
+// SetCustomFieldID sets the CustomFieldID field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (t *TicketFormLayoutField) SetCustomFieldID(customFieldID *string) {
+	t.CustomFieldID = customFieldID
+	t.require(ticketFormLayoutFieldFieldCustomFieldID)
 }
 
 // SetDescriptionHTML sets the DescriptionHTML field and marks it as non-optional;

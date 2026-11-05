@@ -262,7 +262,7 @@ var (
 type ContactsMergeRequest struct {
 	// The ID of the contact to merge into the surviving contact. This contact is permanently deleted after its data is transferred.
 	MergeContactID string `json:"merge_contact_id" url:"-"`
-	// The ID of the contact that will survive the merge and receive the merged data. The contact must belong to an account.
+	// The ID of the contact that will survive the merge and receive the merged data. If the merged contact belongs to an account, this contact must belong to the same account.
 	MergeIntoContactID string `json:"merge_into_contact_id" url:"-"`
 
 	// Private bitmask of fields set to an explicit value and therefore not to be omitted
@@ -311,6 +311,34 @@ func (c *ContactsMergeRequest) MarshalJSON() ([]byte, error) {
 	}
 	explicitMarshaler := internal.HandleExplicitFields(marshaler, c.explicitFields)
 	return json.Marshal(explicitMarshaler)
+}
+
+var (
+	contactsPortalInvitationRequestFieldContactID = big.NewInt(1 << 0)
+)
+
+type ContactsPortalInvitationRequest struct {
+	// The ID of the contact to invite.
+	ContactID string `json:"-" url:"-"`
+
+	// Private bitmask of fields set to an explicit value and therefore not to be omitted
+	explicitFields *big.Int `json:"-" url:"-"`
+}
+
+func (c *ContactsPortalInvitationRequest) require(field *big.Int) {
+	next := new(big.Int)
+	if c.explicitFields != nil {
+		next.Set(c.explicitFields)
+	}
+	next.Or(next, field)
+	c.explicitFields = next
+}
+
+// SetContactID sets the ContactID field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (c *ContactsPortalInvitationRequest) SetContactID(contactID string) {
+	c.ContactID = contactID
+	c.require(contactsPortalInvitationRequestFieldContactID)
 }
 
 var (
@@ -789,6 +817,93 @@ func (c *CreateContactResponseBody) MarshalJSON() ([]byte, error) {
 }
 
 func (c *CreateContactResponseBody) String() string {
+	if c == nil {
+		return "<nil>"
+	}
+	if len(c.rawJSON) > 0 {
+		if value, err := internal.StringifyJSON(c.rawJSON); err == nil {
+			return value
+		}
+	}
+	if value, err := internal.StringifyJSON(c); err == nil {
+		return value
+	}
+	return fmt.Sprintf("%#v", c)
+}
+
+var (
+	customerPortalInvitationResultFieldAccepted = big.NewInt(1 << 0)
+)
+
+type CustomerPortalInvitationResult struct {
+	// Whether the invitation was accepted for sending. This does not guarantee email delivery.
+	Accepted bool `json:"accepted" url:"accepted"`
+
+	// Private bitmask of fields set to an explicit value and therefore not to be omitted
+	explicitFields *big.Int `json:"-" url:"-"`
+
+	extraProperties map[string]interface{}
+	rawJSON         json.RawMessage
+}
+
+func (c *CustomerPortalInvitationResult) GetAccepted() bool {
+	if c == nil {
+		return false
+	}
+	return c.Accepted
+}
+
+func (c *CustomerPortalInvitationResult) GetExtraProperties() map[string]interface{} {
+	if c == nil {
+		return nil
+	}
+	return c.extraProperties
+}
+
+func (c *CustomerPortalInvitationResult) require(field *big.Int) {
+	next := new(big.Int)
+	if c.explicitFields != nil {
+		next.Set(c.explicitFields)
+	}
+	next.Or(next, field)
+	c.explicitFields = next
+}
+
+// SetAccepted sets the Accepted field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (c *CustomerPortalInvitationResult) SetAccepted(accepted bool) {
+	c.Accepted = accepted
+	c.require(customerPortalInvitationResultFieldAccepted)
+}
+
+func (c *CustomerPortalInvitationResult) UnmarshalJSON(data []byte) error {
+	type unmarshaler CustomerPortalInvitationResult
+	var value unmarshaler
+	if err := json.Unmarshal(data, &value); err != nil {
+		return err
+	}
+	*c = CustomerPortalInvitationResult(value)
+	extraProperties, err := internal.ExtractExtraProperties(data, *c)
+	if err != nil {
+		return err
+	}
+	c.extraProperties = extraProperties
+	c.rawJSON = json.RawMessage(data)
+	return nil
+}
+
+func (c *CustomerPortalInvitationResult) MarshalJSON() ([]byte, error) {
+	type embed CustomerPortalInvitationResult
+	var marshaler = struct {
+		embed
+	}{
+		embed: embed(*c),
+	}
+	explicitMarshaler := internal.HandleExplicitFields(marshaler, c.explicitFields)
+	return json.Marshal(explicitMarshaler)
+}
+
+func (c *CustomerPortalInvitationResult) String() string {
 	if c == nil {
 		return "<nil>"
 	}
@@ -1426,6 +1541,109 @@ func (s *SearchContactsResponseBody) MarshalJSON() ([]byte, error) {
 }
 
 func (s *SearchContactsResponseBody) String() string {
+	if s == nil {
+		return "<nil>"
+	}
+	if len(s.rawJSON) > 0 {
+		if value, err := internal.StringifyJSON(s.rawJSON); err == nil {
+			return value
+		}
+	}
+	if value, err := internal.StringifyJSON(s); err == nil {
+		return value
+	}
+	return fmt.Sprintf("%#v", s)
+}
+
+var (
+	sendCustomerPortalInvitationResponseBodyFieldData      = big.NewInt(1 << 0)
+	sendCustomerPortalInvitationResponseBodyFieldRequestID = big.NewInt(1 << 1)
+)
+
+type SendCustomerPortalInvitationResponseBody struct {
+	Data *CustomerPortalInvitationResult `json:"data" url:"data"`
+	// The request ID for tracking.
+	RequestID string `json:"request_id" url:"request_id"`
+
+	// Private bitmask of fields set to an explicit value and therefore not to be omitted
+	explicitFields *big.Int `json:"-" url:"-"`
+
+	extraProperties map[string]interface{}
+	rawJSON         json.RawMessage
+}
+
+func (s *SendCustomerPortalInvitationResponseBody) GetData() *CustomerPortalInvitationResult {
+	if s == nil {
+		return nil
+	}
+	return s.Data
+}
+
+func (s *SendCustomerPortalInvitationResponseBody) GetRequestID() string {
+	if s == nil {
+		return ""
+	}
+	return s.RequestID
+}
+
+func (s *SendCustomerPortalInvitationResponseBody) GetExtraProperties() map[string]interface{} {
+	if s == nil {
+		return nil
+	}
+	return s.extraProperties
+}
+
+func (s *SendCustomerPortalInvitationResponseBody) require(field *big.Int) {
+	next := new(big.Int)
+	if s.explicitFields != nil {
+		next.Set(s.explicitFields)
+	}
+	next.Or(next, field)
+	s.explicitFields = next
+}
+
+// SetData sets the Data field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (s *SendCustomerPortalInvitationResponseBody) SetData(data *CustomerPortalInvitationResult) {
+	s.Data = data
+	s.require(sendCustomerPortalInvitationResponseBodyFieldData)
+}
+
+// SetRequestID sets the RequestID field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (s *SendCustomerPortalInvitationResponseBody) SetRequestID(requestID string) {
+	s.RequestID = requestID
+	s.require(sendCustomerPortalInvitationResponseBodyFieldRequestID)
+}
+
+func (s *SendCustomerPortalInvitationResponseBody) UnmarshalJSON(data []byte) error {
+	type unmarshaler SendCustomerPortalInvitationResponseBody
+	var value unmarshaler
+	if err := json.Unmarshal(data, &value); err != nil {
+		return err
+	}
+	*s = SendCustomerPortalInvitationResponseBody(value)
+	extraProperties, err := internal.ExtractExtraProperties(data, *s)
+	if err != nil {
+		return err
+	}
+	s.extraProperties = extraProperties
+	s.rawJSON = json.RawMessage(data)
+	return nil
+}
+
+func (s *SendCustomerPortalInvitationResponseBody) MarshalJSON() ([]byte, error) {
+	type embed SendCustomerPortalInvitationResponseBody
+	var marshaler = struct {
+		embed
+	}{
+		embed: embed(*s),
+	}
+	explicitMarshaler := internal.HandleExplicitFields(marshaler, s.explicitFields)
+	return json.Marshal(explicitMarshaler)
+}
+
+func (s *SendCustomerPortalInvitationResponseBody) String() string {
 	if s == nil {
 		return "<nil>"
 	}

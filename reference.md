@@ -492,6 +492,14 @@ client.Accounts.Search(
     
 </dd>
 </dl>
+
+<dl>
+<dd>
+
+**sort:** `[]*pylon.SearchAccountsSort` — The order of results, as a list of sort keys. Only one sort key is supported right now. Omit for the default order. Send the same sort with every page of a cursor.
+    
+</dd>
+</dl>
 </dd>
 </dl>
 
@@ -1849,7 +1857,7 @@ Known values: `no_access`, `member`, `admin`. This list is not exhaustive.
 <dl>
 <dd>
 
-Merges a contact into a surviving contact. If the merged contact belongs to a different account, it is first moved to the surviving contact's account. Issues, emails, phone numbers, survey responses, and other associated data are then transferred to the surviving contact, and the merged contact is permanently deleted. This cannot be undone.
+Merges a contact into a surviving contact. Both contacts must belong to the same account, unless the merged contact has no account, in which case it is first moved to the surviving contact's account. Issues, emails, phone numbers, survey responses, and other associated data are then transferred to the surviving contact, and the merged contact is permanently deleted. This cannot be undone.
 
 **Rate limit:** 30 requests per minute
 </dd>
@@ -1896,7 +1904,7 @@ client.Contacts.Merge(
 <dl>
 <dd>
 
-**mergeIntoContactID:** `string` — The ID of the contact that will survive the merge and receive the merged data. The contact must belong to an account.
+**mergeIntoContactID:** `string` — The ID of the contact that will survive the merge and receive the merged data. If the merged contact belongs to an account, this contact must belong to the same account.
     
 </dd>
 </dl>
@@ -2283,6 +2291,68 @@ Known values: `no_access`, `member`, `admin`. This list is not exhaustive.
 <dd>
 
 **primaryPhoneNumber:** `*string` — The primary phone number. Must be in the list of phone_numbers. If there are any phone_numbers and this is not specified, the first phone number will be primary.
+    
+</dd>
+</dl>
+</dd>
+</dl>
+
+
+</dd>
+</dl>
+</details>
+
+<details><summary><code>client.Contacts.PortalInvitation(ContactID) -> *pylon.SendCustomerPortalInvitationResponseBody</code></summary>
+<dl>
+<dd>
+
+#### 📝 Description
+
+<dl>
+<dd>
+
+<dl>
+<dd>
+
+Sends or resends a portal invitation to the contact's primary email. The portal must be enabled and the contact must already have portal access. Does not change the contact's role. Requires customer portal settings write permission and write access to the contact's primary account, if any. Each successful call requests another invitation; success does not guarantee email delivery.
+
+**Rate limit:** 30 requests per minute
+</dd>
+</dl>
+</dd>
+</dl>
+
+#### 🔌 Usage
+
+<dl>
+<dd>
+
+<dl>
+<dd>
+
+```go
+request := &pylon.ContactsPortalInvitationRequest{
+    ContactID: "id",
+}
+client.Contacts.PortalInvitation(
+    context.TODO(),
+    request,
+)
+```
+</dd>
+</dl>
+</dd>
+</dl>
+
+#### ⚙️ Parameters
+
+<dl>
+<dd>
+
+<dl>
+<dd>
+
+**contactID:** `string` — The ID of the contact to invite.
     
 </dd>
 </dl>
@@ -4876,6 +4946,14 @@ client.Issues.Search(
 <dd>
 
 **searchText:** `*string` — Fuzzy text search. Results are intersected with any provided filter.
+    
+</dd>
+</dl>
+
+<dl>
+<dd>
+
+**sort:** `[]*pylon.SearchIssuesSort` — The order of results, as a list of sort keys. Only one sort key is supported right now. Omit for the default order. Send the same sort with every page of a cursor.
     
 </dd>
 </dl>
@@ -8894,6 +8972,70 @@ client.Teams.Get(
 </dl>
 </details>
 
+<details><summary><code>client.Teams.Delete(ID) -> *pylon.DeleteTeamResponseBody</code></summary>
+<dl>
+<dd>
+
+#### 📝 Description
+
+<dl>
+<dd>
+
+<dl>
+<dd>
+
+Delete an existing team
+Deletes a team and its memberships and schedules. Subteams are detached and remain available.
+Teams referenced by other configuration or owning internal accounts cannot be deleted until those references are removed.
+
+**Rate limit:** 30 requests per minute
+</dd>
+</dl>
+</dd>
+</dl>
+
+#### 🔌 Usage
+
+<dl>
+<dd>
+
+<dl>
+<dd>
+
+```go
+request := &pylon.TeamsDeleteRequest{
+    ID: "id",
+}
+client.Teams.Delete(
+    context.TODO(),
+    request,
+)
+```
+</dd>
+</dl>
+</dd>
+</dl>
+
+#### ⚙️ Parameters
+
+<dl>
+<dd>
+
+<dl>
+<dd>
+
+**id:** `string` — The ID of the team to delete.
+    
+</dd>
+</dl>
+</dd>
+</dl>
+
+
+</dd>
+</dl>
+</details>
+
 <details><summary><code>client.Teams.Update(ID, request) -> *pylon.UpdateTeamResponseBody</code></summary>
 <dl>
 <dd>
@@ -12029,7 +12171,7 @@ Linking an existing Slack thread imports its message history and enables ongoing
 <dl>
 <dd>
 
-Returns voice call records for the specified phone issue. Each call includes its recordings, with parsed transcript segments and a presigned download URL for the audio file. Recordings whose transcript has not yet completed are omitted; refetch later to see them.
+Returns voice call records for the specified phone issue. Each call includes its participants and its recordings, with parsed transcript segments and a presigned download URL for the audio file. Recordings whose transcript has not yet completed are omitted; refetch later to see them.
 
 **Rate limit:** 120 requests per minute
 </dd>
