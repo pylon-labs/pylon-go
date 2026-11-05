@@ -1175,6 +1175,7 @@ var (
 	issuesSearchRequestFieldFilter     = big.NewInt(1 << 1)
 	issuesSearchRequestFieldLimit      = big.NewInt(1 << 2)
 	issuesSearchRequestFieldSearchText = big.NewInt(1 << 3)
+	issuesSearchRequestFieldSort       = big.NewInt(1 << 4)
 )
 
 type IssuesSearchRequest struct {
@@ -1185,6 +1186,8 @@ type IssuesSearchRequest struct {
 	Limit *int64 `json:"limit,omitempty" url:"-"`
 	// Fuzzy text search. Results are intersected with any provided filter.
 	SearchText *string `json:"search_text,omitempty" url:"-"`
+	// The order of results, as a list of sort keys. Only one sort key is supported right now. Omit for the default order. Send the same sort with every page of a cursor.
+	Sort []*SearchIssuesSort `json:"sort,omitempty" url:"-"`
 
 	// Private bitmask of fields set to an explicit value and therefore not to be omitted
 	explicitFields *big.Int `json:"-" url:"-"`
@@ -1225,6 +1228,13 @@ func (i *IssuesSearchRequest) SetLimit(limit *int64) {
 func (i *IssuesSearchRequest) SetSearchText(searchText *string) {
 	i.SearchText = searchText
 	i.require(issuesSearchRequestFieldSearchText)
+}
+
+// SetSort sets the Sort field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (i *IssuesSearchRequest) SetSort(sort []*SearchIssuesSort) {
+	i.Sort = sort
+	i.require(issuesSearchRequestFieldSort)
 }
 
 func (i *IssuesSearchRequest) UnmarshalJSON(data []byte) error {
@@ -2687,9 +2697,10 @@ var (
 	destinationMetadataFieldFromSmsPhoneNumber              = big.NewInt(1 << 5)
 	destinationMetadataFieldFromSmsPhoneNumberID            = big.NewInt(1 << 6)
 	destinationMetadataFieldFromWhatsappPhoneNumber         = big.NewInt(1 << 7)
-	destinationMetadataFieldWhatsappAppID                   = big.NewInt(1 << 8)
-	destinationMetadataFieldWhatsappMessageTemplateLanguage = big.NewInt(1 << 9)
-	destinationMetadataFieldWhatsappMessageTemplateName     = big.NewInt(1 << 10)
+	destinationMetadataFieldSlackChannelID                  = big.NewInt(1 << 8)
+	destinationMetadataFieldWhatsappAppID                   = big.NewInt(1 << 9)
+	destinationMetadataFieldWhatsappMessageTemplateLanguage = big.NewInt(1 << 10)
+	destinationMetadataFieldWhatsappMessageTemplateName     = big.NewInt(1 << 11)
 )
 
 // Specifies if/how communication will be delivered to the customer.
@@ -2714,6 +2725,8 @@ type DestinationMetadata struct {
 	FromSmsPhoneNumberID *string `json:"from_sms_phone_number_id,omitempty" url:"from_sms_phone_number_id,omitempty"`
 	// The configured WhatsApp phone number to send messages from. Required if destination is "whatsapp" unless whatsapp_app_id is provided. The number is normalized and used to resolve the WhatsApp app within the organization.
 	FromWhatsappPhoneNumber *string `json:"from_whatsapp_phone_number,omitempty" url:"from_whatsapp_phone_number,omitempty"`
+	// The ID of the Slack channel to start the conversation in, as returned in the account's `channels[].channel_id`. Only valid when destination is "slack". Must be a non-internal Slack channel connected to the issue's account. Defaults to the account's primary Slack channel.
+	SlackChannelID *string `json:"slack_channel_id,omitempty" url:"slack_channel_id,omitempty"`
 	// The ID of the WhatsApp app to send messages from. Required if destination is "whatsapp" unless from_whatsapp_phone_number is provided. Deprecated: Use from_whatsapp_phone_number instead.
 	WhatsappAppID *string `json:"whatsapp_app_id,omitempty" url:"whatsapp_app_id,omitempty"`
 	// The language of the WhatsApp message template to use. Required if destination is "whatsapp".
@@ -2782,6 +2795,13 @@ func (d *DestinationMetadata) GetFromWhatsappPhoneNumber() *string {
 		return nil
 	}
 	return d.FromWhatsappPhoneNumber
+}
+
+func (d *DestinationMetadata) GetSlackChannelID() *string {
+	if d == nil {
+		return nil
+	}
+	return d.SlackChannelID
 }
 
 func (d *DestinationMetadata) GetWhatsappAppID() *string {
@@ -2875,6 +2895,13 @@ func (d *DestinationMetadata) SetFromSmsPhoneNumberID(fromSmsPhoneNumberID *stri
 func (d *DestinationMetadata) SetFromWhatsappPhoneNumber(fromWhatsappPhoneNumber *string) {
 	d.FromWhatsappPhoneNumber = fromWhatsappPhoneNumber
 	d.require(destinationMetadataFieldFromWhatsappPhoneNumber)
+}
+
+// SetSlackChannelID sets the SlackChannelID field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (d *DestinationMetadata) SetSlackChannelID(slackChannelID *string) {
+	d.SlackChannelID = slackChannelID
+	d.require(destinationMetadataFieldSlackChannelID)
 }
 
 // SetWhatsappAppID sets the WhatsappAppID field and marks it as non-optional;
@@ -3729,6 +3756,165 @@ func (s *SearchIssuesResponseBody) String() string {
 		return value
 	}
 	return fmt.Sprintf("%#v", s)
+}
+
+var (
+	searchIssuesSortFieldField = big.NewInt(1 << 0)
+	searchIssuesSortFieldOrder = big.NewInt(1 << 1)
+)
+
+type SearchIssuesSort struct {
+	// The field to sort by. response_breach_time uses the latest issue-level response SLA (first response, next reply, or follow-up); resolution_breach_time uses the latest issue-level resolution SLA. Issues without a breach time sort last in either direction. Use asc for earliest deadlines first.
+	Field SearchIssuesSortField `json:"field" url:"field"`
+	// The sort direction. Defaults to desc.
+	Order *SearchIssuesSortOrder `json:"order,omitempty" url:"order,omitempty"`
+
+	// Private bitmask of fields set to an explicit value and therefore not to be omitted
+	explicitFields *big.Int `json:"-" url:"-"`
+
+	extraProperties map[string]interface{}
+	rawJSON         json.RawMessage
+}
+
+func (s *SearchIssuesSort) GetField() SearchIssuesSortField {
+	if s == nil {
+		return ""
+	}
+	return s.Field
+}
+
+func (s *SearchIssuesSort) GetOrder() *SearchIssuesSortOrder {
+	if s == nil {
+		return nil
+	}
+	return s.Order
+}
+
+func (s *SearchIssuesSort) GetExtraProperties() map[string]interface{} {
+	if s == nil {
+		return nil
+	}
+	return s.extraProperties
+}
+
+func (s *SearchIssuesSort) require(field *big.Int) {
+	next := new(big.Int)
+	if s.explicitFields != nil {
+		next.Set(s.explicitFields)
+	}
+	next.Or(next, field)
+	s.explicitFields = next
+}
+
+// SetField sets the Field field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (s *SearchIssuesSort) SetField(field SearchIssuesSortField) {
+	s.Field = field
+	s.require(searchIssuesSortFieldField)
+}
+
+// SetOrder sets the Order field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (s *SearchIssuesSort) SetOrder(order *SearchIssuesSortOrder) {
+	s.Order = order
+	s.require(searchIssuesSortFieldOrder)
+}
+
+func (s *SearchIssuesSort) UnmarshalJSON(data []byte) error {
+	type unmarshaler SearchIssuesSort
+	var value unmarshaler
+	if err := json.Unmarshal(data, &value); err != nil {
+		return err
+	}
+	*s = SearchIssuesSort(value)
+	extraProperties, err := internal.ExtractExtraProperties(data, *s)
+	if err != nil {
+		return err
+	}
+	s.extraProperties = extraProperties
+	s.rawJSON = json.RawMessage(data)
+	return nil
+}
+
+func (s *SearchIssuesSort) MarshalJSON() ([]byte, error) {
+	type embed SearchIssuesSort
+	var marshaler = struct {
+		embed
+	}{
+		embed: embed(*s),
+	}
+	explicitMarshaler := internal.HandleExplicitFields(marshaler, s.explicitFields)
+	return json.Marshal(explicitMarshaler)
+}
+
+func (s *SearchIssuesSort) String() string {
+	if s == nil {
+		return "<nil>"
+	}
+	if len(s.rawJSON) > 0 {
+		if value, err := internal.StringifyJSON(s.rawJSON); err == nil {
+			return value
+		}
+	}
+	if value, err := internal.StringifyJSON(s); err == nil {
+		return value
+	}
+	return fmt.Sprintf("%#v", s)
+}
+
+// The field to sort by. response_breach_time uses the latest issue-level response SLA (first response, next reply, or follow-up); resolution_breach_time uses the latest issue-level resolution SLA. Issues without a breach time sort last in either direction. Use asc for earliest deadlines first.
+type SearchIssuesSortField string
+
+const (
+	SearchIssuesSortFieldCreatedAt            SearchIssuesSortField = "created_at"
+	SearchIssuesSortFieldUpdatedAt            SearchIssuesSortField = "updated_at"
+	SearchIssuesSortFieldLatestMessageTime    SearchIssuesSortField = "latest_message_time"
+	SearchIssuesSortFieldResponseBreachTime   SearchIssuesSortField = "response_breach_time"
+	SearchIssuesSortFieldResolutionBreachTime SearchIssuesSortField = "resolution_breach_time"
+)
+
+func NewSearchIssuesSortFieldFromString(s string) (SearchIssuesSortField, error) {
+	switch s {
+	case "created_at":
+		return SearchIssuesSortFieldCreatedAt, nil
+	case "updated_at":
+		return SearchIssuesSortFieldUpdatedAt, nil
+	case "latest_message_time":
+		return SearchIssuesSortFieldLatestMessageTime, nil
+	case "response_breach_time":
+		return SearchIssuesSortFieldResponseBreachTime, nil
+	case "resolution_breach_time":
+		return SearchIssuesSortFieldResolutionBreachTime, nil
+	}
+	var t SearchIssuesSortField
+	return "", fmt.Errorf("%s is not a valid %T", s, t)
+}
+
+func (s SearchIssuesSortField) Ptr() *SearchIssuesSortField {
+	return &s
+}
+
+// The sort direction. Defaults to desc.
+type SearchIssuesSortOrder string
+
+const (
+	SearchIssuesSortOrderAsc  SearchIssuesSortOrder = "asc"
+	SearchIssuesSortOrderDesc SearchIssuesSortOrder = "desc"
+)
+
+func NewSearchIssuesSortOrderFromString(s string) (SearchIssuesSortOrder, error) {
+	switch s {
+	case "asc":
+		return SearchIssuesSortOrderAsc, nil
+	case "desc":
+		return SearchIssuesSortOrderDesc, nil
+	}
+	var t SearchIssuesSortOrder
+	return "", fmt.Errorf("%s is not a valid %T", s, t)
+}
+
+func (s SearchIssuesSortOrder) Ptr() *SearchIssuesSortOrder {
+	return &s
 }
 
 var (

@@ -87,6 +87,34 @@ func (t *TeamsCreateRequest) MarshalJSON() ([]byte, error) {
 }
 
 var (
+	teamsDeleteRequestFieldID = big.NewInt(1 << 0)
+)
+
+type TeamsDeleteRequest struct {
+	// The ID of the team to delete.
+	ID string `json:"-" url:"-"`
+
+	// Private bitmask of fields set to an explicit value and therefore not to be omitted
+	explicitFields *big.Int `json:"-" url:"-"`
+}
+
+func (t *TeamsDeleteRequest) require(field *big.Int) {
+	next := new(big.Int)
+	if t.explicitFields != nil {
+		next.Set(t.explicitFields)
+	}
+	next.Or(next, field)
+	t.explicitFields = next
+}
+
+// SetID sets the ID field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (t *TeamsDeleteRequest) SetID(id string) {
+	t.ID = id
+	t.require(teamsDeleteRequestFieldID)
+}
+
+var (
 	teamsGetRequestFieldID = big.NewInt(1 << 0)
 )
 
@@ -215,6 +243,93 @@ func (c *CreateTeamResponseBody) String() string {
 		return value
 	}
 	return fmt.Sprintf("%#v", c)
+}
+
+var (
+	deleteTeamResponseBodyFieldRequestID = big.NewInt(1 << 0)
+)
+
+type DeleteTeamResponseBody struct {
+	// The request ID for tracking.
+	RequestID string `json:"request_id" url:"request_id"`
+
+	// Private bitmask of fields set to an explicit value and therefore not to be omitted
+	explicitFields *big.Int `json:"-" url:"-"`
+
+	extraProperties map[string]interface{}
+	rawJSON         json.RawMessage
+}
+
+func (d *DeleteTeamResponseBody) GetRequestID() string {
+	if d == nil {
+		return ""
+	}
+	return d.RequestID
+}
+
+func (d *DeleteTeamResponseBody) GetExtraProperties() map[string]interface{} {
+	if d == nil {
+		return nil
+	}
+	return d.extraProperties
+}
+
+func (d *DeleteTeamResponseBody) require(field *big.Int) {
+	next := new(big.Int)
+	if d.explicitFields != nil {
+		next.Set(d.explicitFields)
+	}
+	next.Or(next, field)
+	d.explicitFields = next
+}
+
+// SetRequestID sets the RequestID field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (d *DeleteTeamResponseBody) SetRequestID(requestID string) {
+	d.RequestID = requestID
+	d.require(deleteTeamResponseBodyFieldRequestID)
+}
+
+func (d *DeleteTeamResponseBody) UnmarshalJSON(data []byte) error {
+	type unmarshaler DeleteTeamResponseBody
+	var value unmarshaler
+	if err := json.Unmarshal(data, &value); err != nil {
+		return err
+	}
+	*d = DeleteTeamResponseBody(value)
+	extraProperties, err := internal.ExtractExtraProperties(data, *d)
+	if err != nil {
+		return err
+	}
+	d.extraProperties = extraProperties
+	d.rawJSON = json.RawMessage(data)
+	return nil
+}
+
+func (d *DeleteTeamResponseBody) MarshalJSON() ([]byte, error) {
+	type embed DeleteTeamResponseBody
+	var marshaler = struct {
+		embed
+	}{
+		embed: embed(*d),
+	}
+	explicitMarshaler := internal.HandleExplicitFields(marshaler, d.explicitFields)
+	return json.Marshal(explicitMarshaler)
+}
+
+func (d *DeleteTeamResponseBody) String() string {
+	if d == nil {
+		return "<nil>"
+	}
+	if len(d.rawJSON) > 0 {
+		if value, err := internal.StringifyJSON(d.rawJSON); err == nil {
+			return value
+		}
+	}
+	if value, err := internal.StringifyJSON(d); err == nil {
+		return value
+	}
+	return fmt.Sprintf("%#v", d)
 }
 
 var (

@@ -1334,14 +1334,15 @@ var (
 	taskFieldDueDate               = big.NewInt(1 << 10)
 	taskFieldExternalIssues        = big.NewInt(1 << 11)
 	taskFieldID                    = big.NewInt(1 << 12)
-	taskFieldLinkedIssues          = big.NewInt(1 << 13)
-	taskFieldMilestone             = big.NewInt(1 << 14)
-	taskFieldParentTaskID          = big.NewInt(1 << 15)
-	taskFieldProject               = big.NewInt(1 << 16)
-	taskFieldStatus                = big.NewInt(1 << 17)
-	taskFieldSubtaskIDs            = big.NewInt(1 << 18)
-	taskFieldTitle                 = big.NewInt(1 << 19)
-	taskFieldUpdatedAt             = big.NewInt(1 << 20)
+	taskFieldLink                  = big.NewInt(1 << 13)
+	taskFieldLinkedIssues          = big.NewInt(1 << 14)
+	taskFieldMilestone             = big.NewInt(1 << 15)
+	taskFieldParentTaskID          = big.NewInt(1 << 16)
+	taskFieldProject               = big.NewInt(1 << 17)
+	taskFieldStatus                = big.NewInt(1 << 18)
+	taskFieldSubtaskIDs            = big.NewInt(1 << 19)
+	taskFieldTitle                 = big.NewInt(1 << 20)
+	taskFieldUpdatedAt             = big.NewInt(1 << 21)
 )
 
 // taskNullableFields maps the wire names of Task's nullable fields (required or optional) to their field bits.
@@ -1377,6 +1378,8 @@ type Task struct {
 	ExternalIssues []*ExternalIssue `json:"external_issues,omitempty" url:"external_issues,omitempty"`
 	// The ID of the task.
 	ID string `json:"id" url:"id"`
+	// The link to the task in the Pylon app. Requires Pylon app access.
+	Link string `json:"link" url:"link"`
 	// The Pylon issues linked to the task that the current user can access, if any.
 	LinkedIssues []*MiniIssue   `json:"linked_issues,omitempty" url:"linked_issues,omitempty"`
 	Milestone    *MiniMilestone `json:"milestone,omitempty" url:"milestone,omitempty"`
@@ -1487,6 +1490,13 @@ func (t *Task) GetID() string {
 		return ""
 	}
 	return t.ID
+}
+
+func (t *Task) GetLink() string {
+	if t == nil {
+		return ""
+	}
+	return t.Link
 }
 
 func (t *Task) GetLinkedIssues() []*MiniIssue {
@@ -1650,6 +1660,13 @@ func (t *Task) SetExternalIssues(externalIssues []*ExternalIssue) {
 func (t *Task) SetID(id string) {
 	t.ID = id
 	t.require(taskFieldID)
+}
+
+// SetLink sets the Link field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (t *Task) SetLink(link string) {
+	t.Link = link
+	t.require(taskFieldLink)
 }
 
 // SetLinkedIssues sets the LinkedIssues field and marks it as non-optional;

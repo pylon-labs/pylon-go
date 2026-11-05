@@ -1790,10 +1790,11 @@ func (a *ArticleTranslationInput) String() string {
 }
 
 var (
-	articleVisibilityConfigFieldAiAgentAccess               = big.NewInt(1 << 0)
-	articleVisibilityConfigFieldAllowedAgentIDs             = big.NewInt(1 << 1)
-	articleVisibilityConfigFieldCustomerVisibilityCondition = big.NewInt(1 << 2)
-	articleVisibilityConfigFieldVisibility                  = big.NewInt(1 << 3)
+	articleVisibilityConfigFieldAiAgentAccess                          = big.NewInt(1 << 0)
+	articleVisibilityConfigFieldAllowedAgentIDs                        = big.NewInt(1 << 1)
+	articleVisibilityConfigFieldCustomerVisibilityCondition            = big.NewInt(1 << 2)
+	articleVisibilityConfigFieldCustomerVisibilityConditionUnsupported = big.NewInt(1 << 3)
+	articleVisibilityConfigFieldVisibility                             = big.NewInt(1 << 4)
 )
 
 type ArticleVisibilityConfig struct {
@@ -1802,6 +1803,9 @@ type ArticleVisibilityConfig struct {
 	// List of AI agent IDs that may access this resource when ai_agent_access is set to "specific_agents".
 	AllowedAgentIDs             []string `json:"allowed_agent_ids,omitempty" url:"allowed_agent_ids,omitempty"`
 	CustomerVisibilityCondition *Filter  `json:"customer_visibility_condition,omitempty" url:"customer_visibility_condition,omitempty"`
+	// Read-only. True when the article's customer visibility condition cannot be expressed in the
+	// API filter format. The condition still applies, but customer_visibility_condition is omitted.
+	CustomerVisibilityConditionUnsupported *bool `json:"customer_visibility_condition_unsupported,omitempty" url:"customer_visibility_condition_unsupported,omitempty"`
 	// The visibility setting.
 	Visibility *ArticleVisibilityConfigVisibility `json:"visibility,omitempty" url:"visibility,omitempty"`
 
@@ -1831,6 +1835,13 @@ func (a *ArticleVisibilityConfig) GetCustomerVisibilityCondition() *Filter {
 		return nil
 	}
 	return a.CustomerVisibilityCondition
+}
+
+func (a *ArticleVisibilityConfig) GetCustomerVisibilityConditionUnsupported() *bool {
+	if a == nil {
+		return nil
+	}
+	return a.CustomerVisibilityConditionUnsupported
 }
 
 func (a *ArticleVisibilityConfig) GetVisibility() *ArticleVisibilityConfigVisibility {
@@ -1875,6 +1886,13 @@ func (a *ArticleVisibilityConfig) SetAllowedAgentIDs(allowedAgentIDs []string) {
 func (a *ArticleVisibilityConfig) SetCustomerVisibilityCondition(customerVisibilityCondition *Filter) {
 	a.CustomerVisibilityCondition = customerVisibilityCondition
 	a.require(articleVisibilityConfigFieldCustomerVisibilityCondition)
+}
+
+// SetCustomerVisibilityConditionUnsupported sets the CustomerVisibilityConditionUnsupported field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (a *ArticleVisibilityConfig) SetCustomerVisibilityConditionUnsupported(customerVisibilityConditionUnsupported *bool) {
+	a.CustomerVisibilityConditionUnsupported = customerVisibilityConditionUnsupported
+	a.require(articleVisibilityConfigFieldCustomerVisibilityConditionUnsupported)
 }
 
 // SetVisibility sets the Visibility field and marks it as non-optional;
@@ -6252,8 +6270,10 @@ func (e *ExternalIncident) String() string {
 
 var (
 	externalIssueFieldExternalID = big.NewInt(1 << 0)
-	externalIssueFieldLink       = big.NewInt(1 << 1)
-	externalIssueFieldSource     = big.NewInt(1 << 2)
+	externalIssueFieldKey        = big.NewInt(1 << 1)
+	externalIssueFieldLink       = big.NewInt(1 << 2)
+	externalIssueFieldSource     = big.NewInt(1 << 3)
+	externalIssueFieldState      = big.NewInt(1 << 4)
 )
 
 type ExternalIssue struct {
@@ -6263,10 +6283,16 @@ type ExternalIssue struct {
 	// Linear: ID of the issue (UUID).
 	// Asana: ID of the task (Long number).
 	ExternalID string `json:"external_id" url:"external_id"`
+	// The human-readable key of the external issue, such as ENG-123 for Linear or Jira.
+	Key *string `json:"key,omitempty" url:"key,omitempty"`
 	// Link to the product issue.
 	Link string `json:"link" url:"link"`
 	// The source of the external issue.
 	Source string `json:"source" url:"source"`
+	// Whether the external issue is open, closed (done), or canceled, as last synced from the source.
+	//
+	// Known values: `open`, `closed`, `canceled`. This list is not exhaustive.
+	State *string `json:"state,omitempty" url:"state,omitempty"`
 
 	// Private bitmask of fields set to an explicit value and therefore not to be omitted
 	explicitFields *big.Int `json:"-" url:"-"`
@@ -6282,6 +6308,13 @@ func (e *ExternalIssue) GetExternalID() string {
 	return e.ExternalID
 }
 
+func (e *ExternalIssue) GetKey() *string {
+	if e == nil {
+		return nil
+	}
+	return e.Key
+}
+
 func (e *ExternalIssue) GetLink() string {
 	if e == nil {
 		return ""
@@ -6294,6 +6327,13 @@ func (e *ExternalIssue) GetSource() string {
 		return ""
 	}
 	return e.Source
+}
+
+func (e *ExternalIssue) GetState() *string {
+	if e == nil {
+		return nil
+	}
+	return e.State
 }
 
 func (e *ExternalIssue) GetExtraProperties() map[string]interface{} {
@@ -6319,6 +6359,13 @@ func (e *ExternalIssue) SetExternalID(externalID string) {
 	e.require(externalIssueFieldExternalID)
 }
 
+// SetKey sets the Key field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (e *ExternalIssue) SetKey(key *string) {
+	e.Key = key
+	e.require(externalIssueFieldKey)
+}
+
 // SetLink sets the Link field and marks it as non-optional;
 // this prevents an empty or null value for this field from being omitted during serialization.
 func (e *ExternalIssue) SetLink(link string) {
@@ -6331,6 +6378,13 @@ func (e *ExternalIssue) SetLink(link string) {
 func (e *ExternalIssue) SetSource(source string) {
 	e.Source = source
 	e.require(externalIssueFieldSource)
+}
+
+// SetState sets the State field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (e *ExternalIssue) SetState(state *string) {
+	e.State = state
+	e.require(externalIssueFieldState)
 }
 
 func (e *ExternalIssue) UnmarshalJSON(data []byte) error {
@@ -6386,17 +6440,19 @@ var (
 type Filter struct {
 	// The field for this filter.  For allowed fields, see the documentation for
 	// the specific endpoint you are using.
-	// For non-compound filters (any operators other than "and" or "or"),
+	// For non-compound filters (any operators other than "and", "or", or "not"),
 	// field must be set, along with either value or values, depending on the operator.
 	Field *string `json:"field,omitempty" url:"field,omitempty"`
 	// The operator for this filter.
 	Operator FilterOperator `json:"operator" url:"operator"`
-	// Sub-filters for this filter.  Valid only when operator is "and" or "or".
-	// The maximum allowed depth for a tree of filters is 3, counting the top-level filter.
+	// Sub-filters for this filter.  Valid only when operator is "and", "or", or "not"; "not"
+	// takes exactly one subfilter.
+	// The maximum allowed depth for a tree of filters is 5, counting the top-level filter.
 	Subfilters []*Filter `json:"subfilters,omitempty" url:"subfilters,omitempty"`
 	// The value for this filter. Used by single-valued operators: "equals", "not_equals",
 	// "contains", "does_not_contain", "string_contains", "string_does_not_contain",
-	// "starts_with", "ends_with", "time_is_after", "time_is_before", "greater_than",
+	// "starts_with", "ends_with", "time_is_after", "time_is_before", "time_is_in_last",
+	// "time_is_not_in_last", "time_is_in_next", "time_is_not_in_next", "greater_than",
 	// "less_than", "greater_than_or_equals", and "less_than_or_equals".
 	Value *string `json:"value,omitempty" url:"value,omitempty"`
 	// The values for this filter. Used by multi-valued operators: "in", "not_in", and
@@ -6550,6 +6606,7 @@ const (
 	FilterOperatorNotIn                FilterOperator = "not_in"
 	FilterOperatorAnd                  FilterOperator = "and"
 	FilterOperatorOr                   FilterOperator = "or"
+	FilterOperatorNot                  FilterOperator = "not"
 	FilterOperatorTimeIsAfter          FilterOperator = "time_is_after"
 	FilterOperatorTimeIsBefore         FilterOperator = "time_is_before"
 	FilterOperatorTimeRange            FilterOperator = "time_range"
@@ -6564,6 +6621,10 @@ const (
 	FilterOperatorIncludesAllOf        FilterOperator = "includes_all_of"
 	FilterOperatorStartsWith           FilterOperator = "starts_with"
 	FilterOperatorEndsWith             FilterOperator = "ends_with"
+	FilterOperatorTimeIsInLast         FilterOperator = "time_is_in_last"
+	FilterOperatorTimeIsNotInLast      FilterOperator = "time_is_not_in_last"
+	FilterOperatorTimeIsInNext         FilterOperator = "time_is_in_next"
+	FilterOperatorTimeIsNotInNext      FilterOperator = "time_is_not_in_next"
 )
 
 func NewFilterOperatorFromString(s string) (FilterOperator, error) {
@@ -6584,6 +6645,8 @@ func NewFilterOperatorFromString(s string) (FilterOperator, error) {
 		return FilterOperatorAnd, nil
 	case "or":
 		return FilterOperatorOr, nil
+	case "not":
+		return FilterOperatorNot, nil
 	case "time_is_after":
 		return FilterOperatorTimeIsAfter, nil
 	case "time_is_before":
@@ -6612,6 +6675,14 @@ func NewFilterOperatorFromString(s string) (FilterOperator, error) {
 		return FilterOperatorStartsWith, nil
 	case "ends_with":
 		return FilterOperatorEndsWith, nil
+	case "time_is_in_last":
+		return FilterOperatorTimeIsInLast, nil
+	case "time_is_not_in_last":
+		return FilterOperatorTimeIsNotInLast, nil
+	case "time_is_in_next":
+		return FilterOperatorTimeIsInNext, nil
+	case "time_is_not_in_next":
+		return FilterOperatorTimeIsNotInNext, nil
 	}
 	var t FilterOperator
 	return "", fmt.Errorf("%s is not a valid %T", s, t)
@@ -16830,13 +16901,15 @@ var (
 	voiceCallFieldDurationSec     = big.NewInt(1 << 1)
 	voiceCallFieldFromPhoneNumber = big.NewInt(1 << 2)
 	voiceCallFieldID              = big.NewInt(1 << 3)
-	voiceCallFieldRecordings      = big.NewInt(1 << 4)
-	voiceCallFieldToPhoneNumber   = big.NewInt(1 << 5)
+	voiceCallFieldParticipants    = big.NewInt(1 << 4)
+	voiceCallFieldRecordings      = big.NewInt(1 << 5)
+	voiceCallFieldToPhoneNumber   = big.NewInt(1 << 6)
 )
 
 // voiceCallNullableFields maps the wire names of VoiceCall's nullable fields (required or optional) to their field bits.
 var voiceCallNullableFields = map[string]*big.Int{
-	"recordings": voiceCallFieldRecordings,
+	"participants": voiceCallFieldParticipants,
+	"recordings":   voiceCallFieldRecordings,
 }
 
 type VoiceCall struct {
@@ -16848,6 +16921,8 @@ type VoiceCall struct {
 	FromPhoneNumber string `json:"from_phone_number" url:"from_phone_number"`
 	// The ID of the voice call.
 	ID string `json:"id" url:"id"`
+	// Everyone who was dialed into the call, one entry per call leg, so a person who is redialed appears again. Empty when the call has no participant records.
+	Participants []*VoiceCallParticipant `json:"participants,omitempty" url:"participants,omitempty"`
 	// Recordings produced for this call.
 	Recordings []*VoiceCallRecording `json:"recordings,omitempty" url:"recordings,omitempty"`
 	// The phone number that was dialed.
@@ -16886,6 +16961,13 @@ func (v *VoiceCall) GetID() string {
 		return ""
 	}
 	return v.ID
+}
+
+func (v *VoiceCall) GetParticipants() []*VoiceCallParticipant {
+	if v == nil {
+		return nil
+	}
+	return v.Participants
 }
 
 func (v *VoiceCall) GetRecordings() []*VoiceCallRecording {
@@ -16946,6 +17028,13 @@ func (v *VoiceCall) SetID(id string) {
 	v.require(voiceCallFieldID)
 }
 
+// SetParticipants sets the Participants field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (v *VoiceCall) SetParticipants(participants []*VoiceCallParticipant) {
+	v.Participants = participants
+	v.require(voiceCallFieldParticipants)
+}
+
 // SetRecordings sets the Recordings field and marks it as non-optional;
 // this prevents an empty or null value for this field from being omitted during serialization.
 func (v *VoiceCall) SetRecordings(recordings []*VoiceCallRecording) {
@@ -17003,6 +17092,241 @@ func (v *VoiceCall) MarshalJSON() ([]byte, error) {
 }
 
 func (v *VoiceCall) String() string {
+	if v == nil {
+		return "<nil>"
+	}
+	if len(v.rawJSON) > 0 {
+		if value, err := internal.StringifyJSON(v.rawJSON); err == nil {
+			return value
+		}
+	}
+	if value, err := internal.StringifyJSON(v); err == nil {
+		return value
+	}
+	return fmt.Sprintf("%#v", v)
+}
+
+var (
+	voiceCallParticipantFieldContactID        = big.NewInt(1 << 0)
+	voiceCallParticipantFieldID               = big.NewInt(1 << 1)
+	voiceCallParticipantFieldJoinedAt         = big.NewInt(1 << 2)
+	voiceCallParticipantFieldLeftAt           = big.NewInt(1 << 3)
+	voiceCallParticipantFieldPhoneNumber      = big.NewInt(1 << 4)
+	voiceCallParticipantFieldRecordingConsent = big.NewInt(1 << 5)
+	voiceCallParticipantFieldRole             = big.NewInt(1 << 6)
+	voiceCallParticipantFieldStatus           = big.NewInt(1 << 7)
+	voiceCallParticipantFieldUserID           = big.NewInt(1 << 8)
+)
+
+type VoiceCallParticipant struct {
+	// The ID of the contact, for a customer.
+	ContactID *string `json:"contact_id,omitempty" url:"contact_id,omitempty"`
+	// The ID of the participant.
+	ID string `json:"id" url:"id"`
+	// RFC3339 timestamp of when the participant joined the call.
+	JoinedAt *time.Time `json:"joined_at,omitempty" url:"joined_at,omitempty"`
+	// RFC3339 timestamp of when the participant left the call.
+	LeftAt *time.Time `json:"left_at,omitempty" url:"left_at,omitempty"`
+	// The phone number of a customer or external participant.
+	PhoneNumber *string `json:"phone_number,omitempty" url:"phone_number,omitempty"`
+	// Whether the participant was asked to consent to recording, and their answer: `not_asked`, `granted` or `declined`.
+	RecordingConsent string `json:"recording_consent" url:"recording_consent"`
+	// The participant's role: `customer`, `agent` or `external`.
+	Role string `json:"role" url:"role"`
+	// The participant's status: `dialing`, `joined`, `left`, `failed` or `voicemail`.
+	Status string `json:"status" url:"status"`
+	// The ID of the user, for an agent.
+	UserID *string `json:"user_id,omitempty" url:"user_id,omitempty"`
+
+	// Private bitmask of fields set to an explicit value and therefore not to be omitted
+	explicitFields *big.Int `json:"-" url:"-"`
+
+	extraProperties map[string]interface{}
+	rawJSON         json.RawMessage
+}
+
+func (v *VoiceCallParticipant) GetContactID() *string {
+	if v == nil {
+		return nil
+	}
+	return v.ContactID
+}
+
+func (v *VoiceCallParticipant) GetID() string {
+	if v == nil {
+		return ""
+	}
+	return v.ID
+}
+
+func (v *VoiceCallParticipant) GetJoinedAt() *time.Time {
+	if v == nil {
+		return nil
+	}
+	return v.JoinedAt
+}
+
+func (v *VoiceCallParticipant) GetLeftAt() *time.Time {
+	if v == nil {
+		return nil
+	}
+	return v.LeftAt
+}
+
+func (v *VoiceCallParticipant) GetPhoneNumber() *string {
+	if v == nil {
+		return nil
+	}
+	return v.PhoneNumber
+}
+
+func (v *VoiceCallParticipant) GetRecordingConsent() string {
+	if v == nil {
+		return ""
+	}
+	return v.RecordingConsent
+}
+
+func (v *VoiceCallParticipant) GetRole() string {
+	if v == nil {
+		return ""
+	}
+	return v.Role
+}
+
+func (v *VoiceCallParticipant) GetStatus() string {
+	if v == nil {
+		return ""
+	}
+	return v.Status
+}
+
+func (v *VoiceCallParticipant) GetUserID() *string {
+	if v == nil {
+		return nil
+	}
+	return v.UserID
+}
+
+func (v *VoiceCallParticipant) GetExtraProperties() map[string]interface{} {
+	if v == nil {
+		return nil
+	}
+	return v.extraProperties
+}
+
+func (v *VoiceCallParticipant) require(field *big.Int) {
+	next := new(big.Int)
+	if v.explicitFields != nil {
+		next.Set(v.explicitFields)
+	}
+	next.Or(next, field)
+	v.explicitFields = next
+}
+
+// SetContactID sets the ContactID field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (v *VoiceCallParticipant) SetContactID(contactID *string) {
+	v.ContactID = contactID
+	v.require(voiceCallParticipantFieldContactID)
+}
+
+// SetID sets the ID field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (v *VoiceCallParticipant) SetID(id string) {
+	v.ID = id
+	v.require(voiceCallParticipantFieldID)
+}
+
+// SetJoinedAt sets the JoinedAt field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (v *VoiceCallParticipant) SetJoinedAt(joinedAt *time.Time) {
+	v.JoinedAt = joinedAt
+	v.require(voiceCallParticipantFieldJoinedAt)
+}
+
+// SetLeftAt sets the LeftAt field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (v *VoiceCallParticipant) SetLeftAt(leftAt *time.Time) {
+	v.LeftAt = leftAt
+	v.require(voiceCallParticipantFieldLeftAt)
+}
+
+// SetPhoneNumber sets the PhoneNumber field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (v *VoiceCallParticipant) SetPhoneNumber(phoneNumber *string) {
+	v.PhoneNumber = phoneNumber
+	v.require(voiceCallParticipantFieldPhoneNumber)
+}
+
+// SetRecordingConsent sets the RecordingConsent field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (v *VoiceCallParticipant) SetRecordingConsent(recordingConsent string) {
+	v.RecordingConsent = recordingConsent
+	v.require(voiceCallParticipantFieldRecordingConsent)
+}
+
+// SetRole sets the Role field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (v *VoiceCallParticipant) SetRole(role string) {
+	v.Role = role
+	v.require(voiceCallParticipantFieldRole)
+}
+
+// SetStatus sets the Status field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (v *VoiceCallParticipant) SetStatus(status string) {
+	v.Status = status
+	v.require(voiceCallParticipantFieldStatus)
+}
+
+// SetUserID sets the UserID field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (v *VoiceCallParticipant) SetUserID(userID *string) {
+	v.UserID = userID
+	v.require(voiceCallParticipantFieldUserID)
+}
+
+func (v *VoiceCallParticipant) UnmarshalJSON(data []byte) error {
+	type embed VoiceCallParticipant
+	var unmarshaler = struct {
+		embed
+		JoinedAt *internal.DateTime `json:"joined_at,omitempty"`
+		LeftAt   *internal.DateTime `json:"left_at,omitempty"`
+	}{
+		embed: embed(*v),
+	}
+	if err := json.Unmarshal(data, &unmarshaler); err != nil {
+		return err
+	}
+	*v = VoiceCallParticipant(unmarshaler.embed)
+	v.JoinedAt = unmarshaler.JoinedAt.TimePtr()
+	v.LeftAt = unmarshaler.LeftAt.TimePtr()
+	extraProperties, err := internal.ExtractExtraProperties(data, *v)
+	if err != nil {
+		return err
+	}
+	v.extraProperties = extraProperties
+	v.rawJSON = json.RawMessage(data)
+	return nil
+}
+
+func (v *VoiceCallParticipant) MarshalJSON() ([]byte, error) {
+	type embed VoiceCallParticipant
+	var marshaler = struct {
+		embed
+		JoinedAt *internal.DateTime `json:"joined_at,omitempty"`
+		LeftAt   *internal.DateTime `json:"left_at,omitempty"`
+	}{
+		embed:    embed(*v),
+		JoinedAt: internal.NewOptionalDateTime(v.JoinedAt),
+		LeftAt:   internal.NewOptionalDateTime(v.LeftAt),
+	}
+	explicitMarshaler := internal.HandleExplicitFields(marshaler, v.explicitFields)
+	return json.Marshal(explicitMarshaler)
+}
+
+func (v *VoiceCallParticipant) String() string {
 	if v == nil {
 		return "<nil>"
 	}

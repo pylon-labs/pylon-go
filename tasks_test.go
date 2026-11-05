@@ -2354,6 +2354,14 @@ func TestSettersTask(t *testing.T) {
 		assert.NotNil(t, obj.explicitFields)
 	})
 
+	t.Run("SetLink", func(t *testing.T) {
+		obj := &Task{}
+		var fernTestValueLink string
+		obj.SetLink(fernTestValueLink)
+		assert.Equal(t, fernTestValueLink, obj.Link)
+		assert.NotNil(t, obj.explicitFields)
+	})
+
 	t.Run("SetLinkedIssues", func(t *testing.T) {
 		obj := &Task{}
 		var fernTestValueLinkedIssues []*MiniIssue
@@ -2798,6 +2806,29 @@ func TestGettersTask(t *testing.T) {
 			}
 		}()
 		_ = obj.GetID() // Should return zero value
+	})
+
+	t.Run("GetLink", func(t *testing.T) {
+		t.Parallel()
+		// Arrange
+		obj := &Task{}
+		var expected string
+		obj.Link = expected
+
+		// Act & Assert
+		assert.Equal(t, expected, obj.GetLink(), "getter should return the property value")
+	})
+
+	t.Run("GetLink_NilReceiver", func(t *testing.T) {
+		t.Parallel()
+		var obj *Task
+		// Should not panic - getters should handle nil receiver gracefully
+		defer func() {
+			if r := recover(); r != nil {
+				t.Errorf("Getter panicked on nil receiver: %v", r)
+			}
+		}()
+		_ = obj.GetLink() // Should return zero value
 	})
 
 	t.Run("GetLinkedIssues", func(t *testing.T) {
@@ -3417,6 +3448,37 @@ func TestSettersMarkExplicitTask(t *testing.T) {
 
 		// Act
 		obj.SetID(fernTestValueID)
+
+		// Assert - object with explicitly set field can be marshaled/unmarshaled
+		bytes, err := json.Marshal(obj)
+		require.NoError(t, err, "marshaling should succeed for test setup")
+
+		// This test ensures JSON marshaling and unmarshaling succeed when the field has a zero/nil value
+		// Detect if marshaled JSON is an object or primitive to use correct unmarshal target
+		if len(bytes) > 0 && bytes[0] == '{' {
+			// JSON object - unmarshal into map
+			var unmarshaled map[string]interface{}
+			err = json.Unmarshal(bytes, &unmarshaled)
+			require.NoError(t, err, "unmarshaling should succeed for test verification")
+		} else {
+			// JSON primitive (string, number, boolean, null) - unmarshal into interface{}
+			var unmarshaled interface{}
+			err = json.Unmarshal(bytes, &unmarshaled)
+			require.NoError(t, err, "unmarshaling should succeed for test verification")
+		}
+
+		// Note: This does not explicitly assert the presence of a specific JSON field
+		// It verifies that setting a field via setter allows successful JSON round-trip
+	})
+
+	t.Run("SetLink_MarksExplicit", func(t *testing.T) {
+		t.Parallel()
+		// Arrange
+		obj := &Task{}
+		var fernTestValueLink string
+
+		// Act
+		obj.SetLink(fernTestValueLink)
 
 		// Assert - object with explicitly set field can be marshaled/unmarshaled
 		bytes, err := json.Marshal(obj)

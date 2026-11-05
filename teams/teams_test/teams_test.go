@@ -151,6 +151,32 @@ func TestTeamsGetWithWireMock(
 	VerifyRequestCount(t, "TestTeamsGetWithWireMock", "GET", "/teams/id", nil, 1)
 }
 
+func TestTeamsDeleteWithWireMock(
+	t *testing.T,
+) {
+	WireMockBaseURL := os.Getenv("WIREMOCK_URL")
+	if WireMockBaseURL == "" {
+		WireMockBaseURL = "http://localhost:8080"
+	}
+	client := client.NewClient(
+		option.WithBaseURL(WireMockBaseURL),
+		option.WithToken("test-token"),
+	)
+	request := &pylon.TeamsDeleteRequest{
+		ID: "id",
+	}
+	_, invocationErr := client.Teams.Delete(
+		context.TODO(),
+		request,
+		option.WithHTTPHeader(
+			http.Header{"X-Test-Id": []string{"TestTeamsDeleteWithWireMock"}},
+		),
+	)
+
+	require.NoError(t, invocationErr, "Client method call should succeed")
+	VerifyRequestCount(t, "TestTeamsDeleteWithWireMock", "DELETE", "/teams/id", nil, 1)
+}
+
 func TestTeamsUpdateWithWireMock(
 	t *testing.T,
 ) {
