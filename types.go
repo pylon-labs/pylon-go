@@ -12227,12 +12227,13 @@ func (i *IssueGroupMutationResponseBody) String() string {
 }
 
 var (
-	issueThreadFieldChannelID = big.NewInt(1 << 0)
-	issueThreadFieldID        = big.NewInt(1 << 1)
-	issueThreadFieldIssueID   = big.NewInt(1 << 2)
-	issueThreadFieldName      = big.NewInt(1 << 3)
-	issueThreadFieldSource    = big.NewInt(1 << 4)
-	issueThreadFieldThreadID  = big.NewInt(1 << 5)
+	issueThreadFieldChannelID    = big.NewInt(1 << 0)
+	issueThreadFieldDeliveryMode = big.NewInt(1 << 1)
+	issueThreadFieldID           = big.NewInt(1 << 2)
+	issueThreadFieldIssueID      = big.NewInt(1 << 3)
+	issueThreadFieldName         = big.NewInt(1 << 4)
+	issueThreadFieldSource       = big.NewInt(1 << 5)
+	issueThreadFieldThreadID     = big.NewInt(1 << 6)
 )
 
 // A thread of notes on an issue, for internal discussions not visible to the customer.
@@ -12241,6 +12242,10 @@ var (
 type IssueThread struct {
 	// The ID of the channel that the thread belongs to, if the thread is being synced with a chat platform.
 	ChannelID *string `json:"channel_id,omitempty" url:"channel_id,omitempty"`
+	// The destination for messages in this thread, such as slack, email, or linear. None for Pylon-only threads.
+	//
+	// Known values: `email`, `slack`, `chat_widget`, `customer_portal`, `none`, `microsoft_teams`, `microsoft_teams_chat`, `discord`, `google_chat`, `whatsapp`, `telegram`, `sms`, `linear`, `jira`, `github`, `asana`, `shortcut`, `zendesk`, `salesforce_service`, `intercom`, `freshdesk`, `jira_service_management`, `hubspot_service`. This list is not exhaustive.
+	DeliveryMode string `json:"delivery_mode" url:"delivery_mode"`
 	// The ID of the thread.
 	ID string `json:"id" url:"id"`
 	// The issue ID that the thread belongs to.
@@ -12264,6 +12269,13 @@ func (i *IssueThread) GetChannelID() *string {
 		return nil
 	}
 	return i.ChannelID
+}
+
+func (i *IssueThread) GetDeliveryMode() string {
+	if i == nil {
+		return ""
+	}
+	return i.DeliveryMode
 }
 
 func (i *IssueThread) GetID() string {
@@ -12322,6 +12334,13 @@ func (i *IssueThread) require(field *big.Int) {
 func (i *IssueThread) SetChannelID(channelID *string) {
 	i.ChannelID = channelID
 	i.require(issueThreadFieldChannelID)
+}
+
+// SetDeliveryMode sets the DeliveryMode field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (i *IssueThread) SetDeliveryMode(deliveryMode string) {
+	i.DeliveryMode = deliveryMode
+	i.require(issueThreadFieldDeliveryMode)
 }
 
 // SetID sets the ID field and marks it as non-optional;
