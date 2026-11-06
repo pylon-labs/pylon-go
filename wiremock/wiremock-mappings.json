@@ -5062,7 +5062,7 @@
       },
       "response": {
         "status": 200,
-        "body": "{\n  \"data\": [\n    {\n      \"channel_id\": \"channel_id\",\n      \"id\": \"id\",\n      \"issue_id\": \"issue_id\",\n      \"name\": \"name\",\n      \"source\": \"source\",\n      \"thread_id\": \"thread_id\"\n    }\n  ],\n  \"request_id\": \"request_id\"\n}",
+        "body": "{\n  \"data\": [\n    {\n      \"channel_id\": \"channel_id\",\n      \"delivery_mode\": \"delivery_mode\",\n      \"id\": \"id\",\n      \"issue_id\": \"issue_id\",\n      \"name\": \"name\",\n      \"source\": \"source\",\n      \"thread_id\": \"thread_id\"\n    }\n  ],\n  \"request_id\": \"request_id\"\n}",
         "headers": {
           "Content-Type": "application/json"
         }
@@ -5098,7 +5098,7 @@
       },
       "response": {
         "status": 200,
-        "body": "{\n  \"data\": {\n    \"channel_id\": \"channel_id\",\n    \"id\": \"id\",\n    \"issue_id\": \"issue_id\",\n    \"name\": \"name\",\n    \"source\": \"source\",\n    \"thread_id\": \"thread_id\"\n  },\n  \"request_id\": \"request_id\"\n}",
+        "body": "{\n  \"data\": {\n    \"channel_id\": \"channel_id\",\n    \"delivery_mode\": \"delivery_mode\",\n    \"id\": \"id\",\n    \"issue_id\": \"issue_id\",\n    \"name\": \"name\",\n    \"source\": \"source\",\n    \"thread_id\": \"thread_id\"\n  },\n  \"request_id\": \"request_id\"\n}",
         "headers": {
           "Content-Type": "application/json"
         }
