@@ -11,6 +11,7 @@ import (
 	callrecordings "github.com/pylon-labs/pylon-go/callrecordings"
 	contacts "github.com/pylon-labs/pylon-go/contacts"
 	core "github.com/pylon-labs/pylon-go/core"
+	customerportal "github.com/pylon-labs/pylon-go/customerportal"
 	customfieldsclient "github.com/pylon-labs/pylon-go/customfields/client"
 	customobjects "github.com/pylon-labs/pylon-go/customobjects"
 	emailsuppressions "github.com/pylon-labs/pylon-go/emailsuppressions"
@@ -48,6 +49,7 @@ type Client struct {
 	Contacts          *contacts.Client
 	CustomFields      *customfieldsclient.Client
 	CustomObjects     *customobjects.Client
+	CustomerPortal    *customerportal.Client
 	EmailSuppressions *emailsuppressions.Client
 	FeatureRequests   *featurerequests.Client
 	IssueGroups       *issuegroupsclient.Client
@@ -87,6 +89,7 @@ func NewClient(opts ...option.RequestOption) *Client {
 		Contacts:          contacts.NewClient(options),
 		CustomFields:      customfieldsclient.NewClient(options),
 		CustomObjects:     customobjects.NewClient(options),
+		CustomerPortal:    customerportal.NewClient(options),
 		EmailSuppressions: emailsuppressions.NewClient(options),
 		FeatureRequests:   featurerequests.NewClient(options),
 		IssueGroups:       issuegroupsclient.NewClient(options),

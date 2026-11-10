@@ -3292,6 +3292,158 @@ client.CustomObjects.Update(
 </dl>
 </details>
 
+## CustomerPortal
+<details><summary><code>client.CustomerPortal.GetSettings() -> *pylon.GetCustomerPortalSettingsResponseBody</code></summary>
+<dl>
+<dd>
+
+#### 📝 Description
+
+<dl>
+<dd>
+
+<dl>
+<dd>
+
+Returns the organization's customer portal settings.
+
+**Rate limit:** 120 requests per minute
+</dd>
+</dl>
+</dd>
+</dl>
+
+#### 🔌 Usage
+
+<dl>
+<dd>
+
+<dl>
+<dd>
+
+```go
+client.CustomerPortal.GetSettings(
+    context.TODO(),
+)
+```
+</dd>
+</dl>
+</dd>
+</dl>
+
+
+</dd>
+</dl>
+</details>
+
+<details><summary><code>client.CustomerPortal.UpdateSettings(request) -> *pylon.GetCustomerPortalSettingsResponseBody</code></summary>
+<dl>
+<dd>
+
+#### 📝 Description
+
+<dl>
+<dd>
+
+<dl>
+<dd>
+
+Updates the organization's customer portal settings. Only provided fields are modified.
+
+**Rate limit:** 30 requests per minute
+</dd>
+</dl>
+</dd>
+</dl>
+
+#### 🔌 Usage
+
+<dl>
+<dd>
+
+<dl>
+<dd>
+
+```go
+request := &pylon.CustomerPortalUpdateSettingsRequest{}
+client.CustomerPortal.UpdateSettings(
+    context.TODO(),
+    request,
+)
+```
+</dd>
+</dl>
+</dd>
+</dl>
+
+#### ⚙️ Parameters
+
+<dl>
+<dd>
+
+<dl>
+<dd>
+
+**access:** `*pylon.UpdateCustomerPortalAccessSettings` 
+    
+</dd>
+</dl>
+
+<dl>
+<dd>
+
+**branding:** `*pylon.UpdateCustomerPortalBranding` 
+    
+</dd>
+</dl>
+
+<dl>
+<dd>
+
+**display:** `*pylon.UpdateCustomerPortalDisplaySettings` 
+    
+</dd>
+</dl>
+
+<dl>
+<dd>
+
+**enabled:** `*bool` — Whether the customer portal is enabled. Enabling it requires a plan that includes the customer portal.
+    
+</dd>
+</dl>
+
+<dl>
+<dd>
+
+**navigation:** `*pylon.UpdateCustomerPortalNavigation` 
+    
+</dd>
+</dl>
+
+<dl>
+<dd>
+
+**portalUserPermissions:** `*pylon.UpdateCustomerPortalUserPermissions` 
+    
+</dd>
+</dl>
+
+<dl>
+<dd>
+
+**tabs:** `*pylon.UpdateCustomerPortalTabs` 
+    
+</dd>
+</dl>
+</dd>
+</dl>
+
+
+</dd>
+</dl>
+</details>
+
 ## EmailSuppressions
 <details><summary><code>client.EmailSuppressions.List() -> *pylon.GetEmailSuppressionsResponseBody</code></summary>
 <dl>
@@ -4897,7 +5049,7 @@ request := &pylon.IssuesSearchRequest{
         Field: pylon.String(
             "state",
         ),
-        Operator: pylon.FilterOperatorEquals,
+        Operator: pylon.FilterOperatorEquals.Ptr(),
         Value: pylon.String(
             "new",
         ),
@@ -9804,6 +9956,86 @@ client.Users.List(
 <dd>
 
 **includeDeactivated:** `*bool` — Whether to include deactivated users. Defaults to false.
+    
+</dd>
+</dl>
+</dd>
+</dl>
+
+
+</dd>
+</dl>
+</details>
+
+<details><summary><code>client.Users.Invite(request) -> *pylon.GetUserResponseBody</code></summary>
+<dl>
+<dd>
+
+#### 📝 Description
+
+<dl>
+<dd>
+
+<dl>
+<dd>
+
+Creates a user and emails them an invitation to join the organization. If a user with this email already exists,
+they are reactivated if needed and sent a new invitation, and any pending invitation is canceled. Requires admin permissions.
+
+**Rate limit:** 30 requests per minute
+</dd>
+</dl>
+</dd>
+</dl>
+
+#### 🔌 Usage
+
+<dl>
+<dd>
+
+<dl>
+<dd>
+
+```go
+request := &pylon.UsersInviteRequest{
+    Email: "jane@example.com",
+    Name: "name",
+}
+client.Users.Invite(
+    context.TODO(),
+    request,
+)
+```
+</dd>
+</dl>
+</dd>
+</dl>
+
+#### ⚙️ Parameters
+
+<dl>
+<dd>
+
+<dl>
+<dd>
+
+**email:** `string` — The email address to send the invitation to.
+    
+</dd>
+</dl>
+
+<dl>
+<dd>
+
+**name:** `string` — The name of the user to invite.
+    
+</dd>
+</dl>
+
+<dl>
+<dd>
+
+**roleID:** `*string` — The ID of the role to give the user. See GET /user-roles. Defaults to the organization's default role.
     
 </dd>
 </dl>

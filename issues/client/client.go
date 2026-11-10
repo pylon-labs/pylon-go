@@ -302,7 +302,7 @@ func (c *Client) Merge(
 //	        Field: pylon.String(
 //	            "state",
 //	        ),
-//	        Operator: pylon.FilterOperatorEquals,
+//	        Operator: pylon.FilterOperatorEquals.Ptr(),
 //	        Value: pylon.String(
 //	            "new",
 //	        ),

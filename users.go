@@ -38,6 +38,75 @@ func (u *UsersGetRequest) SetID(id string) {
 }
 
 var (
+	usersInviteRequestFieldEmail  = big.NewInt(1 << 0)
+	usersInviteRequestFieldName   = big.NewInt(1 << 1)
+	usersInviteRequestFieldRoleID = big.NewInt(1 << 2)
+)
+
+type UsersInviteRequest struct {
+	// The email address to send the invitation to.
+	Email string `json:"email" url:"-"`
+	// The name of the user to invite.
+	Name string `json:"name" url:"-"`
+	// The ID of the role to give the user. See GET /user-roles. Defaults to the organization's default role.
+	RoleID *string `json:"role_id,omitempty" url:"-"`
+
+	// Private bitmask of fields set to an explicit value and therefore not to be omitted
+	explicitFields *big.Int `json:"-" url:"-"`
+}
+
+func (u *UsersInviteRequest) require(field *big.Int) {
+	next := new(big.Int)
+	if u.explicitFields != nil {
+		next.Set(u.explicitFields)
+	}
+	next.Or(next, field)
+	u.explicitFields = next
+}
+
+// SetEmail sets the Email field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (u *UsersInviteRequest) SetEmail(email string) {
+	u.Email = email
+	u.require(usersInviteRequestFieldEmail)
+}
+
+// SetName sets the Name field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (u *UsersInviteRequest) SetName(name string) {
+	u.Name = name
+	u.require(usersInviteRequestFieldName)
+}
+
+// SetRoleID sets the RoleID field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (u *UsersInviteRequest) SetRoleID(roleID *string) {
+	u.RoleID = roleID
+	u.require(usersInviteRequestFieldRoleID)
+}
+
+func (u *UsersInviteRequest) UnmarshalJSON(data []byte) error {
+	type unmarshaler UsersInviteRequest
+	var body unmarshaler
+	if err := json.Unmarshal(data, &body); err != nil {
+		return err
+	}
+	*u = UsersInviteRequest(body)
+	return nil
+}
+
+func (u *UsersInviteRequest) MarshalJSON() ([]byte, error) {
+	type embed UsersInviteRequest
+	var marshaler = struct {
+		embed
+	}{
+		embed: embed(*u),
+	}
+	explicitMarshaler := internal.HandleExplicitFields(marshaler, u.explicitFields)
+	return json.Marshal(explicitMarshaler)
+}
+
+var (
 	usersListRequestFieldIncludeDeactivated = big.NewInt(1 << 0)
 )
 

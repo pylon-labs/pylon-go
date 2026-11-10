@@ -1299,6 +1299,69 @@
       }
     },
     {
+      "id": "82b83ea8-46d8-48e5-8b6d-1ba87fd46843",
+      "name": "Get the customer portal settings - default",
+      "request": {
+        "urlPathTemplate": "/customer-portal/settings",
+        "method": "GET",
+        "headers": {
+          "Authorization": {
+            "matches": "Bearer .+"
+          }
+        }
+      },
+      "response": {
+        "status": 200,
+        "body": "{\n  \"data\": {\n    \"access\": {\n      \"auto_grant_new_contacts\": true,\n      \"create_contacts_on_login\": true,\n      \"default_role\": \"default_role\",\n      \"invite_auto_granted_contacts\": true\n    },\n    \"branding\": {\n      \"brand_color\": \"brand_color\",\n      \"dark_mode_footer_logo_url\": \"dark_mode_footer_logo_url\",\n      \"dark_mode_logo_url\": \"dark_mode_logo_url\",\n      \"footer_logo_url\": \"footer_logo_url\",\n      \"logo_link_url\": \"logo_link_url\",\n      \"logo_url\": \"logo_url\"\n    },\n    \"display\": {\n      \"feature_request_descriptions\": true,\n      \"task_linked_issues\": true,\n      \"task_linked_tasks\": true\n    },\n    \"enabled\": true,\n    \"navigation\": {\n      \"footer_categories\": [\n        {\n          \"links\": [\n            {\n              \"text\": \"text\",\n              \"url\": \"url\"\n            }\n          ],\n          \"title\": \"title\"\n        }\n      ],\n      \"header_links\": [\n        {\n          \"text\": \"text\",\n          \"url\": \"url\"\n        }\n      ]\n    },\n    \"portal_user_permissions\": {\n      \"edit_profile\": true,\n      \"edit_reply_ccs\": true,\n      \"export_issues_csv\": true\n    },\n    \"tabs\": {\n      \"feature_requests\": true,\n      \"issues\": true,\n      \"projects_and_tasks\": true\n    }\n  },\n  \"request_id\": \"request_id\"\n}",
+        "headers": {
+          "Content-Type": "application/json"
+        }
+      },
+      "uuid": "82b83ea8-46d8-48e5-8b6d-1ba87fd46843",
+      "persistent": true,
+      "priority": 3,
+      "metadata": {
+        "mocklab": {
+          "created": {
+            "at": "2020-01-01T00:00:00.000Z",
+            "via": "SYSTEM"
+          }
+        }
+      },
+      "postServeActions": []
+    },
+    {
+      "id": "885b2877-4e07-4ec2-9f1e-977193eae83d",
+      "name": "Update the customer portal settings - default",
+      "request": {
+        "urlPathTemplate": "/customer-portal/settings",
+        "method": "PATCH",
+        "headers": {
+          "Authorization": {
+            "matches": "Bearer .+"
+          }
+        }
+      },
+      "response": {
+        "status": 200,
+        "body": "{\n  \"data\": {\n    \"access\": {\n      \"auto_grant_new_contacts\": true,\n      \"create_contacts_on_login\": true,\n      \"default_role\": \"default_role\",\n      \"invite_auto_granted_contacts\": true\n    },\n    \"branding\": {\n      \"brand_color\": \"brand_color\",\n      \"dark_mode_footer_logo_url\": \"dark_mode_footer_logo_url\",\n      \"dark_mode_logo_url\": \"dark_mode_logo_url\",\n      \"footer_logo_url\": \"footer_logo_url\",\n      \"logo_link_url\": \"logo_link_url\",\n      \"logo_url\": \"logo_url\"\n    },\n    \"display\": {\n      \"feature_request_descriptions\": true,\n      \"task_linked_issues\": true,\n      \"task_linked_tasks\": true\n    },\n    \"enabled\": true,\n    \"navigation\": {\n      \"footer_categories\": [\n        {\n          \"links\": [\n            {\n              \"text\": \"text\",\n              \"url\": \"url\"\n            }\n          ],\n          \"title\": \"title\"\n        }\n      ],\n      \"header_links\": [\n        {\n          \"text\": \"text\",\n          \"url\": \"url\"\n        }\n      ]\n    },\n    \"portal_user_permissions\": {\n      \"edit_profile\": true,\n      \"edit_reply_ccs\": true,\n      \"export_issues_csv\": true\n    },\n    \"tabs\": {\n      \"feature_requests\": true,\n      \"issues\": true,\n      \"projects_and_tasks\": true\n    }\n  },\n  \"request_id\": \"request_id\"\n}",
+        "headers": {
+          "Content-Type": "application/json"
+        }
+      },
+      "uuid": "885b2877-4e07-4ec2-9f1e-977193eae83d",
+      "persistent": true,
+      "priority": 3,
+      "metadata": {
+        "mocklab": {
+          "created": {
+            "at": "2020-01-01T00:00:00.000Z",
+            "via": "SYSTEM"
+          }
+        }
+      }
+    },
+    {
       "id": "f43bb3ec-90d8-4a1e-8b0f-71a2de7bb5e5",
       "name": "Get email suppressions - default",
       "request": {
@@ -3728,7 +3791,7 @@
       },
       "response": {
         "status": 200,
-        "body": "{\n  \"data\": [\n    {\n      \"description_html\": \"description_html\",\n      \"fields\": [\n        {\n          \"description_html\": \"description_html\",\n          \"hidden\": true,\n          \"name\": \"name\",\n          \"required\": true,\n          \"slug\": \"slug\",\n          \"type\": \"type\"\n        }\n      ],\n      \"id\": \"id\",\n      \"is_public\": true,\n      \"name\": \"name\",\n      \"slug\": \"slug\",\n      \"url\": \"url\"\n    }\n  ],\n  \"pagination\": {\n    \"cursor\": \"cursor\",\n    \"has_next_page\": true\n  },\n  \"request_id\": \"request_id\"\n}",
+        "body": "{\n  \"data\": [\n    {\n      \"description_html\": \"description_html\",\n      \"fields\": [\n        {\n          \"description_html\": \"description_html\",\n          \"hidden\": true,\n          \"name\": \"name\",\n          \"prefill_key\": \"prefill_key\",\n          \"required\": true,\n          \"slug\": \"slug\",\n          \"type\": \"type\"\n        }\n      ],\n      \"id\": \"id\",\n      \"is_public\": true,\n      \"name\": \"name\",\n      \"slug\": \"slug\",\n      \"url\": \"url\"\n    }\n  ],\n  \"pagination\": {\n    \"cursor\": \"cursor\",\n    \"has_next_page\": true\n  },\n  \"request_id\": \"request_id\"\n}",
         "headers": {
           "Content-Type": "application/json"
         }
@@ -3765,7 +3828,7 @@
       },
       "response": {
         "status": 200,
-        "body": "{\n  \"data\": {\n    \"description_html\": \"description_html\",\n    \"fields\": [\n      {\n        \"description_html\": \"description_html\",\n        \"hidden\": true,\n        \"name\": \"name\",\n        \"required\": true,\n        \"slug\": \"slug\",\n        \"type\": \"type\"\n      }\n    ],\n    \"id\": \"id\",\n    \"is_public\": true,\n    \"name\": \"name\",\n    \"slug\": \"slug\",\n    \"url\": \"url\"\n  },\n  \"request_id\": \"request_id\"\n}",
+        "body": "{\n  \"data\": {\n    \"description_html\": \"description_html\",\n    \"fields\": [\n      {\n        \"description_html\": \"description_html\",\n        \"hidden\": true,\n        \"name\": \"name\",\n        \"prefill_key\": \"prefill_key\",\n        \"required\": true,\n        \"slug\": \"slug\",\n        \"type\": \"type\"\n      }\n    ],\n    \"id\": \"id\",\n    \"is_public\": true,\n    \"name\": \"name\",\n    \"slug\": \"slug\",\n    \"url\": \"url\"\n  },\n  \"request_id\": \"request_id\"\n}",
         "headers": {
           "Content-Type": "application/json"
         }
@@ -4074,6 +4137,37 @@
         }
       },
       "postServeActions": []
+    },
+    {
+      "id": "972fa05c-90be-453b-9d05-2f9fc27dd471",
+      "name": "Invite a user - default",
+      "request": {
+        "urlPathTemplate": "/users/invite",
+        "method": "POST",
+        "headers": {
+          "Authorization": {
+            "matches": "Bearer .+"
+          }
+        }
+      },
+      "response": {
+        "status": 200,
+        "body": "{\n  \"data\": {\n    \"avatar_url\": \"avatar_url\",\n    \"email\": \"email\",\n    \"emails\": [\n      \"emails\"\n    ],\n    \"id\": \"id\",\n    \"is_deactivated\": true,\n    \"name\": \"name\",\n    \"role\": {\n      \"id\": \"id\",\n      \"name\": \"name\",\n      \"slug\": \"slug\"\n    },\n    \"role_id\": \"role_id\",\n    \"role_ids\": [\n      \"role_ids\"\n    ],\n    \"roles\": [\n      {\n        \"id\": \"id\",\n        \"name\": \"name\",\n        \"slug\": \"slug\"\n      }\n    ],\n    \"skills\": [\n      {\n        \"attribute\": \"attribute\",\n        \"attribute_type\": \"attribute_type\"\n      }\n    ],\n    \"status\": \"active\"\n  },\n  \"request_id\": \"request_id\"\n}",
+        "headers": {
+          "Content-Type": "application/json"
+        }
+      },
+      "uuid": "972fa05c-90be-453b-9d05-2f9fc27dd471",
+      "persistent": true,
+      "priority": 3,
+      "metadata": {
+        "mocklab": {
+          "created": {
+            "at": "2020-01-01T00:00:00.000Z",
+            "via": "SYSTEM"
+          }
+        }
+      }
     },
     {
       "id": "6d156241-ff85-4942-8ae7-f4de64a02792",
@@ -5062,7 +5156,7 @@
       },
       "response": {
         "status": 200,
-        "body": "{\n  \"data\": [\n    {\n      \"channel_id\": \"channel_id\",\n      \"id\": \"id\",\n      \"issue_id\": \"issue_id\",\n      \"name\": \"name\",\n      \"source\": \"source\",\n      \"thread_id\": \"thread_id\"\n    }\n  ],\n  \"request_id\": \"request_id\"\n}",
+        "body": "{\n  \"data\": [\n    {\n      \"channel_id\": \"channel_id\",\n      \"delivery_mode\": \"delivery_mode\",\n      \"id\": \"id\",\n      \"issue_id\": \"issue_id\",\n      \"name\": \"name\",\n      \"source\": \"source\",\n      \"thread_id\": \"thread_id\"\n    }\n  ],\n  \"request_id\": \"request_id\"\n}",
         "headers": {
           "Content-Type": "application/json"
         }
@@ -5098,7 +5192,7 @@
       },
       "response": {
         "status": 200,
-        "body": "{\n  \"data\": {\n    \"channel_id\": \"channel_id\",\n    \"id\": \"id\",\n    \"issue_id\": \"issue_id\",\n    \"name\": \"name\",\n    \"source\": \"source\",\n    \"thread_id\": \"thread_id\"\n  },\n  \"request_id\": \"request_id\"\n}",
+        "body": "{\n  \"data\": {\n    \"channel_id\": \"channel_id\",\n    \"delivery_mode\": \"delivery_mode\",\n    \"id\": \"id\",\n    \"issue_id\": \"issue_id\",\n    \"name\": \"name\",\n    \"source\": \"source\",\n    \"thread_id\": \"thread_id\"\n  },\n  \"request_id\": \"request_id\"\n}",
         "headers": {
           "Content-Type": "application/json"
         }
@@ -5206,7 +5300,7 @@
       },
       "response": {
         "status": 200,
-        "body": "{\n  \"data\": {\n    \"approval_info\": {\n      \"requested_at\": \"2024-01-15T09:30:00Z\",\n      \"reviewed_at\": \"2024-01-15T09:30:00Z\",\n      \"reviewed_by_user_id\": \"reviewed_by_user_id\",\n      \"status\": \"status\"\n    },\n    \"author_user_id\": \"author_user_id\",\n    \"collection_id\": \"collection_id\",\n    \"created_at\": \"2024-01-15T09:30:00Z\",\n    \"current_draft_content_html\": \"current_draft_content_html\",\n    \"current_draft_content_markdown\": \"current_draft_content_markdown\",\n    \"current_published_content_html\": \"current_published_content_html\",\n    \"current_published_content_markdown\": \"current_published_content_markdown\",\n    \"id\": \"id\",\n    \"identifier\": \"identifier\",\n    \"is_published\": true,\n    \"is_unlisted\": true,\n    \"last_edited_at\": \"2024-01-15T09:30:00Z\",\n    \"last_published_at\": \"2024-01-15T09:30:00Z\",\n    \"slug\": \"slug\",\n    \"tags\": [\n      {\n        \"id\": \"id\",\n        \"object_type\": \"issue\",\n        \"value\": \"value\"\n      }\n    ],\n    \"title\": \"title\",\n    \"url\": \"url\",\n    \"visibility_config\": {\n      \"ai_agent_access\": \"inherit\",\n      \"allowed_agent_ids\": [\n        \"allowed_agent_ids\"\n      ],\n      \"customer_visibility_condition\": {\n        \"operator\": \"equals\"\n      },\n      \"customer_visibility_condition_unsupported\": true,\n      \"visibility\": \"public\"\n    }\n  },\n  \"request_id\": \"request_id\"\n}",
+        "body": "{\n  \"data\": {\n    \"approval_info\": {\n      \"requested_at\": \"2024-01-15T09:30:00Z\",\n      \"reviewed_at\": \"2024-01-15T09:30:00Z\",\n      \"reviewed_by_user_id\": \"reviewed_by_user_id\",\n      \"status\": \"status\"\n    },\n    \"author_user_id\": \"author_user_id\",\n    \"collection_id\": \"collection_id\",\n    \"created_at\": \"2024-01-15T09:30:00Z\",\n    \"current_draft_content_html\": \"current_draft_content_html\",\n    \"current_draft_content_markdown\": \"current_draft_content_markdown\",\n    \"current_published_content_html\": \"current_published_content_html\",\n    \"current_published_content_markdown\": \"current_published_content_markdown\",\n    \"id\": \"id\",\n    \"identifier\": \"identifier\",\n    \"is_published\": true,\n    \"is_unlisted\": true,\n    \"last_edited_at\": \"2024-01-15T09:30:00Z\",\n    \"last_published_at\": \"2024-01-15T09:30:00Z\",\n    \"slug\": \"slug\",\n    \"tags\": [\n      {\n        \"id\": \"id\",\n        \"object_type\": \"issue\",\n        \"value\": \"value\"\n      }\n    ],\n    \"title\": \"title\",\n    \"url\": \"url\",\n    \"visibility_config\": {\n      \"ai_agent_access\": \"inherit\",\n      \"allowed_agent_ids\": [\n        \"allowed_agent_ids\"\n      ],\n      \"customer_visibility_condition_unsupported\": true,\n      \"visibility\": \"public\"\n    }\n  },\n  \"request_id\": \"request_id\"\n}",
         "headers": {
           "Content-Type": "application/json"
         }
@@ -5245,7 +5339,7 @@
       },
       "response": {
         "status": 200,
-        "body": "{\n  \"data\": {\n    \"approval_info\": {\n      \"requested_at\": \"2024-01-15T09:30:00Z\",\n      \"reviewed_at\": \"2024-01-15T09:30:00Z\",\n      \"reviewed_by_user_id\": \"reviewed_by_user_id\",\n      \"status\": \"status\"\n    },\n    \"author_user_id\": \"author_user_id\",\n    \"collection_id\": \"collection_id\",\n    \"created_at\": \"2024-01-15T09:30:00Z\",\n    \"current_draft_content_html\": \"current_draft_content_html\",\n    \"current_draft_content_markdown\": \"current_draft_content_markdown\",\n    \"current_published_content_html\": \"current_published_content_html\",\n    \"current_published_content_markdown\": \"current_published_content_markdown\",\n    \"id\": \"id\",\n    \"identifier\": \"identifier\",\n    \"is_published\": true,\n    \"is_unlisted\": true,\n    \"last_edited_at\": \"2024-01-15T09:30:00Z\",\n    \"last_published_at\": \"2024-01-15T09:30:00Z\",\n    \"slug\": \"slug\",\n    \"tags\": [\n      {\n        \"id\": \"id\",\n        \"object_type\": \"issue\",\n        \"value\": \"value\"\n      }\n    ],\n    \"title\": \"title\",\n    \"url\": \"url\",\n    \"visibility_config\": {\n      \"ai_agent_access\": \"inherit\",\n      \"allowed_agent_ids\": [\n        \"allowed_agent_ids\"\n      ],\n      \"customer_visibility_condition\": {\n        \"operator\": \"equals\"\n      },\n      \"customer_visibility_condition_unsupported\": true,\n      \"visibility\": \"public\"\n    }\n  },\n  \"request_id\": \"request_id\"\n}",
+        "body": "{\n  \"data\": {\n    \"approval_info\": {\n      \"requested_at\": \"2024-01-15T09:30:00Z\",\n      \"reviewed_at\": \"2024-01-15T09:30:00Z\",\n      \"reviewed_by_user_id\": \"reviewed_by_user_id\",\n      \"status\": \"status\"\n    },\n    \"author_user_id\": \"author_user_id\",\n    \"collection_id\": \"collection_id\",\n    \"created_at\": \"2024-01-15T09:30:00Z\",\n    \"current_draft_content_html\": \"current_draft_content_html\",\n    \"current_draft_content_markdown\": \"current_draft_content_markdown\",\n    \"current_published_content_html\": \"current_published_content_html\",\n    \"current_published_content_markdown\": \"current_published_content_markdown\",\n    \"id\": \"id\",\n    \"identifier\": \"identifier\",\n    \"is_published\": true,\n    \"is_unlisted\": true,\n    \"last_edited_at\": \"2024-01-15T09:30:00Z\",\n    \"last_published_at\": \"2024-01-15T09:30:00Z\",\n    \"slug\": \"slug\",\n    \"tags\": [\n      {\n        \"id\": \"id\",\n        \"object_type\": \"issue\",\n        \"value\": \"value\"\n      }\n    ],\n    \"title\": \"title\",\n    \"url\": \"url\",\n    \"visibility_config\": {\n      \"ai_agent_access\": \"inherit\",\n      \"allowed_agent_ids\": [\n        \"allowed_agent_ids\"\n      ],\n      \"customer_visibility_condition_unsupported\": true,\n      \"visibility\": \"public\"\n    }\n  },\n  \"request_id\": \"request_id\"\n}",
         "headers": {
           "Content-Type": "application/json"
         }
@@ -5323,7 +5417,7 @@
       },
       "response": {
         "status": 200,
-        "body": "{\n  \"data\": {\n    \"approval_info\": {\n      \"requested_at\": \"2024-01-15T09:30:00Z\",\n      \"reviewed_at\": \"2024-01-15T09:30:00Z\",\n      \"reviewed_by_user_id\": \"reviewed_by_user_id\",\n      \"status\": \"status\"\n    },\n    \"author_user_id\": \"author_user_id\",\n    \"collection_id\": \"collection_id\",\n    \"created_at\": \"2024-01-15T09:30:00Z\",\n    \"current_draft_content_html\": \"current_draft_content_html\",\n    \"current_draft_content_markdown\": \"current_draft_content_markdown\",\n    \"current_published_content_html\": \"current_published_content_html\",\n    \"current_published_content_markdown\": \"current_published_content_markdown\",\n    \"id\": \"id\",\n    \"identifier\": \"identifier\",\n    \"is_published\": true,\n    \"is_unlisted\": true,\n    \"last_edited_at\": \"2024-01-15T09:30:00Z\",\n    \"last_published_at\": \"2024-01-15T09:30:00Z\",\n    \"slug\": \"slug\",\n    \"tags\": [\n      {\n        \"id\": \"id\",\n        \"object_type\": \"issue\",\n        \"value\": \"value\"\n      }\n    ],\n    \"title\": \"title\",\n    \"url\": \"url\",\n    \"visibility_config\": {\n      \"ai_agent_access\": \"inherit\",\n      \"allowed_agent_ids\": [\n        \"allowed_agent_ids\"\n      ],\n      \"customer_visibility_condition\": {\n        \"operator\": \"equals\"\n      },\n      \"customer_visibility_condition_unsupported\": true,\n      \"visibility\": \"public\"\n    }\n  },\n  \"request_id\": \"request_id\"\n}",
+        "body": "{\n  \"data\": {\n    \"approval_info\": {\n      \"requested_at\": \"2024-01-15T09:30:00Z\",\n      \"reviewed_at\": \"2024-01-15T09:30:00Z\",\n      \"reviewed_by_user_id\": \"reviewed_by_user_id\",\n      \"status\": \"status\"\n    },\n    \"author_user_id\": \"author_user_id\",\n    \"collection_id\": \"collection_id\",\n    \"created_at\": \"2024-01-15T09:30:00Z\",\n    \"current_draft_content_html\": \"current_draft_content_html\",\n    \"current_draft_content_markdown\": \"current_draft_content_markdown\",\n    \"current_published_content_html\": \"current_published_content_html\",\n    \"current_published_content_markdown\": \"current_published_content_markdown\",\n    \"id\": \"id\",\n    \"identifier\": \"identifier\",\n    \"is_published\": true,\n    \"is_unlisted\": true,\n    \"last_edited_at\": \"2024-01-15T09:30:00Z\",\n    \"last_published_at\": \"2024-01-15T09:30:00Z\",\n    \"slug\": \"slug\",\n    \"tags\": [\n      {\n        \"id\": \"id\",\n        \"object_type\": \"issue\",\n        \"value\": \"value\"\n      }\n    ],\n    \"title\": \"title\",\n    \"url\": \"url\",\n    \"visibility_config\": {\n      \"ai_agent_access\": \"inherit\",\n      \"allowed_agent_ids\": [\n        \"allowed_agent_ids\"\n      ],\n      \"customer_visibility_condition_unsupported\": true,\n      \"visibility\": \"public\"\n    }\n  },\n  \"request_id\": \"request_id\"\n}",
         "headers": {
           "Content-Type": "application/json"
         }
@@ -5945,6 +6039,6 @@
     }
   ],
   "meta": {
-    "total": 170
+    "total": 173
   }
 }
