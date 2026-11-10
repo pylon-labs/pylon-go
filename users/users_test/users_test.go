@@ -101,6 +101,33 @@ func TestUsersListWithWireMock(
 	VerifyRequestCount(t, "TestUsersListWithWireMock", "GET", "/users", nil, 1)
 }
 
+func TestUsersInviteWithWireMock(
+	t *testing.T,
+) {
+	WireMockBaseURL := os.Getenv("WIREMOCK_URL")
+	if WireMockBaseURL == "" {
+		WireMockBaseURL = "http://localhost:8080"
+	}
+	client := client.NewClient(
+		option.WithBaseURL(WireMockBaseURL),
+		option.WithToken("test-token"),
+	)
+	request := &pylon.UsersInviteRequest{
+		Email: "jane@example.com",
+		Name:  "name",
+	}
+	_, invocationErr := client.Users.Invite(
+		context.TODO(),
+		request,
+		option.WithHTTPHeader(
+			http.Header{"X-Test-Id": []string{"TestUsersInviteWithWireMock"}},
+		),
+	)
+
+	require.NoError(t, invocationErr, "Client method call should succeed")
+	VerifyRequestCount(t, "TestUsersInviteWithWireMock", "POST", "/users/invite", nil, 1)
+}
+
 func TestUsersSearchWithWireMock(
 	t *testing.T,
 ) {

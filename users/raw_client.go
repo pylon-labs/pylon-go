@@ -81,6 +81,50 @@ func (r *RawClient) List(
 	}, nil
 }
 
+func (r *RawClient) Invite(
+	ctx context.Context,
+	request *pylon.UsersInviteRequest,
+	opts ...option.RequestOption,
+) (*core.Response[*pylon.GetUserResponseBody], error) {
+	options := core.NewRequestOptions(opts...)
+	baseURL := internal.ResolveBaseURL(
+		options.BaseURL,
+		r.baseURL,
+		"https://api.usepylon.com",
+	)
+	endpointURL := baseURL + "/users/invite"
+	headers := internal.MergeHeaders(
+		r.options.ToHeader(),
+		options.ToHeader(),
+	)
+	headers.Add("Content-Type", "application/json")
+	var response *pylon.GetUserResponseBody
+	raw, err := r.caller.Call(
+		ctx,
+		&internal.CallParams{
+			URL:             endpointURL,
+			Method:          http.MethodPost,
+			Headers:         headers,
+			MaxAttempts:     options.MaxAttempts,
+			DisableRetries:  true,
+			BodyProperties:  options.BodyProperties,
+			QueryParameters: options.QueryParameters,
+			Client:          options.HTTPClient,
+			Request:         request,
+			Response:        &response,
+			ErrorDecoder:    internal.NewErrorDecoder(pylon.ErrorCodes),
+		},
+	)
+	if err != nil {
+		return nil, err
+	}
+	return &core.Response[*pylon.GetUserResponseBody]{
+		StatusCode: raw.StatusCode,
+		Header:     raw.Header,
+		Body:       response,
+	}, nil
+}
+
 func (r *RawClient) Search(
 	ctx context.Context,
 	request *pylon.UsersSearchRequest,

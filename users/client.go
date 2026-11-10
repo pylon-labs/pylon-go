@@ -61,6 +61,37 @@ func (c *Client) List(
 	return response.Body, nil
 }
 
+// Creates a user and emails them an invitation to join the organization. If a user with this email already exists,
+// they are reactivated if needed and sent a new invitation, and any pending invitation is canceled. Requires admin permissions.
+//
+// **Rate limit:** 30 requests per minute
+//
+// Example:
+//
+//	request := &pylon.UsersInviteRequest{
+//	    Email: "jane@example.com",
+//	    Name: "name",
+//	}
+//	client.Users.Invite(
+//	    context.TODO(),
+//	    request,
+//	)
+func (c *Client) Invite(
+	ctx context.Context,
+	request *pylon.UsersInviteRequest,
+	opts ...option.RequestOption,
+) (*pylon.GetUserResponseBody, error) {
+	response, err := c.WithRawResponse.Invite(
+		ctx,
+		request,
+		opts...,
+	)
+	if err != nil {
+		return nil, err
+	}
+	return response.Body, nil
+}
+
 // Filterable fields and their allowed operators:
 //
 //	Field | Allowed operators |

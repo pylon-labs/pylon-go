@@ -5884,22 +5884,26 @@ func (e *EmailMessageInfo) String() string {
 }
 
 var (
-	errorAPIResponseBodyFieldCode      = big.NewInt(1 << 0)
-	errorAPIResponseBodyFieldErrors    = big.NewInt(1 << 1)
-	errorAPIResponseBodyFieldExistsID  = big.NewInt(1 << 2)
-	errorAPIResponseBodyFieldRequestID = big.NewInt(1 << 3)
+	errorAPIResponseBodyFieldCode         = big.NewInt(1 << 0)
+	errorAPIResponseBodyFieldErrors       = big.NewInt(1 << 1)
+	errorAPIResponseBodyFieldExistsID     = big.NewInt(1 << 2)
+	errorAPIResponseBodyFieldFilterErrors = big.NewInt(1 << 3)
+	errorAPIResponseBodyFieldRequestID    = big.NewInt(1 << 4)
 )
 
 type ErrorAPIResponseBody struct {
 	// A stable machine-readable identifier for this failure, safe to branch on
 	// instead of the message text. Omitted when the failure has no assigned code.
 	//
-	// Known values: `recipients_suppressed`, `email_bounced`, `internal_issue_reply_not_allowed`, `duplicate_object`, `invalid_authorization_header`, `invalid_api_token`, `invalid_oauth_token`, `wrong_region_token`, `organization_deactivated`, `organization_suspended`, `permission_denied`, `oauth_not_permitted`, `rate_limited`, `not_found`, `method_not_allowed`, `payload_too_large`, `invalid_request_body`, `internal_error`, `invalid_webhook_credentials`, `organization_inactive`. This list is not exhaustive.
+	// Known values: `recipients_suppressed`, `email_bounced`, `internal_issue_reply_not_allowed`, `duplicate_object`, `invalid_authorization_header`, `invalid_api_token`, `invalid_oauth_token`, `wrong_region_token`, `organization_deactivated`, `organization_suspended`, `permission_denied`, `oauth_not_permitted`, `rate_limited`, `not_found`, `method_not_allowed`, `payload_too_large`, `invalid_request_body`, `internal_error`, `invalid_webhook_credentials`, `organization_inactive`, `invalid_filter`. This list is not exhaustive.
 	Code *string `json:"code,omitempty" url:"code,omitempty"`
 	// The list of errors.
 	Errors []string `json:"errors,omitempty" url:"errors,omitempty"`
 	// The ID of the object that already exists if this is a duplicate object error.
 	ExistsID *string `json:"exists_id,omitempty" url:"exists_id,omitempty"`
+	// One entry per problem found in the request's filter. Present only when code is
+	// "invalid_filter"; errors carries the same messages as plain text.
+	FilterErrors []*FilterError `json:"filter_errors,omitempty" url:"filter_errors,omitempty"`
 	// The request ID for tracking.
 	RequestID string `json:"request_id" url:"request_id"`
 
@@ -5929,6 +5933,13 @@ func (e *ErrorAPIResponseBody) GetExistsID() *string {
 		return nil
 	}
 	return e.ExistsID
+}
+
+func (e *ErrorAPIResponseBody) GetFilterErrors() []*FilterError {
+	if e == nil {
+		return nil
+	}
+	return e.FilterErrors
 }
 
 func (e *ErrorAPIResponseBody) GetRequestID() string {
@@ -5973,6 +5984,13 @@ func (e *ErrorAPIResponseBody) SetErrors(errors []string) {
 func (e *ErrorAPIResponseBody) SetExistsID(existsID *string) {
 	e.ExistsID = existsID
 	e.require(errorAPIResponseBodyFieldExistsID)
+}
+
+// SetFilterErrors sets the FilterErrors field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (e *ErrorAPIResponseBody) SetFilterErrors(filterErrors []*FilterError) {
+	e.FilterErrors = filterErrors
+	e.require(errorAPIResponseBodyFieldFilterErrors)
 }
 
 // SetRequestID sets the RequestID field and marks it as non-optional;
@@ -6430,11 +6448,12 @@ func (e *ExternalIssue) String() string {
 }
 
 var (
-	filterFieldField      = big.NewInt(1 << 0)
-	filterFieldOperator   = big.NewInt(1 << 1)
-	filterFieldSubfilters = big.NewInt(1 << 2)
-	filterFieldValue      = big.NewInt(1 << 3)
-	filterFieldValues     = big.NewInt(1 << 4)
+	filterFieldField         = big.NewInt(1 << 0)
+	filterFieldOperator      = big.NewInt(1 << 1)
+	filterFieldRelatedObject = big.NewInt(1 << 2)
+	filterFieldSubfilters    = big.NewInt(1 << 3)
+	filterFieldValue         = big.NewInt(1 << 4)
+	filterFieldValues        = big.NewInt(1 << 5)
 )
 
 type Filter struct {
@@ -6443,8 +6462,9 @@ type Filter struct {
 	// For non-compound filters (any operators other than "and", "or", or "not"),
 	// field must be set, along with either value or values, depending on the operator.
 	Field *string `json:"field,omitempty" url:"field,omitempty"`
-	// The operator for this filter.
-	Operator FilterOperator `json:"operator" url:"operator"`
+	// The operator for this filter. Required unless related_object is set.
+	Operator      *FilterOperator      `json:"operator,omitempty" url:"operator,omitempty"`
+	RelatedObject *FilterRelatedObject `json:"related_object,omitempty" url:"related_object,omitempty"`
 	// Sub-filters for this filter.  Valid only when operator is "and", "or", or "not"; "not"
 	// takes exactly one subfilter.
 	// The maximum allowed depth for a tree of filters is 5, counting the top-level filter.
@@ -6454,6 +6474,8 @@ type Filter struct {
 	// "starts_with", "ends_with", "time_is_after", "time_is_before", "time_is_in_last",
 	// "time_is_not_in_last", "time_is_in_next", "time_is_not_in_next", "greater_than",
 	// "less_than", "greater_than_or_equals", and "less_than_or_equals".
+	// On fields that hold user IDs, "current_user" means the API token's user; on fields that
+	// hold team IDs, "my_teams" means that user's teams. The same applies to values.
 	Value *string `json:"value,omitempty" url:"value,omitempty"`
 	// The values for this filter. Used by multi-valued operators: "in", "not_in", and
 	// "includes_all_of". For "time_range", set to [start, end].
@@ -6473,11 +6495,18 @@ func (f *Filter) GetField() *string {
 	return f.Field
 }
 
-func (f *Filter) GetOperator() FilterOperator {
+func (f *Filter) GetOperator() *FilterOperator {
 	if f == nil {
-		return ""
+		return nil
 	}
 	return f.Operator
+}
+
+func (f *Filter) GetRelatedObject() *FilterRelatedObject {
+	if f == nil {
+		return nil
+	}
+	return f.RelatedObject
 }
 
 func (f *Filter) GetSubfilters() []*Filter {
@@ -6526,9 +6555,16 @@ func (f *Filter) SetField(field *string) {
 
 // SetOperator sets the Operator field and marks it as non-optional;
 // this prevents an empty or null value for this field from being omitted during serialization.
-func (f *Filter) SetOperator(operator FilterOperator) {
+func (f *Filter) SetOperator(operator *FilterOperator) {
 	f.Operator = operator
 	f.require(filterFieldOperator)
+}
+
+// SetRelatedObject sets the RelatedObject field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (f *Filter) SetRelatedObject(relatedObject *FilterRelatedObject) {
+	f.RelatedObject = relatedObject
+	f.require(filterFieldRelatedObject)
 }
 
 // SetSubfilters sets the Subfilters field and marks it as non-optional;
@@ -6594,7 +6630,200 @@ func (f *Filter) String() string {
 	return fmt.Sprintf("%#v", f)
 }
 
-// The operator for this filter.
+var (
+	filterErrorFieldAllowed    = big.NewInt(1 << 0)
+	filterErrorFieldCode       = big.NewInt(1 << 1)
+	filterErrorFieldField      = big.NewInt(1 << 2)
+	filterErrorFieldMessage    = big.NewInt(1 << 3)
+	filterErrorFieldOperator   = big.NewInt(1 << 4)
+	filterErrorFieldPath       = big.NewInt(1 << 5)
+	filterErrorFieldSuggestion = big.NewInt(1 << 6)
+)
+
+type FilterError struct {
+	// What is accepted in place of the rejected field, operator, value, or relationship.
+	// Long lists are cut off after 100 entries.
+	Allowed []string `json:"allowed,omitempty" url:"allowed,omitempty"`
+	// A stable machine-readable identifier for this problem.
+	//
+	// Known values: `invalid_shape`, `too_deep`, `unknown_operator`, `unknown_field`, `operator_not_allowed`, `missing_value`, `unexpected_value`, `invalid_value`, `unknown_relationship`, `unsupported`. This list is not exhaustive.
+	Code string `json:"code" url:"code"`
+	// The field of the filter at path, when it has one.
+	Field *string `json:"field,omitempty" url:"field,omitempty"`
+	// What is wrong and how to fix it.
+	Message string `json:"message" url:"message"`
+	// The operator of the filter at path, when it has one.
+	Operator *string `json:"operator,omitempty" url:"operator,omitempty"`
+	// Where the problem is, as a JSONPath from the root of the filter, such as
+	// "$.subfilters[1].related_object.filter".
+	Path string `json:"path" url:"path"`
+	// The accepted entry closest to the rejected one, when one is close enough.
+	Suggestion *string `json:"suggestion,omitempty" url:"suggestion,omitempty"`
+
+	// Private bitmask of fields set to an explicit value and therefore not to be omitted
+	explicitFields *big.Int `json:"-" url:"-"`
+
+	extraProperties map[string]interface{}
+	rawJSON         json.RawMessage
+}
+
+func (f *FilterError) GetAllowed() []string {
+	if f == nil {
+		return nil
+	}
+	return f.Allowed
+}
+
+func (f *FilterError) GetCode() string {
+	if f == nil {
+		return ""
+	}
+	return f.Code
+}
+
+func (f *FilterError) GetField() *string {
+	if f == nil {
+		return nil
+	}
+	return f.Field
+}
+
+func (f *FilterError) GetMessage() string {
+	if f == nil {
+		return ""
+	}
+	return f.Message
+}
+
+func (f *FilterError) GetOperator() *string {
+	if f == nil {
+		return nil
+	}
+	return f.Operator
+}
+
+func (f *FilterError) GetPath() string {
+	if f == nil {
+		return ""
+	}
+	return f.Path
+}
+
+func (f *FilterError) GetSuggestion() *string {
+	if f == nil {
+		return nil
+	}
+	return f.Suggestion
+}
+
+func (f *FilterError) GetExtraProperties() map[string]interface{} {
+	if f == nil {
+		return nil
+	}
+	return f.extraProperties
+}
+
+func (f *FilterError) require(field *big.Int) {
+	next := new(big.Int)
+	if f.explicitFields != nil {
+		next.Set(f.explicitFields)
+	}
+	next.Or(next, field)
+	f.explicitFields = next
+}
+
+// SetAllowed sets the Allowed field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (f *FilterError) SetAllowed(allowed []string) {
+	f.Allowed = allowed
+	f.require(filterErrorFieldAllowed)
+}
+
+// SetCode sets the Code field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (f *FilterError) SetCode(code string) {
+	f.Code = code
+	f.require(filterErrorFieldCode)
+}
+
+// SetField sets the Field field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (f *FilterError) SetField(field *string) {
+	f.Field = field
+	f.require(filterErrorFieldField)
+}
+
+// SetMessage sets the Message field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (f *FilterError) SetMessage(message string) {
+	f.Message = message
+	f.require(filterErrorFieldMessage)
+}
+
+// SetOperator sets the Operator field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (f *FilterError) SetOperator(operator *string) {
+	f.Operator = operator
+	f.require(filterErrorFieldOperator)
+}
+
+// SetPath sets the Path field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (f *FilterError) SetPath(path string) {
+	f.Path = path
+	f.require(filterErrorFieldPath)
+}
+
+// SetSuggestion sets the Suggestion field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (f *FilterError) SetSuggestion(suggestion *string) {
+	f.Suggestion = suggestion
+	f.require(filterErrorFieldSuggestion)
+}
+
+func (f *FilterError) UnmarshalJSON(data []byte) error {
+	type unmarshaler FilterError
+	var value unmarshaler
+	if err := json.Unmarshal(data, &value); err != nil {
+		return err
+	}
+	*f = FilterError(value)
+	extraProperties, err := internal.ExtractExtraProperties(data, *f)
+	if err != nil {
+		return err
+	}
+	f.extraProperties = extraProperties
+	f.rawJSON = json.RawMessage(data)
+	return nil
+}
+
+func (f *FilterError) MarshalJSON() ([]byte, error) {
+	type embed FilterError
+	var marshaler = struct {
+		embed
+	}{
+		embed: embed(*f),
+	}
+	explicitMarshaler := internal.HandleExplicitFields(marshaler, f.explicitFields)
+	return json.Marshal(explicitMarshaler)
+}
+
+func (f *FilterError) String() string {
+	if f == nil {
+		return "<nil>"
+	}
+	if len(f.rawJSON) > 0 {
+		if value, err := internal.StringifyJSON(f.rawJSON); err == nil {
+			return value
+		}
+	}
+	if value, err := internal.StringifyJSON(f); err == nil {
+		return value
+	}
+	return fmt.Sprintf("%#v", f)
+}
+
+// The operator for this filter. Required unless related_object is set.
 type FilterOperator string
 
 const (
@@ -6690,6 +6919,128 @@ func NewFilterOperatorFromString(s string) (FilterOperator, error) {
 
 func (f FilterOperator) Ptr() *FilterOperator {
 	return &f
+}
+
+var (
+	filterRelatedObjectFieldCustomField  = big.NewInt(1 << 0)
+	filterRelatedObjectFieldFilter       = big.NewInt(1 << 1)
+	filterRelatedObjectFieldRelationship = big.NewInt(1 << 2)
+)
+
+type FilterRelatedObject struct {
+	// The slug of a relationship custom field to follow. Returned when reading stored filters,
+	// such as ticket form conditions; search filters don't accept it yet.
+	CustomField *string `json:"custom_field,omitempty" url:"custom_field,omitempty"`
+	Filter      *Filter `json:"filter" url:"filter"`
+	// The built-in relationship to follow, such as "account". Each search endpoint lists the
+	// relationships its filter accepts. Exactly one of relationship and custom_field is set.
+	Relationship *string `json:"relationship,omitempty" url:"relationship,omitempty"`
+
+	// Private bitmask of fields set to an explicit value and therefore not to be omitted
+	explicitFields *big.Int `json:"-" url:"-"`
+
+	extraProperties map[string]interface{}
+	rawJSON         json.RawMessage
+}
+
+func (f *FilterRelatedObject) GetCustomField() *string {
+	if f == nil {
+		return nil
+	}
+	return f.CustomField
+}
+
+func (f *FilterRelatedObject) GetFilter() *Filter {
+	if f == nil {
+		return nil
+	}
+	return f.Filter
+}
+
+func (f *FilterRelatedObject) GetRelationship() *string {
+	if f == nil {
+		return nil
+	}
+	return f.Relationship
+}
+
+func (f *FilterRelatedObject) GetExtraProperties() map[string]interface{} {
+	if f == nil {
+		return nil
+	}
+	return f.extraProperties
+}
+
+func (f *FilterRelatedObject) require(field *big.Int) {
+	next := new(big.Int)
+	if f.explicitFields != nil {
+		next.Set(f.explicitFields)
+	}
+	next.Or(next, field)
+	f.explicitFields = next
+}
+
+// SetCustomField sets the CustomField field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (f *FilterRelatedObject) SetCustomField(customField *string) {
+	f.CustomField = customField
+	f.require(filterRelatedObjectFieldCustomField)
+}
+
+// SetFilter sets the Filter field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (f *FilterRelatedObject) SetFilter(filter *Filter) {
+	f.Filter = filter
+	f.require(filterRelatedObjectFieldFilter)
+}
+
+// SetRelationship sets the Relationship field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (f *FilterRelatedObject) SetRelationship(relationship *string) {
+	f.Relationship = relationship
+	f.require(filterRelatedObjectFieldRelationship)
+}
+
+func (f *FilterRelatedObject) UnmarshalJSON(data []byte) error {
+	type unmarshaler FilterRelatedObject
+	var value unmarshaler
+	if err := json.Unmarshal(data, &value); err != nil {
+		return err
+	}
+	*f = FilterRelatedObject(value)
+	extraProperties, err := internal.ExtractExtraProperties(data, *f)
+	if err != nil {
+		return err
+	}
+	f.extraProperties = extraProperties
+	f.rawJSON = json.RawMessage(data)
+	return nil
+}
+
+func (f *FilterRelatedObject) MarshalJSON() ([]byte, error) {
+	type embed FilterRelatedObject
+	var marshaler = struct {
+		embed
+	}{
+		embed: embed(*f),
+	}
+	explicitMarshaler := internal.HandleExplicitFields(marshaler, f.explicitFields)
+	return json.Marshal(explicitMarshaler)
+}
+
+func (f *FilterRelatedObject) String() string {
+	if f == nil {
+		return "<nil>"
+	}
+	if len(f.rawJSON) > 0 {
+		if value, err := internal.StringifyJSON(f.rawJSON); err == nil {
+			return value
+		}
+	}
+	if value, err := internal.StringifyJSON(f); err == nil {
+		return value
+	}
+	return fmt.Sprintf("%#v", f)
 }
 
 var (
@@ -12227,12 +12578,13 @@ func (i *IssueGroupMutationResponseBody) String() string {
 }
 
 var (
-	issueThreadFieldChannelID = big.NewInt(1 << 0)
-	issueThreadFieldID        = big.NewInt(1 << 1)
-	issueThreadFieldIssueID   = big.NewInt(1 << 2)
-	issueThreadFieldName      = big.NewInt(1 << 3)
-	issueThreadFieldSource    = big.NewInt(1 << 4)
-	issueThreadFieldThreadID  = big.NewInt(1 << 5)
+	issueThreadFieldChannelID    = big.NewInt(1 << 0)
+	issueThreadFieldDeliveryMode = big.NewInt(1 << 1)
+	issueThreadFieldID           = big.NewInt(1 << 2)
+	issueThreadFieldIssueID      = big.NewInt(1 << 3)
+	issueThreadFieldName         = big.NewInt(1 << 4)
+	issueThreadFieldSource       = big.NewInt(1 << 5)
+	issueThreadFieldThreadID     = big.NewInt(1 << 6)
 )
 
 // A thread of notes on an issue, for internal discussions not visible to the customer.
@@ -12241,6 +12593,10 @@ var (
 type IssueThread struct {
 	// The ID of the channel that the thread belongs to, if the thread is being synced with a chat platform.
 	ChannelID *string `json:"channel_id,omitempty" url:"channel_id,omitempty"`
+	// The destination for messages in this thread, such as slack, email, or linear. None for Pylon-only threads.
+	//
+	// Known values: `email`, `slack`, `chat_widget`, `customer_portal`, `none`, `microsoft_teams`, `microsoft_teams_chat`, `discord`, `google_chat`, `whatsapp`, `telegram`, `sms`, `linear`, `jira`, `github`, `asana`, `shortcut`, `zendesk`, `salesforce_service`, `intercom`, `freshdesk`, `jira_service_management`, `hubspot_service`. This list is not exhaustive.
+	DeliveryMode string `json:"delivery_mode" url:"delivery_mode"`
 	// The ID of the thread.
 	ID string `json:"id" url:"id"`
 	// The issue ID that the thread belongs to.
@@ -12264,6 +12620,13 @@ func (i *IssueThread) GetChannelID() *string {
 		return nil
 	}
 	return i.ChannelID
+}
+
+func (i *IssueThread) GetDeliveryMode() string {
+	if i == nil {
+		return ""
+	}
+	return i.DeliveryMode
 }
 
 func (i *IssueThread) GetID() string {
@@ -12322,6 +12685,13 @@ func (i *IssueThread) require(field *big.Int) {
 func (i *IssueThread) SetChannelID(channelID *string) {
 	i.ChannelID = channelID
 	i.require(issueThreadFieldChannelID)
+}
+
+// SetDeliveryMode sets the DeliveryMode field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (i *IssueThread) SetDeliveryMode(deliveryMode string) {
+	i.DeliveryMode = deliveryMode
+	i.require(issueThreadFieldDeliveryMode)
 }
 
 // SetID sets the ID field and marks it as non-optional;

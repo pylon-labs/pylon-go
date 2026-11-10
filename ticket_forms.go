@@ -789,10 +789,11 @@ var (
 	ticketFormLayoutFieldFieldDescriptionHTML      = big.NewInt(1 << 1)
 	ticketFormLayoutFieldFieldHidden               = big.NewInt(1 << 2)
 	ticketFormLayoutFieldFieldName                 = big.NewInt(1 << 3)
-	ticketFormLayoutFieldFieldRequired             = big.NewInt(1 << 4)
-	ticketFormLayoutFieldFieldSlug                 = big.NewInt(1 << 5)
-	ticketFormLayoutFieldFieldType                 = big.NewInt(1 << 6)
-	ticketFormLayoutFieldFieldVisibilityConditions = big.NewInt(1 << 7)
+	ticketFormLayoutFieldFieldPrefillKey           = big.NewInt(1 << 4)
+	ticketFormLayoutFieldFieldRequired             = big.NewInt(1 << 5)
+	ticketFormLayoutFieldFieldSlug                 = big.NewInt(1 << 6)
+	ticketFormLayoutFieldFieldType                 = big.NewInt(1 << 7)
+	ticketFormLayoutFieldFieldVisibilityConditions = big.NewInt(1 << 8)
 )
 
 type TicketFormLayoutField struct {
@@ -805,9 +806,13 @@ type TicketFormLayoutField struct {
 	Hidden bool `json:"hidden" url:"hidden"`
 	// The name of the ticket form layout field.
 	Name string `json:"name" url:"name"`
+	// The URL query parameter used to prefill this field on the public form.
+	// Derived from the form's display label and changes when that label is renamed.
+	PrefillKey string `json:"prefill_key" url:"prefill_key"`
 	// Indicates whether the field is required when submitting the ticket form.
 	Required bool `json:"required" url:"required"`
-	// The slug of the ticket form layout field.
+	// The field identifier used for API submissions and visibility conditions.
+	// For custom fields, this is the underlying custom-field slug.
 	Slug string `json:"slug" url:"slug"`
 	// The type of the ticket form layout field.
 	Type string `json:"type" url:"type"`
@@ -849,6 +854,13 @@ func (t *TicketFormLayoutField) GetName() string {
 		return ""
 	}
 	return t.Name
+}
+
+func (t *TicketFormLayoutField) GetPrefillKey() string {
+	if t == nil {
+		return ""
+	}
+	return t.PrefillKey
 }
 
 func (t *TicketFormLayoutField) GetRequired() bool {
@@ -921,6 +933,13 @@ func (t *TicketFormLayoutField) SetHidden(hidden bool) {
 func (t *TicketFormLayoutField) SetName(name string) {
 	t.Name = name
 	t.require(ticketFormLayoutFieldFieldName)
+}
+
+// SetPrefillKey sets the PrefillKey field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (t *TicketFormLayoutField) SetPrefillKey(prefillKey string) {
+	t.PrefillKey = prefillKey
+	t.require(ticketFormLayoutFieldFieldPrefillKey)
 }
 
 // SetRequired sets the Required field and marks it as non-optional;
