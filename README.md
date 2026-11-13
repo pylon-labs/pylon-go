@@ -2,7 +2,7 @@
 
 The official Go SDK for the [Pylon API](https://docs.usepylon.com).
 
-> **Alpha.** The SDK is new and its interface may change between `v0.x` releases.
+> **Beta.** The SDK's interface may still change between `v0.x` releases.
 
 ## Installation
 
