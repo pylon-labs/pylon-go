@@ -233,11 +233,27 @@ func TestSettersUserRole(t *testing.T) {
 		assert.NotNil(t, obj.explicitFields)
 	})
 
+	t.Run("SetIssueAccessPolicy", func(t *testing.T) {
+		obj := &UserRole{}
+		var fernTestValueIssueAccessPolicy *UserRoleIssueAccessPolicy
+		obj.SetIssueAccessPolicy(fernTestValueIssueAccessPolicy)
+		assert.Equal(t, fernTestValueIssueAccessPolicy, obj.IssueAccessPolicy)
+		assert.NotNil(t, obj.explicitFields)
+	})
+
 	t.Run("SetName", func(t *testing.T) {
 		obj := &UserRole{}
 		var fernTestValueName string
 		obj.SetName(fernTestValueName)
 		assert.Equal(t, fernTestValueName, obj.Name)
+		assert.NotNil(t, obj.explicitFields)
+	})
+
+	t.Run("SetPermissions", func(t *testing.T) {
+		obj := &UserRole{}
+		var fernTestValuePermissions []*UserRolePermission
+		obj.SetPermissions(fernTestValuePermissions)
+		assert.Equal(t, fernTestValuePermissions, obj.Permissions)
 		assert.NotNil(t, obj.explicitFields)
 	})
 
@@ -275,6 +291,39 @@ func TestGettersUserRole(t *testing.T) {
 		_ = obj.GetID() // Should return zero value
 	})
 
+	t.Run("GetIssueAccessPolicy", func(t *testing.T) {
+		t.Parallel()
+		// Arrange
+		obj := &UserRole{}
+		var expected *UserRoleIssueAccessPolicy
+		obj.IssueAccessPolicy = expected
+
+		// Act & Assert
+		assert.Equal(t, expected, obj.GetIssueAccessPolicy(), "getter should return the property value")
+	})
+
+	t.Run("GetIssueAccessPolicy_NilValue", func(t *testing.T) {
+		t.Parallel()
+		// Arrange
+		obj := &UserRole{}
+		obj.IssueAccessPolicy = nil
+
+		// Act & Assert
+		assert.Nil(t, obj.GetIssueAccessPolicy(), "getter should return nil when property is nil")
+	})
+
+	t.Run("GetIssueAccessPolicy_NilReceiver", func(t *testing.T) {
+		t.Parallel()
+		var obj *UserRole
+		// Should not panic - getters should handle nil receiver gracefully
+		defer func() {
+			if r := recover(); r != nil {
+				t.Errorf("Getter panicked on nil receiver: %v", r)
+			}
+		}()
+		_ = obj.GetIssueAccessPolicy() // Should return zero value
+	})
+
 	t.Run("GetName", func(t *testing.T) {
 		t.Parallel()
 		// Arrange
@@ -296,6 +345,39 @@ func TestGettersUserRole(t *testing.T) {
 			}
 		}()
 		_ = obj.GetName() // Should return zero value
+	})
+
+	t.Run("GetPermissions", func(t *testing.T) {
+		t.Parallel()
+		// Arrange
+		obj := &UserRole{}
+		var expected []*UserRolePermission
+		obj.Permissions = expected
+
+		// Act & Assert
+		assert.Equal(t, expected, obj.GetPermissions(), "getter should return the property value")
+	})
+
+	t.Run("GetPermissions_NilValue", func(t *testing.T) {
+		t.Parallel()
+		// Arrange
+		obj := &UserRole{}
+		obj.Permissions = nil
+
+		// Act & Assert
+		assert.Nil(t, obj.GetPermissions(), "getter should return nil when property is nil")
+	})
+
+	t.Run("GetPermissions_NilReceiver", func(t *testing.T) {
+		t.Parallel()
+		var obj *UserRole
+		// Should not panic - getters should handle nil receiver gracefully
+		defer func() {
+			if r := recover(); r != nil {
+				t.Errorf("Getter panicked on nil receiver: %v", r)
+			}
+		}()
+		_ = obj.GetPermissions() // Should return zero value
 	})
 
 	t.Run("GetSlug", func(t *testing.T) {
@@ -355,6 +437,37 @@ func TestSettersMarkExplicitUserRole(t *testing.T) {
 		// It verifies that setting a field via setter allows successful JSON round-trip
 	})
 
+	t.Run("SetIssueAccessPolicy_MarksExplicit", func(t *testing.T) {
+		t.Parallel()
+		// Arrange
+		obj := &UserRole{}
+		var fernTestValueIssueAccessPolicy *UserRoleIssueAccessPolicy
+
+		// Act
+		obj.SetIssueAccessPolicy(fernTestValueIssueAccessPolicy)
+
+		// Assert - object with explicitly set field can be marshaled/unmarshaled
+		bytes, err := json.Marshal(obj)
+		require.NoError(t, err, "marshaling should succeed for test setup")
+
+		// This test ensures JSON marshaling and unmarshaling succeed when the field has a zero/nil value
+		// Detect if marshaled JSON is an object or primitive to use correct unmarshal target
+		if len(bytes) > 0 && bytes[0] == '{' {
+			// JSON object - unmarshal into map
+			var unmarshaled map[string]interface{}
+			err = json.Unmarshal(bytes, &unmarshaled)
+			require.NoError(t, err, "unmarshaling should succeed for test verification")
+		} else {
+			// JSON primitive (string, number, boolean, null) - unmarshal into interface{}
+			var unmarshaled interface{}
+			err = json.Unmarshal(bytes, &unmarshaled)
+			require.NoError(t, err, "unmarshaling should succeed for test verification")
+		}
+
+		// Note: This does not explicitly assert the presence of a specific JSON field
+		// It verifies that setting a field via setter allows successful JSON round-trip
+	})
+
 	t.Run("SetName_MarksExplicit", func(t *testing.T) {
 		t.Parallel()
 		// Arrange
@@ -386,6 +499,37 @@ func TestSettersMarkExplicitUserRole(t *testing.T) {
 		// It verifies that setting a field via setter allows successful JSON round-trip
 	})
 
+	t.Run("SetPermissions_MarksExplicit", func(t *testing.T) {
+		t.Parallel()
+		// Arrange
+		obj := &UserRole{}
+		var fernTestValuePermissions []*UserRolePermission
+
+		// Act
+		obj.SetPermissions(fernTestValuePermissions)
+
+		// Assert - object with explicitly set field can be marshaled/unmarshaled
+		bytes, err := json.Marshal(obj)
+		require.NoError(t, err, "marshaling should succeed for test setup")
+
+		// This test ensures JSON marshaling and unmarshaling succeed when the field has a zero/nil value
+		// Detect if marshaled JSON is an object or primitive to use correct unmarshal target
+		if len(bytes) > 0 && bytes[0] == '{' {
+			// JSON object - unmarshal into map
+			var unmarshaled map[string]interface{}
+			err = json.Unmarshal(bytes, &unmarshaled)
+			require.NoError(t, err, "unmarshaling should succeed for test verification")
+		} else {
+			// JSON primitive (string, number, boolean, null) - unmarshal into interface{}
+			var unmarshaled interface{}
+			err = json.Unmarshal(bytes, &unmarshaled)
+			require.NoError(t, err, "unmarshaling should succeed for test verification")
+		}
+
+		// Note: This does not explicitly assert the presence of a specific JSON field
+		// It verifies that setting a field via setter allows successful JSON round-trip
+	})
+
 	t.Run("SetSlug_MarksExplicit", func(t *testing.T) {
 		t.Parallel()
 		// Arrange
@@ -394,6 +538,733 @@ func TestSettersMarkExplicitUserRole(t *testing.T) {
 
 		// Act
 		obj.SetSlug(fernTestValueSlug)
+
+		// Assert - object with explicitly set field can be marshaled/unmarshaled
+		bytes, err := json.Marshal(obj)
+		require.NoError(t, err, "marshaling should succeed for test setup")
+
+		// This test ensures JSON marshaling and unmarshaling succeed when the field has a zero/nil value
+		// Detect if marshaled JSON is an object or primitive to use correct unmarshal target
+		if len(bytes) > 0 && bytes[0] == '{' {
+			// JSON object - unmarshal into map
+			var unmarshaled map[string]interface{}
+			err = json.Unmarshal(bytes, &unmarshaled)
+			require.NoError(t, err, "unmarshaling should succeed for test verification")
+		} else {
+			// JSON primitive (string, number, boolean, null) - unmarshal into interface{}
+			var unmarshaled interface{}
+			err = json.Unmarshal(bytes, &unmarshaled)
+			require.NoError(t, err, "unmarshaling should succeed for test verification")
+		}
+
+		// Note: This does not explicitly assert the presence of a specific JSON field
+		// It verifies that setting a field via setter allows successful JSON round-trip
+	})
+
+}
+
+func TestSettersUserRoleIssueAccessPolicy(t *testing.T) {
+	t.Run("SetDefaultActions", func(t *testing.T) {
+		obj := &UserRoleIssueAccessPolicy{}
+		var fernTestValueDefaultActions []string
+		obj.SetDefaultActions(fernTestValueDefaultActions)
+		assert.Equal(t, fernTestValueDefaultActions, obj.DefaultActions)
+		assert.NotNil(t, obj.explicitFields)
+	})
+
+	t.Run("SetRules", func(t *testing.T) {
+		obj := &UserRoleIssueAccessPolicy{}
+		var fernTestValueRules []*UserRoleIssueAccessRule
+		obj.SetRules(fernTestValueRules)
+		assert.Equal(t, fernTestValueRules, obj.Rules)
+		assert.NotNil(t, obj.explicitFields)
+	})
+
+}
+
+func TestGettersUserRoleIssueAccessPolicy(t *testing.T) {
+	t.Run("GetDefaultActions", func(t *testing.T) {
+		t.Parallel()
+		// Arrange
+		obj := &UserRoleIssueAccessPolicy{}
+		var expected []string
+		obj.DefaultActions = expected
+
+		// Act & Assert
+		assert.Equal(t, expected, obj.GetDefaultActions(), "getter should return the property value")
+	})
+
+	t.Run("GetDefaultActions_NilValue", func(t *testing.T) {
+		t.Parallel()
+		// Arrange
+		obj := &UserRoleIssueAccessPolicy{}
+		obj.DefaultActions = nil
+
+		// Act & Assert
+		assert.Nil(t, obj.GetDefaultActions(), "getter should return nil when property is nil")
+	})
+
+	t.Run("GetDefaultActions_NilReceiver", func(t *testing.T) {
+		t.Parallel()
+		var obj *UserRoleIssueAccessPolicy
+		// Should not panic - getters should handle nil receiver gracefully
+		defer func() {
+			if r := recover(); r != nil {
+				t.Errorf("Getter panicked on nil receiver: %v", r)
+			}
+		}()
+		_ = obj.GetDefaultActions() // Should return zero value
+	})
+
+	t.Run("GetRules", func(t *testing.T) {
+		t.Parallel()
+		// Arrange
+		obj := &UserRoleIssueAccessPolicy{}
+		var expected []*UserRoleIssueAccessRule
+		obj.Rules = expected
+
+		// Act & Assert
+		assert.Equal(t, expected, obj.GetRules(), "getter should return the property value")
+	})
+
+	t.Run("GetRules_NilValue", func(t *testing.T) {
+		t.Parallel()
+		// Arrange
+		obj := &UserRoleIssueAccessPolicy{}
+		obj.Rules = nil
+
+		// Act & Assert
+		assert.Nil(t, obj.GetRules(), "getter should return nil when property is nil")
+	})
+
+	t.Run("GetRules_NilReceiver", func(t *testing.T) {
+		t.Parallel()
+		var obj *UserRoleIssueAccessPolicy
+		// Should not panic - getters should handle nil receiver gracefully
+		defer func() {
+			if r := recover(); r != nil {
+				t.Errorf("Getter panicked on nil receiver: %v", r)
+			}
+		}()
+		_ = obj.GetRules() // Should return zero value
+	})
+
+}
+
+func TestSettersMarkExplicitUserRoleIssueAccessPolicy(t *testing.T) {
+	t.Run("SetDefaultActions_MarksExplicit", func(t *testing.T) {
+		t.Parallel()
+		// Arrange
+		obj := &UserRoleIssueAccessPolicy{}
+		var fernTestValueDefaultActions []string
+
+		// Act
+		obj.SetDefaultActions(fernTestValueDefaultActions)
+
+		// Assert - object with explicitly set field can be marshaled/unmarshaled
+		bytes, err := json.Marshal(obj)
+		require.NoError(t, err, "marshaling should succeed for test setup")
+
+		// This test ensures JSON marshaling and unmarshaling succeed when the field has a zero/nil value
+		// Detect if marshaled JSON is an object or primitive to use correct unmarshal target
+		if len(bytes) > 0 && bytes[0] == '{' {
+			// JSON object - unmarshal into map
+			var unmarshaled map[string]interface{}
+			err = json.Unmarshal(bytes, &unmarshaled)
+			require.NoError(t, err, "unmarshaling should succeed for test verification")
+		} else {
+			// JSON primitive (string, number, boolean, null) - unmarshal into interface{}
+			var unmarshaled interface{}
+			err = json.Unmarshal(bytes, &unmarshaled)
+			require.NoError(t, err, "unmarshaling should succeed for test verification")
+		}
+
+		// Note: This does not explicitly assert the presence of a specific JSON field
+		// It verifies that setting a field via setter allows successful JSON round-trip
+	})
+
+	t.Run("SetRules_MarksExplicit", func(t *testing.T) {
+		t.Parallel()
+		// Arrange
+		obj := &UserRoleIssueAccessPolicy{}
+		var fernTestValueRules []*UserRoleIssueAccessRule
+
+		// Act
+		obj.SetRules(fernTestValueRules)
+
+		// Assert - object with explicitly set field can be marshaled/unmarshaled
+		bytes, err := json.Marshal(obj)
+		require.NoError(t, err, "marshaling should succeed for test setup")
+
+		// This test ensures JSON marshaling and unmarshaling succeed when the field has a zero/nil value
+		// Detect if marshaled JSON is an object or primitive to use correct unmarshal target
+		if len(bytes) > 0 && bytes[0] == '{' {
+			// JSON object - unmarshal into map
+			var unmarshaled map[string]interface{}
+			err = json.Unmarshal(bytes, &unmarshaled)
+			require.NoError(t, err, "unmarshaling should succeed for test verification")
+		} else {
+			// JSON primitive (string, number, boolean, null) - unmarshal into interface{}
+			var unmarshaled interface{}
+			err = json.Unmarshal(bytes, &unmarshaled)
+			require.NoError(t, err, "unmarshaling should succeed for test verification")
+		}
+
+		// Note: This does not explicitly assert the presence of a specific JSON field
+		// It verifies that setting a field via setter allows successful JSON round-trip
+	})
+
+}
+
+func TestSettersUserRoleIssueAccessRule(t *testing.T) {
+	t.Run("SetActions", func(t *testing.T) {
+		obj := &UserRoleIssueAccessRule{}
+		var fernTestValueActions []string
+		obj.SetActions(fernTestValueActions)
+		assert.Equal(t, fernTestValueActions, obj.Actions)
+		assert.NotNil(t, obj.explicitFields)
+	})
+
+	t.Run("SetFilter", func(t *testing.T) {
+		obj := &UserRoleIssueAccessRule{}
+		var fernTestValueFilter *Filter
+		obj.SetFilter(fernTestValueFilter)
+		assert.Equal(t, fernTestValueFilter, obj.Filter)
+		assert.NotNil(t, obj.explicitFields)
+	})
+
+	t.Run("SetFilterUnsupported", func(t *testing.T) {
+		obj := &UserRoleIssueAccessRule{}
+		var fernTestValueFilterUnsupported *bool
+		obj.SetFilterUnsupported(fernTestValueFilterUnsupported)
+		assert.Equal(t, fernTestValueFilterUnsupported, obj.FilterUnsupported)
+		assert.NotNil(t, obj.explicitFields)
+	})
+
+	t.Run("SetID", func(t *testing.T) {
+		obj := &UserRoleIssueAccessRule{}
+		var fernTestValueID string
+		obj.SetID(fernTestValueID)
+		assert.Equal(t, fernTestValueID, obj.ID)
+		assert.NotNil(t, obj.explicitFields)
+	})
+
+}
+
+func TestGettersUserRoleIssueAccessRule(t *testing.T) {
+	t.Run("GetActions", func(t *testing.T) {
+		t.Parallel()
+		// Arrange
+		obj := &UserRoleIssueAccessRule{}
+		var expected []string
+		obj.Actions = expected
+
+		// Act & Assert
+		assert.Equal(t, expected, obj.GetActions(), "getter should return the property value")
+	})
+
+	t.Run("GetActions_NilValue", func(t *testing.T) {
+		t.Parallel()
+		// Arrange
+		obj := &UserRoleIssueAccessRule{}
+		obj.Actions = nil
+
+		// Act & Assert
+		assert.Nil(t, obj.GetActions(), "getter should return nil when property is nil")
+	})
+
+	t.Run("GetActions_NilReceiver", func(t *testing.T) {
+		t.Parallel()
+		var obj *UserRoleIssueAccessRule
+		// Should not panic - getters should handle nil receiver gracefully
+		defer func() {
+			if r := recover(); r != nil {
+				t.Errorf("Getter panicked on nil receiver: %v", r)
+			}
+		}()
+		_ = obj.GetActions() // Should return zero value
+	})
+
+	t.Run("GetFilter", func(t *testing.T) {
+		t.Parallel()
+		// Arrange
+		obj := &UserRoleIssueAccessRule{}
+		var expected *Filter
+		obj.Filter = expected
+
+		// Act & Assert
+		assert.Equal(t, expected, obj.GetFilter(), "getter should return the property value")
+	})
+
+	t.Run("GetFilter_NilValue", func(t *testing.T) {
+		t.Parallel()
+		// Arrange
+		obj := &UserRoleIssueAccessRule{}
+		obj.Filter = nil
+
+		// Act & Assert
+		assert.Nil(t, obj.GetFilter(), "getter should return nil when property is nil")
+	})
+
+	t.Run("GetFilter_NilReceiver", func(t *testing.T) {
+		t.Parallel()
+		var obj *UserRoleIssueAccessRule
+		// Should not panic - getters should handle nil receiver gracefully
+		defer func() {
+			if r := recover(); r != nil {
+				t.Errorf("Getter panicked on nil receiver: %v", r)
+			}
+		}()
+		_ = obj.GetFilter() // Should return zero value
+	})
+
+	t.Run("GetFilterUnsupported", func(t *testing.T) {
+		t.Parallel()
+		// Arrange
+		obj := &UserRoleIssueAccessRule{}
+		var expected *bool
+		obj.FilterUnsupported = expected
+
+		// Act & Assert
+		assert.Equal(t, expected, obj.GetFilterUnsupported(), "getter should return the property value")
+	})
+
+	t.Run("GetFilterUnsupported_NilValue", func(t *testing.T) {
+		t.Parallel()
+		// Arrange
+		obj := &UserRoleIssueAccessRule{}
+		obj.FilterUnsupported = nil
+
+		// Act & Assert
+		assert.Nil(t, obj.GetFilterUnsupported(), "getter should return nil when property is nil")
+	})
+
+	t.Run("GetFilterUnsupported_NilReceiver", func(t *testing.T) {
+		t.Parallel()
+		var obj *UserRoleIssueAccessRule
+		// Should not panic - getters should handle nil receiver gracefully
+		defer func() {
+			if r := recover(); r != nil {
+				t.Errorf("Getter panicked on nil receiver: %v", r)
+			}
+		}()
+		_ = obj.GetFilterUnsupported() // Should return zero value
+	})
+
+	t.Run("GetID", func(t *testing.T) {
+		t.Parallel()
+		// Arrange
+		obj := &UserRoleIssueAccessRule{}
+		var expected string
+		obj.ID = expected
+
+		// Act & Assert
+		assert.Equal(t, expected, obj.GetID(), "getter should return the property value")
+	})
+
+	t.Run("GetID_NilReceiver", func(t *testing.T) {
+		t.Parallel()
+		var obj *UserRoleIssueAccessRule
+		// Should not panic - getters should handle nil receiver gracefully
+		defer func() {
+			if r := recover(); r != nil {
+				t.Errorf("Getter panicked on nil receiver: %v", r)
+			}
+		}()
+		_ = obj.GetID() // Should return zero value
+	})
+
+}
+
+func TestSettersMarkExplicitUserRoleIssueAccessRule(t *testing.T) {
+	t.Run("SetActions_MarksExplicit", func(t *testing.T) {
+		t.Parallel()
+		// Arrange
+		obj := &UserRoleIssueAccessRule{}
+		var fernTestValueActions []string
+
+		// Act
+		obj.SetActions(fernTestValueActions)
+
+		// Assert - object with explicitly set field can be marshaled/unmarshaled
+		bytes, err := json.Marshal(obj)
+		require.NoError(t, err, "marshaling should succeed for test setup")
+
+		// This test ensures JSON marshaling and unmarshaling succeed when the field has a zero/nil value
+		// Detect if marshaled JSON is an object or primitive to use correct unmarshal target
+		if len(bytes) > 0 && bytes[0] == '{' {
+			// JSON object - unmarshal into map
+			var unmarshaled map[string]interface{}
+			err = json.Unmarshal(bytes, &unmarshaled)
+			require.NoError(t, err, "unmarshaling should succeed for test verification")
+		} else {
+			// JSON primitive (string, number, boolean, null) - unmarshal into interface{}
+			var unmarshaled interface{}
+			err = json.Unmarshal(bytes, &unmarshaled)
+			require.NoError(t, err, "unmarshaling should succeed for test verification")
+		}
+
+		// Note: This does not explicitly assert the presence of a specific JSON field
+		// It verifies that setting a field via setter allows successful JSON round-trip
+	})
+
+	t.Run("SetFilter_MarksExplicit", func(t *testing.T) {
+		t.Parallel()
+		// Arrange
+		obj := &UserRoleIssueAccessRule{}
+		var fernTestValueFilter *Filter
+
+		// Act
+		obj.SetFilter(fernTestValueFilter)
+
+		// Assert - object with explicitly set field can be marshaled/unmarshaled
+		bytes, err := json.Marshal(obj)
+		require.NoError(t, err, "marshaling should succeed for test setup")
+
+		// This test ensures JSON marshaling and unmarshaling succeed when the field has a zero/nil value
+		// Detect if marshaled JSON is an object or primitive to use correct unmarshal target
+		if len(bytes) > 0 && bytes[0] == '{' {
+			// JSON object - unmarshal into map
+			var unmarshaled map[string]interface{}
+			err = json.Unmarshal(bytes, &unmarshaled)
+			require.NoError(t, err, "unmarshaling should succeed for test verification")
+		} else {
+			// JSON primitive (string, number, boolean, null) - unmarshal into interface{}
+			var unmarshaled interface{}
+			err = json.Unmarshal(bytes, &unmarshaled)
+			require.NoError(t, err, "unmarshaling should succeed for test verification")
+		}
+
+		// Note: This does not explicitly assert the presence of a specific JSON field
+		// It verifies that setting a field via setter allows successful JSON round-trip
+	})
+
+	t.Run("SetFilterUnsupported_MarksExplicit", func(t *testing.T) {
+		t.Parallel()
+		// Arrange
+		obj := &UserRoleIssueAccessRule{}
+		var fernTestValueFilterUnsupported *bool
+
+		// Act
+		obj.SetFilterUnsupported(fernTestValueFilterUnsupported)
+
+		// Assert - object with explicitly set field can be marshaled/unmarshaled
+		bytes, err := json.Marshal(obj)
+		require.NoError(t, err, "marshaling should succeed for test setup")
+
+		// This test ensures JSON marshaling and unmarshaling succeed when the field has a zero/nil value
+		// Detect if marshaled JSON is an object or primitive to use correct unmarshal target
+		if len(bytes) > 0 && bytes[0] == '{' {
+			// JSON object - unmarshal into map
+			var unmarshaled map[string]interface{}
+			err = json.Unmarshal(bytes, &unmarshaled)
+			require.NoError(t, err, "unmarshaling should succeed for test verification")
+		} else {
+			// JSON primitive (string, number, boolean, null) - unmarshal into interface{}
+			var unmarshaled interface{}
+			err = json.Unmarshal(bytes, &unmarshaled)
+			require.NoError(t, err, "unmarshaling should succeed for test verification")
+		}
+
+		// Note: This does not explicitly assert the presence of a specific JSON field
+		// It verifies that setting a field via setter allows successful JSON round-trip
+	})
+
+	t.Run("SetID_MarksExplicit", func(t *testing.T) {
+		t.Parallel()
+		// Arrange
+		obj := &UserRoleIssueAccessRule{}
+		var fernTestValueID string
+
+		// Act
+		obj.SetID(fernTestValueID)
+
+		// Assert - object with explicitly set field can be marshaled/unmarshaled
+		bytes, err := json.Marshal(obj)
+		require.NoError(t, err, "marshaling should succeed for test setup")
+
+		// This test ensures JSON marshaling and unmarshaling succeed when the field has a zero/nil value
+		// Detect if marshaled JSON is an object or primitive to use correct unmarshal target
+		if len(bytes) > 0 && bytes[0] == '{' {
+			// JSON object - unmarshal into map
+			var unmarshaled map[string]interface{}
+			err = json.Unmarshal(bytes, &unmarshaled)
+			require.NoError(t, err, "unmarshaling should succeed for test verification")
+		} else {
+			// JSON primitive (string, number, boolean, null) - unmarshal into interface{}
+			var unmarshaled interface{}
+			err = json.Unmarshal(bytes, &unmarshaled)
+			require.NoError(t, err, "unmarshaling should succeed for test verification")
+		}
+
+		// Note: This does not explicitly assert the presence of a specific JSON field
+		// It verifies that setting a field via setter allows successful JSON round-trip
+	})
+
+}
+
+func TestSettersUserRolePermission(t *testing.T) {
+	t.Run("SetAction", func(t *testing.T) {
+		obj := &UserRolePermission{}
+		var fernTestValueAction string
+		obj.SetAction(fernTestValueAction)
+		assert.Equal(t, fernTestValueAction, obj.Action)
+		assert.NotNil(t, obj.explicitFields)
+	})
+
+	t.Run("SetFieldRestrictionsUnsupported", func(t *testing.T) {
+		obj := &UserRolePermission{}
+		var fernTestValueFieldRestrictionsUnsupported *bool
+		obj.SetFieldRestrictionsUnsupported(fernTestValueFieldRestrictionsUnsupported)
+		assert.Equal(t, fernTestValueFieldRestrictionsUnsupported, obj.FieldRestrictionsUnsupported)
+		assert.NotNil(t, obj.explicitFields)
+	})
+
+	t.Run("SetFilter", func(t *testing.T) {
+		obj := &UserRolePermission{}
+		var fernTestValueFilter *Filter
+		obj.SetFilter(fernTestValueFilter)
+		assert.Equal(t, fernTestValueFilter, obj.Filter)
+		assert.NotNil(t, obj.explicitFields)
+	})
+
+	t.Run("SetFilterUnsupported", func(t *testing.T) {
+		obj := &UserRolePermission{}
+		var fernTestValueFilterUnsupported *bool
+		obj.SetFilterUnsupported(fernTestValueFilterUnsupported)
+		assert.Equal(t, fernTestValueFilterUnsupported, obj.FilterUnsupported)
+		assert.NotNil(t, obj.explicitFields)
+	})
+
+}
+
+func TestGettersUserRolePermission(t *testing.T) {
+	t.Run("GetAction", func(t *testing.T) {
+		t.Parallel()
+		// Arrange
+		obj := &UserRolePermission{}
+		var expected string
+		obj.Action = expected
+
+		// Act & Assert
+		assert.Equal(t, expected, obj.GetAction(), "getter should return the property value")
+	})
+
+	t.Run("GetAction_NilReceiver", func(t *testing.T) {
+		t.Parallel()
+		var obj *UserRolePermission
+		// Should not panic - getters should handle nil receiver gracefully
+		defer func() {
+			if r := recover(); r != nil {
+				t.Errorf("Getter panicked on nil receiver: %v", r)
+			}
+		}()
+		_ = obj.GetAction() // Should return zero value
+	})
+
+	t.Run("GetFieldRestrictionsUnsupported", func(t *testing.T) {
+		t.Parallel()
+		// Arrange
+		obj := &UserRolePermission{}
+		var expected *bool
+		obj.FieldRestrictionsUnsupported = expected
+
+		// Act & Assert
+		assert.Equal(t, expected, obj.GetFieldRestrictionsUnsupported(), "getter should return the property value")
+	})
+
+	t.Run("GetFieldRestrictionsUnsupported_NilValue", func(t *testing.T) {
+		t.Parallel()
+		// Arrange
+		obj := &UserRolePermission{}
+		obj.FieldRestrictionsUnsupported = nil
+
+		// Act & Assert
+		assert.Nil(t, obj.GetFieldRestrictionsUnsupported(), "getter should return nil when property is nil")
+	})
+
+	t.Run("GetFieldRestrictionsUnsupported_NilReceiver", func(t *testing.T) {
+		t.Parallel()
+		var obj *UserRolePermission
+		// Should not panic - getters should handle nil receiver gracefully
+		defer func() {
+			if r := recover(); r != nil {
+				t.Errorf("Getter panicked on nil receiver: %v", r)
+			}
+		}()
+		_ = obj.GetFieldRestrictionsUnsupported() // Should return zero value
+	})
+
+	t.Run("GetFilter", func(t *testing.T) {
+		t.Parallel()
+		// Arrange
+		obj := &UserRolePermission{}
+		var expected *Filter
+		obj.Filter = expected
+
+		// Act & Assert
+		assert.Equal(t, expected, obj.GetFilter(), "getter should return the property value")
+	})
+
+	t.Run("GetFilter_NilValue", func(t *testing.T) {
+		t.Parallel()
+		// Arrange
+		obj := &UserRolePermission{}
+		obj.Filter = nil
+
+		// Act & Assert
+		assert.Nil(t, obj.GetFilter(), "getter should return nil when property is nil")
+	})
+
+	t.Run("GetFilter_NilReceiver", func(t *testing.T) {
+		t.Parallel()
+		var obj *UserRolePermission
+		// Should not panic - getters should handle nil receiver gracefully
+		defer func() {
+			if r := recover(); r != nil {
+				t.Errorf("Getter panicked on nil receiver: %v", r)
+			}
+		}()
+		_ = obj.GetFilter() // Should return zero value
+	})
+
+	t.Run("GetFilterUnsupported", func(t *testing.T) {
+		t.Parallel()
+		// Arrange
+		obj := &UserRolePermission{}
+		var expected *bool
+		obj.FilterUnsupported = expected
+
+		// Act & Assert
+		assert.Equal(t, expected, obj.GetFilterUnsupported(), "getter should return the property value")
+	})
+
+	t.Run("GetFilterUnsupported_NilValue", func(t *testing.T) {
+		t.Parallel()
+		// Arrange
+		obj := &UserRolePermission{}
+		obj.FilterUnsupported = nil
+
+		// Act & Assert
+		assert.Nil(t, obj.GetFilterUnsupported(), "getter should return nil when property is nil")
+	})
+
+	t.Run("GetFilterUnsupported_NilReceiver", func(t *testing.T) {
+		t.Parallel()
+		var obj *UserRolePermission
+		// Should not panic - getters should handle nil receiver gracefully
+		defer func() {
+			if r := recover(); r != nil {
+				t.Errorf("Getter panicked on nil receiver: %v", r)
+			}
+		}()
+		_ = obj.GetFilterUnsupported() // Should return zero value
+	})
+
+}
+
+func TestSettersMarkExplicitUserRolePermission(t *testing.T) {
+	t.Run("SetAction_MarksExplicit", func(t *testing.T) {
+		t.Parallel()
+		// Arrange
+		obj := &UserRolePermission{}
+		var fernTestValueAction string
+
+		// Act
+		obj.SetAction(fernTestValueAction)
+
+		// Assert - object with explicitly set field can be marshaled/unmarshaled
+		bytes, err := json.Marshal(obj)
+		require.NoError(t, err, "marshaling should succeed for test setup")
+
+		// This test ensures JSON marshaling and unmarshaling succeed when the field has a zero/nil value
+		// Detect if marshaled JSON is an object or primitive to use correct unmarshal target
+		if len(bytes) > 0 && bytes[0] == '{' {
+			// JSON object - unmarshal into map
+			var unmarshaled map[string]interface{}
+			err = json.Unmarshal(bytes, &unmarshaled)
+			require.NoError(t, err, "unmarshaling should succeed for test verification")
+		} else {
+			// JSON primitive (string, number, boolean, null) - unmarshal into interface{}
+			var unmarshaled interface{}
+			err = json.Unmarshal(bytes, &unmarshaled)
+			require.NoError(t, err, "unmarshaling should succeed for test verification")
+		}
+
+		// Note: This does not explicitly assert the presence of a specific JSON field
+		// It verifies that setting a field via setter allows successful JSON round-trip
+	})
+
+	t.Run("SetFieldRestrictionsUnsupported_MarksExplicit", func(t *testing.T) {
+		t.Parallel()
+		// Arrange
+		obj := &UserRolePermission{}
+		var fernTestValueFieldRestrictionsUnsupported *bool
+
+		// Act
+		obj.SetFieldRestrictionsUnsupported(fernTestValueFieldRestrictionsUnsupported)
+
+		// Assert - object with explicitly set field can be marshaled/unmarshaled
+		bytes, err := json.Marshal(obj)
+		require.NoError(t, err, "marshaling should succeed for test setup")
+
+		// This test ensures JSON marshaling and unmarshaling succeed when the field has a zero/nil value
+		// Detect if marshaled JSON is an object or primitive to use correct unmarshal target
+		if len(bytes) > 0 && bytes[0] == '{' {
+			// JSON object - unmarshal into map
+			var unmarshaled map[string]interface{}
+			err = json.Unmarshal(bytes, &unmarshaled)
+			require.NoError(t, err, "unmarshaling should succeed for test verification")
+		} else {
+			// JSON primitive (string, number, boolean, null) - unmarshal into interface{}
+			var unmarshaled interface{}
+			err = json.Unmarshal(bytes, &unmarshaled)
+			require.NoError(t, err, "unmarshaling should succeed for test verification")
+		}
+
+		// Note: This does not explicitly assert the presence of a specific JSON field
+		// It verifies that setting a field via setter allows successful JSON round-trip
+	})
+
+	t.Run("SetFilter_MarksExplicit", func(t *testing.T) {
+		t.Parallel()
+		// Arrange
+		obj := &UserRolePermission{}
+		var fernTestValueFilter *Filter
+
+		// Act
+		obj.SetFilter(fernTestValueFilter)
+
+		// Assert - object with explicitly set field can be marshaled/unmarshaled
+		bytes, err := json.Marshal(obj)
+		require.NoError(t, err, "marshaling should succeed for test setup")
+
+		// This test ensures JSON marshaling and unmarshaling succeed when the field has a zero/nil value
+		// Detect if marshaled JSON is an object or primitive to use correct unmarshal target
+		if len(bytes) > 0 && bytes[0] == '{' {
+			// JSON object - unmarshal into map
+			var unmarshaled map[string]interface{}
+			err = json.Unmarshal(bytes, &unmarshaled)
+			require.NoError(t, err, "unmarshaling should succeed for test verification")
+		} else {
+			// JSON primitive (string, number, boolean, null) - unmarshal into interface{}
+			var unmarshaled interface{}
+			err = json.Unmarshal(bytes, &unmarshaled)
+			require.NoError(t, err, "unmarshaling should succeed for test verification")
+		}
+
+		// Note: This does not explicitly assert the presence of a specific JSON field
+		// It verifies that setting a field via setter allows successful JSON round-trip
+	})
+
+	t.Run("SetFilterUnsupported_MarksExplicit", func(t *testing.T) {
+		t.Parallel()
+		// Arrange
+		obj := &UserRolePermission{}
+		var fernTestValueFilterUnsupported *bool
+
+		// Act
+		obj.SetFilterUnsupported(fernTestValueFilterUnsupported)
 
 		// Assert - object with explicitly set field can be marshaled/unmarshaled
 		bytes, err := json.Marshal(obj)
@@ -485,6 +1356,105 @@ func TestJSONMarshalingUserRole(t *testing.T) {
 	})
 }
 
+func TestJSONMarshalingUserRoleIssueAccessPolicy(t *testing.T) {
+	t.Run("MarshalUnmarshal", func(t *testing.T) {
+		t.Parallel()
+		// Arrange
+		obj := &UserRoleIssueAccessPolicy{}
+
+		// Act - Marshal to JSON
+		data, err := json.Marshal(obj)
+		require.NoError(t, err, "marshaling should succeed")
+		assert.NotNil(t, data, "marshaled data should not be nil")
+		assert.NotEmpty(t, data, "marshaled data should not be empty")
+
+		// Unmarshal back and verify round-trip
+		var unmarshaled UserRoleIssueAccessPolicy
+		err = json.Unmarshal(data, &unmarshaled)
+		assert.NoError(t, err, "round-trip unmarshal should succeed")
+	})
+
+	t.Run("UnmarshalInvalidJSON", func(t *testing.T) {
+		t.Parallel()
+		var obj UserRoleIssueAccessPolicy
+		err := json.Unmarshal([]byte(`{invalid json}`), &obj)
+		assert.Error(t, err, "unmarshaling invalid JSON should return an error")
+	})
+
+	t.Run("UnmarshalEmptyObject", func(t *testing.T) {
+		t.Parallel()
+		var obj UserRoleIssueAccessPolicy
+		err := json.Unmarshal([]byte(`{}`), &obj)
+		assert.NoError(t, err, "unmarshaling empty object should succeed")
+	})
+}
+
+func TestJSONMarshalingUserRoleIssueAccessRule(t *testing.T) {
+	t.Run("MarshalUnmarshal", func(t *testing.T) {
+		t.Parallel()
+		// Arrange
+		obj := &UserRoleIssueAccessRule{}
+
+		// Act - Marshal to JSON
+		data, err := json.Marshal(obj)
+		require.NoError(t, err, "marshaling should succeed")
+		assert.NotNil(t, data, "marshaled data should not be nil")
+		assert.NotEmpty(t, data, "marshaled data should not be empty")
+
+		// Unmarshal back and verify round-trip
+		var unmarshaled UserRoleIssueAccessRule
+		err = json.Unmarshal(data, &unmarshaled)
+		assert.NoError(t, err, "round-trip unmarshal should succeed")
+	})
+
+	t.Run("UnmarshalInvalidJSON", func(t *testing.T) {
+		t.Parallel()
+		var obj UserRoleIssueAccessRule
+		err := json.Unmarshal([]byte(`{invalid json}`), &obj)
+		assert.Error(t, err, "unmarshaling invalid JSON should return an error")
+	})
+
+	t.Run("UnmarshalEmptyObject", func(t *testing.T) {
+		t.Parallel()
+		var obj UserRoleIssueAccessRule
+		err := json.Unmarshal([]byte(`{}`), &obj)
+		assert.NoError(t, err, "unmarshaling empty object should succeed")
+	})
+}
+
+func TestJSONMarshalingUserRolePermission(t *testing.T) {
+	t.Run("MarshalUnmarshal", func(t *testing.T) {
+		t.Parallel()
+		// Arrange
+		obj := &UserRolePermission{}
+
+		// Act - Marshal to JSON
+		data, err := json.Marshal(obj)
+		require.NoError(t, err, "marshaling should succeed")
+		assert.NotNil(t, data, "marshaled data should not be nil")
+		assert.NotEmpty(t, data, "marshaled data should not be empty")
+
+		// Unmarshal back and verify round-trip
+		var unmarshaled UserRolePermission
+		err = json.Unmarshal(data, &unmarshaled)
+		assert.NoError(t, err, "round-trip unmarshal should succeed")
+	})
+
+	t.Run("UnmarshalInvalidJSON", func(t *testing.T) {
+		t.Parallel()
+		var obj UserRolePermission
+		err := json.Unmarshal([]byte(`{invalid json}`), &obj)
+		assert.Error(t, err, "unmarshaling invalid JSON should return an error")
+	})
+
+	t.Run("UnmarshalEmptyObject", func(t *testing.T) {
+		t.Parallel()
+		var obj UserRolePermission
+		err := json.Unmarshal([]byte(`{}`), &obj)
+		assert.NoError(t, err, "unmarshaling empty object should succeed")
+	})
+}
+
 func TestStringGetUserRolesResponseBody(t *testing.T) {
 	t.Run("StringMethod", func(t *testing.T) {
 		t.Parallel()
@@ -512,6 +1482,54 @@ func TestStringUserRole(t *testing.T) {
 	t.Run("StringMethod_NilReceiver", func(t *testing.T) {
 		t.Parallel()
 		var obj *UserRole
+		result := obj.String()
+		assert.Equal(t, "<nil>", result, "String() should return <nil> for nil receiver")
+	})
+}
+
+func TestStringUserRoleIssueAccessPolicy(t *testing.T) {
+	t.Run("StringMethod", func(t *testing.T) {
+		t.Parallel()
+		obj := &UserRoleIssueAccessPolicy{}
+		result := obj.String()
+		assert.NotEmpty(t, result, "String() should return a non-empty representation")
+	})
+
+	t.Run("StringMethod_NilReceiver", func(t *testing.T) {
+		t.Parallel()
+		var obj *UserRoleIssueAccessPolicy
+		result := obj.String()
+		assert.Equal(t, "<nil>", result, "String() should return <nil> for nil receiver")
+	})
+}
+
+func TestStringUserRoleIssueAccessRule(t *testing.T) {
+	t.Run("StringMethod", func(t *testing.T) {
+		t.Parallel()
+		obj := &UserRoleIssueAccessRule{}
+		result := obj.String()
+		assert.NotEmpty(t, result, "String() should return a non-empty representation")
+	})
+
+	t.Run("StringMethod_NilReceiver", func(t *testing.T) {
+		t.Parallel()
+		var obj *UserRoleIssueAccessRule
+		result := obj.String()
+		assert.Equal(t, "<nil>", result, "String() should return <nil> for nil receiver")
+	})
+}
+
+func TestStringUserRolePermission(t *testing.T) {
+	t.Run("StringMethod", func(t *testing.T) {
+		t.Parallel()
+		obj := &UserRolePermission{}
+		result := obj.String()
+		assert.NotEmpty(t, result, "String() should return a non-empty representation")
+	})
+
+	t.Run("StringMethod_NilReceiver", func(t *testing.T) {
+		t.Parallel()
+		var obj *UserRolePermission
 		result := obj.String()
 		assert.Equal(t, "<nil>", result, "String() should return <nil> for nil receiver")
 	})
@@ -558,6 +1576,75 @@ func TestExtraPropertiesUserRole(t *testing.T) {
 	t.Run("GetExtraProperties_NilReceiver", func(t *testing.T) {
 		t.Parallel()
 		var obj *UserRole
+		extraProps := obj.GetExtraProperties()
+		assert.Nil(t, extraProps, "nil receiver should return nil without panicking")
+	})
+}
+
+func TestExtraPropertiesUserRoleIssueAccessPolicy(t *testing.T) {
+	t.Run("GetExtraProperties", func(t *testing.T) {
+		t.Parallel()
+		obj := &UserRoleIssueAccessPolicy{}
+		// Should not panic when calling GetExtraProperties()
+		defer func() {
+			if r := recover(); r != nil {
+				t.Errorf("GetExtraProperties() panicked: %v", r)
+			}
+		}()
+		extraProps := obj.GetExtraProperties()
+		// Result can be nil or an empty/non-empty map
+		_ = extraProps
+	})
+
+	t.Run("GetExtraProperties_NilReceiver", func(t *testing.T) {
+		t.Parallel()
+		var obj *UserRoleIssueAccessPolicy
+		extraProps := obj.GetExtraProperties()
+		assert.Nil(t, extraProps, "nil receiver should return nil without panicking")
+	})
+}
+
+func TestExtraPropertiesUserRoleIssueAccessRule(t *testing.T) {
+	t.Run("GetExtraProperties", func(t *testing.T) {
+		t.Parallel()
+		obj := &UserRoleIssueAccessRule{}
+		// Should not panic when calling GetExtraProperties()
+		defer func() {
+			if r := recover(); r != nil {
+				t.Errorf("GetExtraProperties() panicked: %v", r)
+			}
+		}()
+		extraProps := obj.GetExtraProperties()
+		// Result can be nil or an empty/non-empty map
+		_ = extraProps
+	})
+
+	t.Run("GetExtraProperties_NilReceiver", func(t *testing.T) {
+		t.Parallel()
+		var obj *UserRoleIssueAccessRule
+		extraProps := obj.GetExtraProperties()
+		assert.Nil(t, extraProps, "nil receiver should return nil without panicking")
+	})
+}
+
+func TestExtraPropertiesUserRolePermission(t *testing.T) {
+	t.Run("GetExtraProperties", func(t *testing.T) {
+		t.Parallel()
+		obj := &UserRolePermission{}
+		// Should not panic when calling GetExtraProperties()
+		defer func() {
+			if r := recover(); r != nil {
+				t.Errorf("GetExtraProperties() panicked: %v", r)
+			}
+		}()
+		extraProps := obj.GetExtraProperties()
+		// Result can be nil or an empty/non-empty map
+		_ = extraProps
+	})
+
+	t.Run("GetExtraProperties_NilReceiver", func(t *testing.T) {
+		t.Parallel()
+		var obj *UserRolePermission
 		extraProps := obj.GetExtraProperties()
 		assert.Nil(t, extraProps, "nil receiver should return nil without panicking")
 	})

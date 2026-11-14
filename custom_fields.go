@@ -14,11 +14,14 @@ var (
 	customFieldsCreateRequestFieldDefaultValue  = big.NewInt(1 << 0)
 	customFieldsCreateRequestFieldDefaultValues = big.NewInt(1 << 1)
 	customFieldsCreateRequestFieldDescription   = big.NewInt(1 << 2)
-	customFieldsCreateRequestFieldLabel         = big.NewInt(1 << 3)
-	customFieldsCreateRequestFieldObjectType    = big.NewInt(1 << 4)
-	customFieldsCreateRequestFieldSelectOptions = big.NewInt(1 << 5)
-	customFieldsCreateRequestFieldSlug          = big.NewInt(1 << 6)
-	customFieldsCreateRequestFieldType          = big.NewInt(1 << 7)
+	customFieldsCreateRequestFieldInstructions  = big.NewInt(1 << 3)
+	customFieldsCreateRequestFieldIsAiEnabled   = big.NewInt(1 << 4)
+	customFieldsCreateRequestFieldJSONSchema    = big.NewInt(1 << 5)
+	customFieldsCreateRequestFieldLabel         = big.NewInt(1 << 6)
+	customFieldsCreateRequestFieldObjectType    = big.NewInt(1 << 7)
+	customFieldsCreateRequestFieldSelectOptions = big.NewInt(1 << 8)
+	customFieldsCreateRequestFieldSlug          = big.NewInt(1 << 9)
+	customFieldsCreateRequestFieldType          = big.NewInt(1 << 10)
 )
 
 type CustomFieldsCreateRequest struct {
@@ -28,15 +31,21 @@ type CustomFieldsCreateRequest struct {
 	DefaultValues []string `json:"default_values,omitempty" url:"-"`
 	// The description of the custom field.
 	Description *string `json:"description,omitempty" url:"-"`
+	// Field-wide instructions for how AI should populate the field. For AI-enabled fields, an empty value falls back to description.
+	Instructions *string `json:"instructions,omitempty" url:"-"`
+	// Whether AI should populate the field. Web research fields are always AI-enabled.
+	IsAiEnabled *bool `json:"is_ai_enabled,omitempty" url:"-"`
+	// JSON schema for structured web research results. Required for contact web research fields.
+	JSONSchema *string `json:"json_schema,omitempty" url:"-"`
 	// The label of the custom field.
 	Label string `json:"label" url:"-"`
-	// The object type of the custom field. Can be "account", "issue", "contact", "task", "project", "meeting", or "opportunity".
+	// The object type of the custom field. Can be "account", "issue", "contact", "task", "project", "meeting", "opportunity", or "feature_request".
 	ObjectType CreateCustomFieldRequestBodyObjectType `json:"object_type" url:"-"`
 	// The list options of the select custom field. This is only present for select and multiselect custom fields.
 	SelectOptions []*CustomFieldDefinitionSelectOption `json:"select_options,omitempty" url:"-"`
 	// The slug of the custom field.
 	Slug *string `json:"slug,omitempty" url:"-"`
-	// The type of the custom field. Can be one of `text`, `number`, `decimal`, `boolean`, `date`, `datetime`, `user`, `url`, `select`, or `multiselect`.
+	// The type of the custom field. Can be one of `text`, `number`, `boolean`, `date`, `datetime`, `user`, `url`, `select`, `multiselect`, or `web_research`. Number fields accept integers and fractional values, such as 7.4; decimal is not a separate field type. Web research is supported for accounts and for contacts when enabled for the organization.
 	Type string `json:"type" url:"-"`
 
 	// Private bitmask of fields set to an explicit value and therefore not to be omitted
@@ -71,6 +80,27 @@ func (c *CustomFieldsCreateRequest) SetDefaultValues(defaultValues []string) {
 func (c *CustomFieldsCreateRequest) SetDescription(description *string) {
 	c.Description = description
 	c.require(customFieldsCreateRequestFieldDescription)
+}
+
+// SetInstructions sets the Instructions field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (c *CustomFieldsCreateRequest) SetInstructions(instructions *string) {
+	c.Instructions = instructions
+	c.require(customFieldsCreateRequestFieldInstructions)
+}
+
+// SetIsAiEnabled sets the IsAiEnabled field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (c *CustomFieldsCreateRequest) SetIsAiEnabled(isAiEnabled *bool) {
+	c.IsAiEnabled = isAiEnabled
+	c.require(customFieldsCreateRequestFieldIsAiEnabled)
+}
+
+// SetJSONSchema sets the JSONSchema field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (c *CustomFieldsCreateRequest) SetJSONSchema(jsonSchema *string) {
+	c.JSONSchema = jsonSchema
+	c.require(customFieldsCreateRequestFieldJSONSchema)
 }
 
 // SetLabel sets the Label field and marks it as non-optional;
@@ -162,7 +192,7 @@ var (
 )
 
 type CustomFieldsListRequest struct {
-	// The object type of the custom fields. Can be "account", "issue", "contact", "task", "project", "meeting", or "opportunity".
+	// The object type of the custom fields. Can be "account", "issue", "contact", "task", "project", "meeting", "opportunity", or "feature_request".
 	ObjectType ListCustomFieldsRequestObjectType `json:"-" url:"object_type"`
 
 	// Private bitmask of fields set to an explicit value and therefore not to be omitted
@@ -289,25 +319,145 @@ func (c *CreateCustomFieldResponseBody) String() string {
 }
 
 var (
-	customFieldDefinitionFieldCreatedAt      = big.NewInt(1 << 0)
-	customFieldDefinitionFieldDefaultValue   = big.NewInt(1 << 1)
-	customFieldDefinitionFieldDefaultValues  = big.NewInt(1 << 2)
-	customFieldDefinitionFieldDescription    = big.NewInt(1 << 3)
-	customFieldDefinitionFieldID             = big.NewInt(1 << 4)
-	customFieldDefinitionFieldIsReadOnly     = big.NewInt(1 << 5)
-	customFieldDefinitionFieldLabel          = big.NewInt(1 << 6)
-	customFieldDefinitionFieldNumberMetadata = big.NewInt(1 << 7)
-	customFieldDefinitionFieldObjectType     = big.NewInt(1 << 8)
-	customFieldDefinitionFieldSelectMetadata = big.NewInt(1 << 9)
-	customFieldDefinitionFieldSlug           = big.NewInt(1 << 10)
-	customFieldDefinitionFieldSource         = big.NewInt(1 << 11)
-	customFieldDefinitionFieldType           = big.NewInt(1 << 12)
-	customFieldDefinitionFieldUpdatedAt      = big.NewInt(1 << 13)
+	customFieldActorFieldType = big.NewInt(1 << 0)
+	customFieldActorFieldUser = big.NewInt(1 << 1)
 )
+
+type CustomFieldActor struct {
+	// "user" for a change made by a user, "system" for an automated change, such as AI-generated option descriptions, and "unknown" for a change made before authors were recorded.
+	//
+	// Known values: `user`, `system`, `unknown`. This list is not exhaustive.
+	Type string    `json:"type" url:"type"`
+	User *MiniUser `json:"user,omitempty" url:"user,omitempty"`
+
+	// Private bitmask of fields set to an explicit value and therefore not to be omitted
+	explicitFields *big.Int `json:"-" url:"-"`
+
+	extraProperties map[string]interface{}
+	rawJSON         json.RawMessage
+}
+
+func (c *CustomFieldActor) GetType() string {
+	if c == nil {
+		return ""
+	}
+	return c.Type
+}
+
+func (c *CustomFieldActor) GetUser() *MiniUser {
+	if c == nil {
+		return nil
+	}
+	return c.User
+}
+
+func (c *CustomFieldActor) GetExtraProperties() map[string]interface{} {
+	if c == nil {
+		return nil
+	}
+	return c.extraProperties
+}
+
+func (c *CustomFieldActor) require(field *big.Int) {
+	next := new(big.Int)
+	if c.explicitFields != nil {
+		next.Set(c.explicitFields)
+	}
+	next.Or(next, field)
+	c.explicitFields = next
+}
+
+// SetType sets the Type field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (c *CustomFieldActor) SetType(type_ string) {
+	c.Type = type_
+	c.require(customFieldActorFieldType)
+}
+
+// SetUser sets the User field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (c *CustomFieldActor) SetUser(user *MiniUser) {
+	c.User = user
+	c.require(customFieldActorFieldUser)
+}
+
+func (c *CustomFieldActor) UnmarshalJSON(data []byte) error {
+	type unmarshaler CustomFieldActor
+	var value unmarshaler
+	if err := json.Unmarshal(data, &value); err != nil {
+		return err
+	}
+	*c = CustomFieldActor(value)
+	extraProperties, err := internal.ExtractExtraProperties(data, *c)
+	if err != nil {
+		return err
+	}
+	c.extraProperties = extraProperties
+	c.rawJSON = json.RawMessage(data)
+	return nil
+}
+
+func (c *CustomFieldActor) MarshalJSON() ([]byte, error) {
+	type embed CustomFieldActor
+	var marshaler = struct {
+		embed
+	}{
+		embed: embed(*c),
+	}
+	explicitMarshaler := internal.HandleExplicitFields(marshaler, c.explicitFields)
+	return json.Marshal(explicitMarshaler)
+}
+
+func (c *CustomFieldActor) String() string {
+	if c == nil {
+		return "<nil>"
+	}
+	if len(c.rawJSON) > 0 {
+		if value, err := internal.StringifyJSON(c.rawJSON); err == nil {
+			return value
+		}
+	}
+	if value, err := internal.StringifyJSON(c); err == nil {
+		return value
+	}
+	return fmt.Sprintf("%#v", c)
+}
+
+var (
+	customFieldDefinitionFieldCreatedAt        = big.NewInt(1 << 0)
+	customFieldDefinitionFieldCreatedBy        = big.NewInt(1 << 1)
+	customFieldDefinitionFieldDefaultValue     = big.NewInt(1 << 2)
+	customFieldDefinitionFieldDefaultValues    = big.NewInt(1 << 3)
+	customFieldDefinitionFieldDescription      = big.NewInt(1 << 4)
+	customFieldDefinitionFieldID               = big.NewInt(1 << 5)
+	customFieldDefinitionFieldInstructions     = big.NewInt(1 << 6)
+	customFieldDefinitionFieldIsAiEnabled      = big.NewInt(1 << 7)
+	customFieldDefinitionFieldIsReadOnly       = big.NewInt(1 << 8)
+	customFieldDefinitionFieldJSONSchema       = big.NewInt(1 << 9)
+	customFieldDefinitionFieldLabel            = big.NewInt(1 << 10)
+	customFieldDefinitionFieldNumberMetadata   = big.NewInt(1 << 11)
+	customFieldDefinitionFieldObjectType       = big.NewInt(1 << 12)
+	customFieldDefinitionFieldRequirement      = big.NewInt(1 << 13)
+	customFieldDefinitionFieldSelectMetadata   = big.NewInt(1 << 14)
+	customFieldDefinitionFieldSlug             = big.NewInt(1 << 15)
+	customFieldDefinitionFieldSource           = big.NewInt(1 << 16)
+	customFieldDefinitionFieldType             = big.NewInt(1 << 17)
+	customFieldDefinitionFieldUpdatedAt        = big.NewInt(1 << 18)
+	customFieldDefinitionFieldUpdatedBy        = big.NewInt(1 << 19)
+	customFieldDefinitionFieldVisibleByDefault = big.NewInt(1 << 20)
+)
+
+// customFieldDefinitionNullableFields maps the wire names of CustomFieldDefinition's nullable fields (required or optional) to their field bits.
+var customFieldDefinitionNullableFields = map[string]*big.Int{
+	"created_by":  customFieldDefinitionFieldCreatedBy,
+	"requirement": customFieldDefinitionFieldRequirement,
+	"updated_by":  customFieldDefinitionFieldUpdatedBy,
+}
 
 type CustomFieldDefinition struct {
 	// When the custom field was created.
-	CreatedAt time.Time `json:"created_at" url:"created_at"`
+	CreatedAt time.Time         `json:"created_at" url:"created_at"`
+	CreatedBy *CustomFieldActor `json:"created_by,omitempty" url:"created_by,omitempty"`
 	// The default value for single-valued custom fields.
 	DefaultValue *string `json:"default_value,omitempty" url:"default_value,omitempty"`
 	// The default values for multi-valued custom fields.
@@ -316,14 +466,21 @@ type CustomFieldDefinition struct {
 	Description string `json:"description" url:"description"`
 	// The ID of the custom field.
 	ID string `json:"id" url:"id"`
+	// Field-wide instructions for how AI populates the field.
+	Instructions string `json:"instructions" url:"instructions"`
+	// Whether AI is enabled for the field.
+	IsAiEnabled bool `json:"is_ai_enabled" url:"is_ai_enabled"`
 	// Whether the custom field is read only. Fields synced from apps and integrations are read-only.
 	IsReadOnly bool `json:"is_read_only" url:"is_read_only"`
+	// JSON schema for structured web research results, when configured.
+	JSONSchema *string `json:"json_schema,omitempty" url:"json_schema,omitempty"`
 	// The label of the custom field.
 	Label          string          `json:"label" url:"label"`
 	NumberMetadata *NumberMetadata `json:"number_metadata,omitempty" url:"number_metadata,omitempty"`
 	// The type of object this custom field is for. This can be a built-in or custom object type.
-	ObjectType     string          `json:"object_type" url:"object_type"`
-	SelectMetadata *SelectMetadata `json:"select_metadata,omitempty" url:"select_metadata,omitempty"`
+	ObjectType     string                  `json:"object_type" url:"object_type"`
+	Requirement    *CustomFieldRequirement `json:"requirement,omitempty" url:"requirement,omitempty"`
+	SelectMetadata *SelectMetadata         `json:"select_metadata,omitempty" url:"select_metadata,omitempty"`
 	// The slug of the custom field.
 	Slug string `json:"slug" url:"slug"`
 	// The source of the custom field.
@@ -331,7 +488,10 @@ type CustomFieldDefinition struct {
 	// The type of the custom field.
 	Type string `json:"type" url:"type"`
 	// When the custom field was last updated.
-	UpdatedAt time.Time `json:"updated_at" url:"updated_at"`
+	UpdatedAt time.Time         `json:"updated_at" url:"updated_at"`
+	UpdatedBy *CustomFieldActor `json:"updated_by,omitempty" url:"updated_by,omitempty"`
+	// Whether the custom field shows on records in Pylon by default. When false, it shows only where a field visibility condition makes it visible.
+	VisibleByDefault bool `json:"visible_by_default" url:"visible_by_default"`
 
 	// Private bitmask of fields set to an explicit value and therefore not to be omitted
 	explicitFields *big.Int `json:"-" url:"-"`
@@ -345,6 +505,13 @@ func (c *CustomFieldDefinition) GetCreatedAt() time.Time {
 		return time.Time{}
 	}
 	return c.CreatedAt
+}
+
+func (c *CustomFieldDefinition) GetCreatedBy() *CustomFieldActor {
+	if c == nil {
+		return nil
+	}
+	return c.CreatedBy
 }
 
 func (c *CustomFieldDefinition) GetDefaultValue() *string {
@@ -375,11 +542,32 @@ func (c *CustomFieldDefinition) GetID() string {
 	return c.ID
 }
 
+func (c *CustomFieldDefinition) GetInstructions() string {
+	if c == nil {
+		return ""
+	}
+	return c.Instructions
+}
+
+func (c *CustomFieldDefinition) GetIsAiEnabled() bool {
+	if c == nil {
+		return false
+	}
+	return c.IsAiEnabled
+}
+
 func (c *CustomFieldDefinition) GetIsReadOnly() bool {
 	if c == nil {
 		return false
 	}
 	return c.IsReadOnly
+}
+
+func (c *CustomFieldDefinition) GetJSONSchema() *string {
+	if c == nil {
+		return nil
+	}
+	return c.JSONSchema
 }
 
 func (c *CustomFieldDefinition) GetLabel() string {
@@ -401,6 +589,13 @@ func (c *CustomFieldDefinition) GetObjectType() string {
 		return ""
 	}
 	return c.ObjectType
+}
+
+func (c *CustomFieldDefinition) GetRequirement() *CustomFieldRequirement {
+	if c == nil {
+		return nil
+	}
+	return c.Requirement
 }
 
 func (c *CustomFieldDefinition) GetSelectMetadata() *SelectMetadata {
@@ -438,6 +633,20 @@ func (c *CustomFieldDefinition) GetUpdatedAt() time.Time {
 	return c.UpdatedAt
 }
 
+func (c *CustomFieldDefinition) GetUpdatedBy() *CustomFieldActor {
+	if c == nil {
+		return nil
+	}
+	return c.UpdatedBy
+}
+
+func (c *CustomFieldDefinition) GetVisibleByDefault() bool {
+	if c == nil {
+		return false
+	}
+	return c.VisibleByDefault
+}
+
 func (c *CustomFieldDefinition) GetExtraProperties() map[string]interface{} {
 	if c == nil {
 		return nil
@@ -459,6 +668,13 @@ func (c *CustomFieldDefinition) require(field *big.Int) {
 func (c *CustomFieldDefinition) SetCreatedAt(createdAt time.Time) {
 	c.CreatedAt = createdAt
 	c.require(customFieldDefinitionFieldCreatedAt)
+}
+
+// SetCreatedBy sets the CreatedBy field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (c *CustomFieldDefinition) SetCreatedBy(createdBy *CustomFieldActor) {
+	c.CreatedBy = createdBy
+	c.require(customFieldDefinitionFieldCreatedBy)
 }
 
 // SetDefaultValue sets the DefaultValue field and marks it as non-optional;
@@ -489,11 +705,32 @@ func (c *CustomFieldDefinition) SetID(id string) {
 	c.require(customFieldDefinitionFieldID)
 }
 
+// SetInstructions sets the Instructions field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (c *CustomFieldDefinition) SetInstructions(instructions string) {
+	c.Instructions = instructions
+	c.require(customFieldDefinitionFieldInstructions)
+}
+
+// SetIsAiEnabled sets the IsAiEnabled field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (c *CustomFieldDefinition) SetIsAiEnabled(isAiEnabled bool) {
+	c.IsAiEnabled = isAiEnabled
+	c.require(customFieldDefinitionFieldIsAiEnabled)
+}
+
 // SetIsReadOnly sets the IsReadOnly field and marks it as non-optional;
 // this prevents an empty or null value for this field from being omitted during serialization.
 func (c *CustomFieldDefinition) SetIsReadOnly(isReadOnly bool) {
 	c.IsReadOnly = isReadOnly
 	c.require(customFieldDefinitionFieldIsReadOnly)
+}
+
+// SetJSONSchema sets the JSONSchema field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (c *CustomFieldDefinition) SetJSONSchema(jsonSchema *string) {
+	c.JSONSchema = jsonSchema
+	c.require(customFieldDefinitionFieldJSONSchema)
 }
 
 // SetLabel sets the Label field and marks it as non-optional;
@@ -515,6 +752,13 @@ func (c *CustomFieldDefinition) SetNumberMetadata(numberMetadata *NumberMetadata
 func (c *CustomFieldDefinition) SetObjectType(objectType string) {
 	c.ObjectType = objectType
 	c.require(customFieldDefinitionFieldObjectType)
+}
+
+// SetRequirement sets the Requirement field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (c *CustomFieldDefinition) SetRequirement(requirement *CustomFieldRequirement) {
+	c.Requirement = requirement
+	c.require(customFieldDefinitionFieldRequirement)
 }
 
 // SetSelectMetadata sets the SelectMetadata field and marks it as non-optional;
@@ -552,6 +796,20 @@ func (c *CustomFieldDefinition) SetUpdatedAt(updatedAt time.Time) {
 	c.require(customFieldDefinitionFieldUpdatedAt)
 }
 
+// SetUpdatedBy sets the UpdatedBy field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (c *CustomFieldDefinition) SetUpdatedBy(updatedBy *CustomFieldActor) {
+	c.UpdatedBy = updatedBy
+	c.require(customFieldDefinitionFieldUpdatedBy)
+}
+
+// SetVisibleByDefault sets the VisibleByDefault field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (c *CustomFieldDefinition) SetVisibleByDefault(visibleByDefault bool) {
+	c.VisibleByDefault = visibleByDefault
+	c.require(customFieldDefinitionFieldVisibleByDefault)
+}
+
 func (c *CustomFieldDefinition) UnmarshalJSON(data []byte) error {
 	type embed CustomFieldDefinition
 	var unmarshaler = struct {
@@ -572,6 +830,13 @@ func (c *CustomFieldDefinition) UnmarshalJSON(data []byte) error {
 		return err
 	}
 	c.extraProperties = extraProperties
+	presentFields, err := internal.ExplicitFieldsFromJSON(data, customFieldDefinitionNullableFields)
+	if err != nil {
+		return err
+	}
+	if presentFields != nil {
+		c.require(presentFields)
+	}
 	c.rawJSON = json.RawMessage(data)
 	return nil
 }
@@ -592,6 +857,128 @@ func (c *CustomFieldDefinition) MarshalJSON() ([]byte, error) {
 }
 
 func (c *CustomFieldDefinition) String() string {
+	if c == nil {
+		return "<nil>"
+	}
+	if len(c.rawJSON) > 0 {
+		if value, err := internal.StringifyJSON(c.rawJSON); err == nil {
+			return value
+		}
+	}
+	if value, err := internal.StringifyJSON(c); err == nil {
+		return value
+	}
+	return fmt.Sprintf("%#v", c)
+}
+
+var (
+	customFieldRequirementFieldFilter            = big.NewInt(1 << 0)
+	customFieldRequirementFieldFilterUnsupported = big.NewInt(1 << 1)
+	customFieldRequirementFieldSetting           = big.NewInt(1 << 2)
+)
+
+type CustomFieldRequirement struct {
+	Filter *Filter `json:"filter,omitempty" url:"filter,omitempty"`
+	// Whether the requirement has conditions that can't be expressed as an API filter. When true, filter is omitted.
+	FilterUnsupported *bool `json:"filter_unsupported,omitempty" url:"filter_unsupported,omitempty"`
+	// When the custom field is required. "required_for_closed" requires it when closing an issue, and "required_under_certain_conditions" requires it on issues that match filter.
+	//
+	// Known values: `not_required`, `required`, `required_for_closed`, `required_under_certain_conditions`. This list is not exhaustive.
+	Setting string `json:"setting" url:"setting"`
+
+	// Private bitmask of fields set to an explicit value and therefore not to be omitted
+	explicitFields *big.Int `json:"-" url:"-"`
+
+	extraProperties map[string]interface{}
+	rawJSON         json.RawMessage
+}
+
+func (c *CustomFieldRequirement) GetFilter() *Filter {
+	if c == nil {
+		return nil
+	}
+	return c.Filter
+}
+
+func (c *CustomFieldRequirement) GetFilterUnsupported() *bool {
+	if c == nil {
+		return nil
+	}
+	return c.FilterUnsupported
+}
+
+func (c *CustomFieldRequirement) GetSetting() string {
+	if c == nil {
+		return ""
+	}
+	return c.Setting
+}
+
+func (c *CustomFieldRequirement) GetExtraProperties() map[string]interface{} {
+	if c == nil {
+		return nil
+	}
+	return c.extraProperties
+}
+
+func (c *CustomFieldRequirement) require(field *big.Int) {
+	next := new(big.Int)
+	if c.explicitFields != nil {
+		next.Set(c.explicitFields)
+	}
+	next.Or(next, field)
+	c.explicitFields = next
+}
+
+// SetFilter sets the Filter field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (c *CustomFieldRequirement) SetFilter(filter *Filter) {
+	c.Filter = filter
+	c.require(customFieldRequirementFieldFilter)
+}
+
+// SetFilterUnsupported sets the FilterUnsupported field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (c *CustomFieldRequirement) SetFilterUnsupported(filterUnsupported *bool) {
+	c.FilterUnsupported = filterUnsupported
+	c.require(customFieldRequirementFieldFilterUnsupported)
+}
+
+// SetSetting sets the Setting field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (c *CustomFieldRequirement) SetSetting(setting string) {
+	c.Setting = setting
+	c.require(customFieldRequirementFieldSetting)
+}
+
+func (c *CustomFieldRequirement) UnmarshalJSON(data []byte) error {
+	type unmarshaler CustomFieldRequirement
+	var value unmarshaler
+	if err := json.Unmarshal(data, &value); err != nil {
+		return err
+	}
+	*c = CustomFieldRequirement(value)
+	extraProperties, err := internal.ExtractExtraProperties(data, *c)
+	if err != nil {
+		return err
+	}
+	c.extraProperties = extraProperties
+	c.rawJSON = json.RawMessage(data)
+	return nil
+}
+
+func (c *CustomFieldRequirement) MarshalJSON() ([]byte, error) {
+	type embed CustomFieldRequirement
+	var marshaler = struct {
+		embed
+	}{
+		embed: embed(*c),
+	}
+	explicitMarshaler := internal.HandleExplicitFields(marshaler, c.explicitFields)
+	return json.Marshal(explicitMarshaler)
+}
+
+func (c *CustomFieldRequirement) String() string {
 	if c == nil {
 		return "<nil>"
 	}
@@ -1100,6 +1487,155 @@ func (s *SelectMetadata) String() string {
 }
 
 var (
+	updateCustomFieldRequirementFieldFilter            = big.NewInt(1 << 0)
+	updateCustomFieldRequirementFieldFilterUnsupported = big.NewInt(1 << 1)
+	updateCustomFieldRequirementFieldSetting           = big.NewInt(1 << 2)
+)
+
+type UpdateCustomFieldRequirement struct {
+	Filter *Filter `json:"filter,omitempty" url:"filter,omitempty"`
+	// Must be false. A requirement whose conditions can't be expressed as an API filter can't be saved through the API; edit it in the app.
+	FilterUnsupported *bool `json:"filter_unsupported,omitempty" url:"filter_unsupported,omitempty"`
+	// When the custom field is required. "required_for_closed" requires it when closing an issue (only issues that match filter, when set), and "required_under_certain_conditions" requires it on issues that match filter, which is then required. Both are only supported on issue fields, issue and feature request fields can't be changed to "required", and filter isn't allowed with the other settings.
+	Setting UpdateCustomFieldRequirementSetting `json:"setting" url:"setting"`
+
+	// Private bitmask of fields set to an explicit value and therefore not to be omitted
+	explicitFields *big.Int `json:"-" url:"-"`
+
+	extraProperties map[string]interface{}
+	rawJSON         json.RawMessage
+}
+
+func (u *UpdateCustomFieldRequirement) GetFilter() *Filter {
+	if u == nil {
+		return nil
+	}
+	return u.Filter
+}
+
+func (u *UpdateCustomFieldRequirement) GetFilterUnsupported() *bool {
+	if u == nil {
+		return nil
+	}
+	return u.FilterUnsupported
+}
+
+func (u *UpdateCustomFieldRequirement) GetSetting() UpdateCustomFieldRequirementSetting {
+	if u == nil {
+		return ""
+	}
+	return u.Setting
+}
+
+func (u *UpdateCustomFieldRequirement) GetExtraProperties() map[string]interface{} {
+	if u == nil {
+		return nil
+	}
+	return u.extraProperties
+}
+
+func (u *UpdateCustomFieldRequirement) require(field *big.Int) {
+	next := new(big.Int)
+	if u.explicitFields != nil {
+		next.Set(u.explicitFields)
+	}
+	next.Or(next, field)
+	u.explicitFields = next
+}
+
+// SetFilter sets the Filter field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (u *UpdateCustomFieldRequirement) SetFilter(filter *Filter) {
+	u.Filter = filter
+	u.require(updateCustomFieldRequirementFieldFilter)
+}
+
+// SetFilterUnsupported sets the FilterUnsupported field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (u *UpdateCustomFieldRequirement) SetFilterUnsupported(filterUnsupported *bool) {
+	u.FilterUnsupported = filterUnsupported
+	u.require(updateCustomFieldRequirementFieldFilterUnsupported)
+}
+
+// SetSetting sets the Setting field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (u *UpdateCustomFieldRequirement) SetSetting(setting UpdateCustomFieldRequirementSetting) {
+	u.Setting = setting
+	u.require(updateCustomFieldRequirementFieldSetting)
+}
+
+func (u *UpdateCustomFieldRequirement) UnmarshalJSON(data []byte) error {
+	type unmarshaler UpdateCustomFieldRequirement
+	var value unmarshaler
+	if err := json.Unmarshal(data, &value); err != nil {
+		return err
+	}
+	*u = UpdateCustomFieldRequirement(value)
+	extraProperties, err := internal.ExtractExtraProperties(data, *u)
+	if err != nil {
+		return err
+	}
+	u.extraProperties = extraProperties
+	u.rawJSON = json.RawMessage(data)
+	return nil
+}
+
+func (u *UpdateCustomFieldRequirement) MarshalJSON() ([]byte, error) {
+	type embed UpdateCustomFieldRequirement
+	var marshaler = struct {
+		embed
+	}{
+		embed: embed(*u),
+	}
+	explicitMarshaler := internal.HandleExplicitFields(marshaler, u.explicitFields)
+	return json.Marshal(explicitMarshaler)
+}
+
+func (u *UpdateCustomFieldRequirement) String() string {
+	if u == nil {
+		return "<nil>"
+	}
+	if len(u.rawJSON) > 0 {
+		if value, err := internal.StringifyJSON(u.rawJSON); err == nil {
+			return value
+		}
+	}
+	if value, err := internal.StringifyJSON(u); err == nil {
+		return value
+	}
+	return fmt.Sprintf("%#v", u)
+}
+
+// When the custom field is required. "required_for_closed" requires it when closing an issue (only issues that match filter, when set), and "required_under_certain_conditions" requires it on issues that match filter, which is then required. Both are only supported on issue fields, issue and feature request fields can't be changed to "required", and filter isn't allowed with the other settings.
+type UpdateCustomFieldRequirementSetting string
+
+const (
+	UpdateCustomFieldRequirementSettingNotRequired                    UpdateCustomFieldRequirementSetting = "not_required"
+	UpdateCustomFieldRequirementSettingRequired                       UpdateCustomFieldRequirementSetting = "required"
+	UpdateCustomFieldRequirementSettingRequiredForClosed              UpdateCustomFieldRequirementSetting = "required_for_closed"
+	UpdateCustomFieldRequirementSettingRequiredUnderCertainConditions UpdateCustomFieldRequirementSetting = "required_under_certain_conditions"
+)
+
+func NewUpdateCustomFieldRequirementSettingFromString(s string) (UpdateCustomFieldRequirementSetting, error) {
+	switch s {
+	case "not_required":
+		return UpdateCustomFieldRequirementSettingNotRequired, nil
+	case "required":
+		return UpdateCustomFieldRequirementSettingRequired, nil
+	case "required_for_closed":
+		return UpdateCustomFieldRequirementSettingRequiredForClosed, nil
+	case "required_under_certain_conditions":
+		return UpdateCustomFieldRequirementSettingRequiredUnderCertainConditions, nil
+	}
+	var t UpdateCustomFieldRequirementSetting
+	return "", fmt.Errorf("%s is not a valid %T", s, t)
+}
+
+func (u UpdateCustomFieldRequirementSetting) Ptr() *UpdateCustomFieldRequirementSetting {
+	return &u
+}
+
+var (
 	updateCustomFieldResponseBodyFieldData      = big.NewInt(1 << 0)
 	updateCustomFieldResponseBodyFieldRequestID = big.NewInt(1 << 1)
 )
@@ -1202,17 +1738,18 @@ func (u *UpdateCustomFieldResponseBody) String() string {
 	return fmt.Sprintf("%#v", u)
 }
 
-// The object type of the custom field. Can be "account", "issue", "contact", "task", "project", "meeting", or "opportunity".
+// The object type of the custom field. Can be "account", "issue", "contact", "task", "project", "meeting", "opportunity", or "feature_request".
 type CreateCustomFieldRequestBodyObjectType string
 
 const (
-	CreateCustomFieldRequestBodyObjectTypeAccount     CreateCustomFieldRequestBodyObjectType = "account"
-	CreateCustomFieldRequestBodyObjectTypeIssue       CreateCustomFieldRequestBodyObjectType = "issue"
-	CreateCustomFieldRequestBodyObjectTypeContact     CreateCustomFieldRequestBodyObjectType = "contact"
-	CreateCustomFieldRequestBodyObjectTypeTask        CreateCustomFieldRequestBodyObjectType = "task"
-	CreateCustomFieldRequestBodyObjectTypeProject     CreateCustomFieldRequestBodyObjectType = "project"
-	CreateCustomFieldRequestBodyObjectTypeMeeting     CreateCustomFieldRequestBodyObjectType = "meeting"
-	CreateCustomFieldRequestBodyObjectTypeOpportunity CreateCustomFieldRequestBodyObjectType = "opportunity"
+	CreateCustomFieldRequestBodyObjectTypeAccount        CreateCustomFieldRequestBodyObjectType = "account"
+	CreateCustomFieldRequestBodyObjectTypeIssue          CreateCustomFieldRequestBodyObjectType = "issue"
+	CreateCustomFieldRequestBodyObjectTypeContact        CreateCustomFieldRequestBodyObjectType = "contact"
+	CreateCustomFieldRequestBodyObjectTypeTask           CreateCustomFieldRequestBodyObjectType = "task"
+	CreateCustomFieldRequestBodyObjectTypeProject        CreateCustomFieldRequestBodyObjectType = "project"
+	CreateCustomFieldRequestBodyObjectTypeMeeting        CreateCustomFieldRequestBodyObjectType = "meeting"
+	CreateCustomFieldRequestBodyObjectTypeOpportunity    CreateCustomFieldRequestBodyObjectType = "opportunity"
+	CreateCustomFieldRequestBodyObjectTypeFeatureRequest CreateCustomFieldRequestBodyObjectType = "feature_request"
 )
 
 func NewCreateCustomFieldRequestBodyObjectTypeFromString(s string) (CreateCustomFieldRequestBodyObjectType, error) {
@@ -1231,6 +1768,8 @@ func NewCreateCustomFieldRequestBodyObjectTypeFromString(s string) (CreateCustom
 		return CreateCustomFieldRequestBodyObjectTypeMeeting, nil
 	case "opportunity":
 		return CreateCustomFieldRequestBodyObjectTypeOpportunity, nil
+	case "feature_request":
+		return CreateCustomFieldRequestBodyObjectTypeFeatureRequest, nil
 	}
 	var t CreateCustomFieldRequestBodyObjectType
 	return "", fmt.Errorf("%s is not a valid %T", s, t)
@@ -1243,13 +1782,14 @@ func (c CreateCustomFieldRequestBodyObjectType) Ptr() *CreateCustomFieldRequestB
 type ListCustomFieldsRequestObjectType string
 
 const (
-	ListCustomFieldsRequestObjectTypeAccount     ListCustomFieldsRequestObjectType = "account"
-	ListCustomFieldsRequestObjectTypeIssue       ListCustomFieldsRequestObjectType = "issue"
-	ListCustomFieldsRequestObjectTypeContact     ListCustomFieldsRequestObjectType = "contact"
-	ListCustomFieldsRequestObjectTypeTask        ListCustomFieldsRequestObjectType = "task"
-	ListCustomFieldsRequestObjectTypeProject     ListCustomFieldsRequestObjectType = "project"
-	ListCustomFieldsRequestObjectTypeMeeting     ListCustomFieldsRequestObjectType = "meeting"
-	ListCustomFieldsRequestObjectTypeOpportunity ListCustomFieldsRequestObjectType = "opportunity"
+	ListCustomFieldsRequestObjectTypeAccount        ListCustomFieldsRequestObjectType = "account"
+	ListCustomFieldsRequestObjectTypeIssue          ListCustomFieldsRequestObjectType = "issue"
+	ListCustomFieldsRequestObjectTypeContact        ListCustomFieldsRequestObjectType = "contact"
+	ListCustomFieldsRequestObjectTypeTask           ListCustomFieldsRequestObjectType = "task"
+	ListCustomFieldsRequestObjectTypeProject        ListCustomFieldsRequestObjectType = "project"
+	ListCustomFieldsRequestObjectTypeMeeting        ListCustomFieldsRequestObjectType = "meeting"
+	ListCustomFieldsRequestObjectTypeOpportunity    ListCustomFieldsRequestObjectType = "opportunity"
+	ListCustomFieldsRequestObjectTypeFeatureRequest ListCustomFieldsRequestObjectType = "feature_request"
 )
 
 func NewListCustomFieldsRequestObjectTypeFromString(s string) (ListCustomFieldsRequestObjectType, error) {
@@ -1268,6 +1808,8 @@ func NewListCustomFieldsRequestObjectTypeFromString(s string) (ListCustomFieldsR
 		return ListCustomFieldsRequestObjectTypeMeeting, nil
 	case "opportunity":
 		return ListCustomFieldsRequestObjectTypeOpportunity, nil
+	case "feature_request":
+		return ListCustomFieldsRequestObjectTypeFeatureRequest, nil
 	}
 	var t ListCustomFieldsRequestObjectType
 	return "", fmt.Errorf("%s is not a valid %T", s, t)
@@ -1278,30 +1820,47 @@ func (l ListCustomFieldsRequestObjectType) Ptr() *ListCustomFieldsRequestObjectT
 }
 
 var (
-	customFieldsUpdateRequestFieldID            = big.NewInt(1 << 0)
-	customFieldsUpdateRequestFieldDefaultValue  = big.NewInt(1 << 1)
-	customFieldsUpdateRequestFieldDefaultValues = big.NewInt(1 << 2)
-	customFieldsUpdateRequestFieldDescription   = big.NewInt(1 << 3)
-	customFieldsUpdateRequestFieldLabel         = big.NewInt(1 << 4)
-	customFieldsUpdateRequestFieldSelectOptions = big.NewInt(1 << 5)
-	customFieldsUpdateRequestFieldSlug          = big.NewInt(1 << 6)
+	customFieldsUpdateRequestFieldID                 = big.NewInt(1 << 0)
+	customFieldsUpdateRequestFieldAddSelectOptions   = big.NewInt(1 << 1)
+	customFieldsUpdateRequestFieldDefaultValue       = big.NewInt(1 << 2)
+	customFieldsUpdateRequestFieldDefaultValues      = big.NewInt(1 << 3)
+	customFieldsUpdateRequestFieldDescription        = big.NewInt(1 << 4)
+	customFieldsUpdateRequestFieldInstructions       = big.NewInt(1 << 5)
+	customFieldsUpdateRequestFieldIsAiEnabled        = big.NewInt(1 << 6)
+	customFieldsUpdateRequestFieldLabel              = big.NewInt(1 << 7)
+	customFieldsUpdateRequestFieldOptionDescriptions = big.NewInt(1 << 8)
+	customFieldsUpdateRequestFieldRequirement        = big.NewInt(1 << 9)
+	customFieldsUpdateRequestFieldSelectOptions      = big.NewInt(1 << 10)
+	customFieldsUpdateRequestFieldSlug               = big.NewInt(1 << 11)
+	customFieldsUpdateRequestFieldVisibleByDefault   = big.NewInt(1 << 12)
 )
 
 type CustomFieldsUpdateRequest struct {
 	// The ID of the custom field.
 	ID string `json:"-" url:"-"`
+	// Options to add without replacing existing options or changing existing labels and AI criteria. Cannot be combined with select_options.
+	AddSelectOptions []*CustomFieldDefinitionSelectOption `json:"add_select_options,omitempty" url:"-"`
 	// The default value for single-valued custom fields.
 	DefaultValue *string `json:"default_value,omitempty" url:"-"`
 	// The default values for multi-valued custom fields.
 	DefaultValues []string `json:"default_values,omitempty" url:"-"`
 	// The description of the custom field.
 	Description *string `json:"description,omitempty" url:"-"`
+	// Field-wide instructions for how AI should populate the field. An empty string clears saved instructions when AI is disabled.
+	Instructions *string `json:"instructions,omitempty" url:"-"`
+	// Whether AI should populate the field. Omit to preserve the current setting.
+	IsAiEnabled *bool `json:"is_ai_enabled,omitempty" url:"-"`
 	// The label of the custom field.
 	Label *string `json:"label,omitempty" url:"-"`
+	// AI selection criteria keyed by exact option slug. Omitted options are preserved; an empty string clears an option's criteria.
+	OptionDescriptions map[string]string             `json:"option_descriptions,omitempty" url:"-"`
+	Requirement        *UpdateCustomFieldRequirement `json:"requirement,omitempty" url:"-"`
 	// The complete list of options for a select or multiselect custom field. Options missing from the list are deleted and their stored values are cleared asynchronously. Prefer the dedicated select option endpoints, which can rename an option without losing stored values.
 	SelectOptions []*CustomFieldDefinitionSelectOption `json:"select_options,omitempty" url:"-"`
 	// The slug of the custom field.
 	Slug *string `json:"slug,omitempty" url:"-"`
+	// Whether the custom field shows on records in Pylon by default. When false, it shows only where a field visibility condition makes it visible. Omit to keep the current setting.
+	VisibleByDefault *bool `json:"visible_by_default,omitempty" url:"-"`
 
 	// Private bitmask of fields set to an explicit value and therefore not to be omitted
 	explicitFields *big.Int `json:"-" url:"-"`
@@ -1321,6 +1880,13 @@ func (c *CustomFieldsUpdateRequest) require(field *big.Int) {
 func (c *CustomFieldsUpdateRequest) SetID(id string) {
 	c.ID = id
 	c.require(customFieldsUpdateRequestFieldID)
+}
+
+// SetAddSelectOptions sets the AddSelectOptions field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (c *CustomFieldsUpdateRequest) SetAddSelectOptions(addSelectOptions []*CustomFieldDefinitionSelectOption) {
+	c.AddSelectOptions = addSelectOptions
+	c.require(customFieldsUpdateRequestFieldAddSelectOptions)
 }
 
 // SetDefaultValue sets the DefaultValue field and marks it as non-optional;
@@ -1344,11 +1910,39 @@ func (c *CustomFieldsUpdateRequest) SetDescription(description *string) {
 	c.require(customFieldsUpdateRequestFieldDescription)
 }
 
+// SetInstructions sets the Instructions field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (c *CustomFieldsUpdateRequest) SetInstructions(instructions *string) {
+	c.Instructions = instructions
+	c.require(customFieldsUpdateRequestFieldInstructions)
+}
+
+// SetIsAiEnabled sets the IsAiEnabled field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (c *CustomFieldsUpdateRequest) SetIsAiEnabled(isAiEnabled *bool) {
+	c.IsAiEnabled = isAiEnabled
+	c.require(customFieldsUpdateRequestFieldIsAiEnabled)
+}
+
 // SetLabel sets the Label field and marks it as non-optional;
 // this prevents an empty or null value for this field from being omitted during serialization.
 func (c *CustomFieldsUpdateRequest) SetLabel(label *string) {
 	c.Label = label
 	c.require(customFieldsUpdateRequestFieldLabel)
+}
+
+// SetOptionDescriptions sets the OptionDescriptions field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (c *CustomFieldsUpdateRequest) SetOptionDescriptions(optionDescriptions map[string]string) {
+	c.OptionDescriptions = optionDescriptions
+	c.require(customFieldsUpdateRequestFieldOptionDescriptions)
+}
+
+// SetRequirement sets the Requirement field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (c *CustomFieldsUpdateRequest) SetRequirement(requirement *UpdateCustomFieldRequirement) {
+	c.Requirement = requirement
+	c.require(customFieldsUpdateRequestFieldRequirement)
 }
 
 // SetSelectOptions sets the SelectOptions field and marks it as non-optional;
@@ -1363,6 +1957,13 @@ func (c *CustomFieldsUpdateRequest) SetSelectOptions(selectOptions []*CustomFiel
 func (c *CustomFieldsUpdateRequest) SetSlug(slug *string) {
 	c.Slug = slug
 	c.require(customFieldsUpdateRequestFieldSlug)
+}
+
+// SetVisibleByDefault sets the VisibleByDefault field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (c *CustomFieldsUpdateRequest) SetVisibleByDefault(visibleByDefault *bool) {
+	c.VisibleByDefault = visibleByDefault
+	c.require(customFieldsUpdateRequestFieldVisibleByDefault)
 }
 
 func (c *CustomFieldsUpdateRequest) UnmarshalJSON(data []byte) error {

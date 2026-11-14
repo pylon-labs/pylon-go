@@ -192,7 +192,7 @@ type EmailSuppression struct {
 	ID string `json:"id" url:"id"`
 	// Why the address is suppressed.
 	//
-	// Known values: `hard_bounce`, `manual`. This list is not exhaustive.
+	// Known values: `hard_bounce`, `manual`, `spam_complaint`. This list is not exhaustive.
 	Reason string `json:"reason" url:"reason"`
 
 	// Private bitmask of fields set to an explicit value and therefore not to be omitted

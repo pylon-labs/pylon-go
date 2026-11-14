@@ -1151,6 +1151,14 @@ func TestSettersKnowledgeBasesArticlesUpdateRequest(t *testing.T) {
 		assert.NotNil(t, obj.explicitFields)
 	})
 
+	t.Run("SetTagsApplyMode", func(t *testing.T) {
+		obj := &KnowledgeBasesArticlesUpdateRequest{}
+		var fernTestValueTagsApplyMode *UpdateArticleRequestBodyTagsApplyMode
+		obj.SetTagsApplyMode(fernTestValueTagsApplyMode)
+		assert.Equal(t, fernTestValueTagsApplyMode, obj.TagsApplyMode)
+		assert.NotNil(t, obj.explicitFields)
+	})
+
 	t.Run("SetTitle", func(t *testing.T) {
 		obj := &KnowledgeBasesArticlesUpdateRequest{}
 		var fernTestValueTitle *string
@@ -1542,6 +1550,37 @@ func TestSettersMarkExplicitKnowledgeBasesArticlesUpdateRequest(t *testing.T) {
 		// It verifies that setting a field via setter allows successful JSON round-trip
 	})
 
+	t.Run("SetTagsApplyMode_MarksExplicit", func(t *testing.T) {
+		t.Parallel()
+		// Arrange
+		obj := &KnowledgeBasesArticlesUpdateRequest{}
+		var fernTestValueTagsApplyMode *UpdateArticleRequestBodyTagsApplyMode
+
+		// Act
+		obj.SetTagsApplyMode(fernTestValueTagsApplyMode)
+
+		// Assert - object with explicitly set field can be marshaled/unmarshaled
+		bytes, err := json.Marshal(obj)
+		require.NoError(t, err, "marshaling should succeed for test setup")
+
+		// This test ensures JSON marshaling and unmarshaling succeed when the field has a zero/nil value
+		// Detect if marshaled JSON is an object or primitive to use correct unmarshal target
+		if len(bytes) > 0 && bytes[0] == '{' {
+			// JSON object - unmarshal into map
+			var unmarshaled map[string]interface{}
+			err = json.Unmarshal(bytes, &unmarshaled)
+			require.NoError(t, err, "unmarshaling should succeed for test verification")
+		} else {
+			// JSON primitive (string, number, boolean, null) - unmarshal into interface{}
+			var unmarshaled interface{}
+			err = json.Unmarshal(bytes, &unmarshaled)
+			require.NoError(t, err, "unmarshaling should succeed for test verification")
+		}
+
+		// Note: This does not explicitly assert the presence of a specific JSON field
+		// It verifies that setting a field via setter allows successful JSON round-trip
+	})
+
 	t.Run("SetTitle_MarksExplicit", func(t *testing.T) {
 		t.Parallel()
 		// Arrange
@@ -1628,6 +1667,42 @@ func TestEnumListArticlesRequestMedia(t *testing.T) {
 
 	t.Run("Ptr", func(t *testing.T) {
 		val, err := NewListArticlesRequestMediaFromString("all")
+		assert.NoError(t, err)
+		ptr := val.Ptr()
+		assert.NotNil(t, ptr)
+		assert.Equal(t, val, *ptr)
+	})
+}
+
+func TestEnumUpdateArticleRequestBodyTagsApplyMode(t *testing.T) {
+	t.Run("NewFromString_append_only", func(t *testing.T) {
+		t.Parallel()
+		val, err := NewUpdateArticleRequestBodyTagsApplyModeFromString("append_only")
+		assert.NoError(t, err, "valid enum value should not return error")
+		assert.Equal(t, UpdateArticleRequestBodyTagsApplyMode("append_only"), val, "enum value should match expected wire value")
+	})
+
+	t.Run("NewFromString_remove_only", func(t *testing.T) {
+		t.Parallel()
+		val, err := NewUpdateArticleRequestBodyTagsApplyModeFromString("remove_only")
+		assert.NoError(t, err, "valid enum value should not return error")
+		assert.Equal(t, UpdateArticleRequestBodyTagsApplyMode("remove_only"), val, "enum value should match expected wire value")
+	})
+
+	t.Run("NewFromString_replace", func(t *testing.T) {
+		t.Parallel()
+		val, err := NewUpdateArticleRequestBodyTagsApplyModeFromString("replace")
+		assert.NoError(t, err, "valid enum value should not return error")
+		assert.Equal(t, UpdateArticleRequestBodyTagsApplyMode("replace"), val, "enum value should match expected wire value")
+	})
+
+	t.Run("NewFromString_Invalid", func(t *testing.T) {
+		_, err := NewUpdateArticleRequestBodyTagsApplyModeFromString("invalid_value_that_does_not_exist")
+		assert.Error(t, err)
+	})
+
+	t.Run("Ptr", func(t *testing.T) {
+		val, err := NewUpdateArticleRequestBodyTagsApplyModeFromString("append_only")
 		assert.NoError(t, err)
 		ptr := val.Ptr()
 		assert.NotNil(t, ptr)

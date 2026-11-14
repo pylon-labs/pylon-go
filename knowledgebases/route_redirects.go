@@ -23,9 +23,9 @@ type KnowledgeBasesRouteRedirectsCreateRequest struct {
 	FromPath string `json:"from_path" url:"-"`
 	// Language of the object to redirect to. If not specified, the default language of the knowledge base will be used.
 	Language *string `json:"language,omitempty" url:"-"`
-	// The ID of the object to redirect to.
-	ObjectID string `json:"object_id" url:"-"`
-	// The type of the object to redirect to. Must be "article" or "collection".
+	// The ID of the article or collection to redirect to. Omit when object_type is "knowledgebase".
+	ObjectID *string `json:"object_id,omitempty" url:"-"`
+	// The type of the object to redirect to: "article", "collection", or "knowledgebase" for the knowledge base homepage.
 	ObjectType string `json:"object_type" url:"-"`
 
 	// Private bitmask of fields set to an explicit value and therefore not to be omitted
@@ -64,7 +64,7 @@ func (k *KnowledgeBasesRouteRedirectsCreateRequest) SetLanguage(language *string
 
 // SetObjectID sets the ObjectID field and marks it as non-optional;
 // this prevents an empty or null value for this field from being omitted during serialization.
-func (k *KnowledgeBasesRouteRedirectsCreateRequest) SetObjectID(objectID string) {
+func (k *KnowledgeBasesRouteRedirectsCreateRequest) SetObjectID(objectID *string) {
 	k.ObjectID = objectID
 	k.require(knowledgeBasesRouteRedirectsCreateRequestFieldObjectID)
 }
@@ -95,4 +95,70 @@ func (k *KnowledgeBasesRouteRedirectsCreateRequest) MarshalJSON() ([]byte, error
 	}
 	explicitMarshaler := internal.HandleExplicitFields(marshaler, k.explicitFields)
 	return json.Marshal(explicitMarshaler)
+}
+
+var (
+	knowledgeBasesRouteRedirectsDeleteRequestFieldKnowledgeBaseID = big.NewInt(1 << 0)
+	knowledgeBasesRouteRedirectsDeleteRequestFieldRedirectID      = big.NewInt(1 << 1)
+)
+
+type KnowledgeBasesRouteRedirectsDeleteRequest struct {
+	// The ID of the knowledge base.
+	KnowledgeBaseID string `json:"-" url:"-"`
+	// The ID of the route redirect.
+	RedirectID string `json:"-" url:"-"`
+
+	// Private bitmask of fields set to an explicit value and therefore not to be omitted
+	explicitFields *big.Int `json:"-" url:"-"`
+}
+
+func (k *KnowledgeBasesRouteRedirectsDeleteRequest) require(field *big.Int) {
+	next := new(big.Int)
+	if k.explicitFields != nil {
+		next.Set(k.explicitFields)
+	}
+	next.Or(next, field)
+	k.explicitFields = next
+}
+
+// SetKnowledgeBaseID sets the KnowledgeBaseID field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (k *KnowledgeBasesRouteRedirectsDeleteRequest) SetKnowledgeBaseID(knowledgeBaseID string) {
+	k.KnowledgeBaseID = knowledgeBaseID
+	k.require(knowledgeBasesRouteRedirectsDeleteRequestFieldKnowledgeBaseID)
+}
+
+// SetRedirectID sets the RedirectID field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (k *KnowledgeBasesRouteRedirectsDeleteRequest) SetRedirectID(redirectID string) {
+	k.RedirectID = redirectID
+	k.require(knowledgeBasesRouteRedirectsDeleteRequestFieldRedirectID)
+}
+
+var (
+	knowledgeBasesRouteRedirectsListRequestFieldKnowledgeBaseID = big.NewInt(1 << 0)
+)
+
+type KnowledgeBasesRouteRedirectsListRequest struct {
+	// The ID of the knowledge base.
+	KnowledgeBaseID string `json:"-" url:"-"`
+
+	// Private bitmask of fields set to an explicit value and therefore not to be omitted
+	explicitFields *big.Int `json:"-" url:"-"`
+}
+
+func (k *KnowledgeBasesRouteRedirectsListRequest) require(field *big.Int) {
+	next := new(big.Int)
+	if k.explicitFields != nil {
+		next.Set(k.explicitFields)
+	}
+	next.Or(next, field)
+	k.explicitFields = next
+}
+
+// SetKnowledgeBaseID sets the KnowledgeBaseID field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (k *KnowledgeBasesRouteRedirectsListRequest) SetKnowledgeBaseID(knowledgeBaseID string) {
+	k.KnowledgeBaseID = knowledgeBaseID
+	k.require(knowledgeBasesRouteRedirectsListRequestFieldKnowledgeBaseID)
 }

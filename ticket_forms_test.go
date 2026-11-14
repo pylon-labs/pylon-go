@@ -1011,6 +1011,14 @@ func TestSettersMarkExplicitSubmitTicketFormResponseBody(t *testing.T) {
 }
 
 func TestSettersTicketForm(t *testing.T) {
+	t.Run("SetAiSearchEnabled", func(t *testing.T) {
+		obj := &TicketForm{}
+		var fernTestValueAiSearchEnabled bool
+		obj.SetAiSearchEnabled(fernTestValueAiSearchEnabled)
+		assert.Equal(t, fernTestValueAiSearchEnabled, obj.AiSearchEnabled)
+		assert.NotNil(t, obj.explicitFields)
+	})
+
 	t.Run("SetDescriptionHTML", func(t *testing.T) {
 		obj := &TicketForm{}
 		var fernTestValueDescriptionHTML string
@@ -1070,6 +1078,29 @@ func TestSettersTicketForm(t *testing.T) {
 }
 
 func TestGettersTicketForm(t *testing.T) {
+	t.Run("GetAiSearchEnabled", func(t *testing.T) {
+		t.Parallel()
+		// Arrange
+		obj := &TicketForm{}
+		var expected bool
+		obj.AiSearchEnabled = expected
+
+		// Act & Assert
+		assert.Equal(t, expected, obj.GetAiSearchEnabled(), "getter should return the property value")
+	})
+
+	t.Run("GetAiSearchEnabled_NilReceiver", func(t *testing.T) {
+		t.Parallel()
+		var obj *TicketForm
+		// Should not panic - getters should handle nil receiver gracefully
+		defer func() {
+			if r := recover(); r != nil {
+				t.Errorf("Getter panicked on nil receiver: %v", r)
+			}
+		}()
+		_ = obj.GetAiSearchEnabled() // Should return zero value
+	})
+
 	t.Run("GetDescriptionHTML", func(t *testing.T) {
 		t.Parallel()
 		// Arrange
@@ -1244,6 +1275,37 @@ func TestGettersTicketForm(t *testing.T) {
 }
 
 func TestSettersMarkExplicitTicketForm(t *testing.T) {
+	t.Run("SetAiSearchEnabled_MarksExplicit", func(t *testing.T) {
+		t.Parallel()
+		// Arrange
+		obj := &TicketForm{}
+		var fernTestValueAiSearchEnabled bool
+
+		// Act
+		obj.SetAiSearchEnabled(fernTestValueAiSearchEnabled)
+
+		// Assert - object with explicitly set field can be marshaled/unmarshaled
+		bytes, err := json.Marshal(obj)
+		require.NoError(t, err, "marshaling should succeed for test setup")
+
+		// This test ensures JSON marshaling and unmarshaling succeed when the field has a zero/nil value
+		// Detect if marshaled JSON is an object or primitive to use correct unmarshal target
+		if len(bytes) > 0 && bytes[0] == '{' {
+			// JSON object - unmarshal into map
+			var unmarshaled map[string]interface{}
+			err = json.Unmarshal(bytes, &unmarshaled)
+			require.NoError(t, err, "unmarshaling should succeed for test verification")
+		} else {
+			// JSON primitive (string, number, boolean, null) - unmarshal into interface{}
+			var unmarshaled interface{}
+			err = json.Unmarshal(bytes, &unmarshaled)
+			require.NoError(t, err, "unmarshaling should succeed for test verification")
+		}
+
+		// Note: This does not explicitly assert the presence of a specific JSON field
+		// It verifies that setting a field via setter allows successful JSON round-trip
+	})
+
 	t.Run("SetDescriptionHTML_MarksExplicit", func(t *testing.T) {
 		t.Parallel()
 		// Arrange

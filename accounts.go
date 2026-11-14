@@ -374,6 +374,34 @@ func (a *AccountsListRequest) SetLimit(limit *int64) {
 }
 
 var (
+	accountsListFilesRequestFieldAccountID = big.NewInt(1 << 0)
+)
+
+type AccountsListFilesRequest struct {
+	// The ID or external ID of the account.
+	AccountID string `json:"-" url:"-"`
+
+	// Private bitmask of fields set to an explicit value and therefore not to be omitted
+	explicitFields *big.Int `json:"-" url:"-"`
+}
+
+func (a *AccountsListFilesRequest) require(field *big.Int) {
+	next := new(big.Int)
+	if a.explicitFields != nil {
+		next.Set(a.explicitFields)
+	}
+	next.Or(next, field)
+	a.explicitFields = next
+}
+
+// SetAccountID sets the AccountID field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (a *AccountsListFilesRequest) SetAccountID(accountID string) {
+	a.AccountID = accountID
+	a.require(accountsListFilesRequestFieldAccountID)
+}
+
+var (
 	accountsMergeRequestFieldMergeAccountIDs    = big.NewInt(1 << 0)
 	accountsMergeRequestFieldMergeIntoAccountID = big.NewInt(1 << 1)
 )
@@ -981,6 +1009,190 @@ func (a *Account) String() string {
 }
 
 var (
+	accountFileFieldCreatedAt = big.NewInt(1 << 0)
+	accountFileFieldFileType  = big.NewInt(1 << 1)
+	accountFileFieldID        = big.NewInt(1 << 2)
+	accountFileFieldName      = big.NewInt(1 << 3)
+	accountFileFieldUpdatedAt = big.NewInt(1 << 4)
+	accountFileFieldURL       = big.NewInt(1 << 5)
+)
+
+type AccountFile struct {
+	// When the file was uploaded, in RFC 3339 format.
+	CreatedAt time.Time `json:"created_at" url:"created_at"`
+	// The file's MIME type.
+	FileType string `json:"file_type" url:"file_type"`
+	// The ID of the file.
+	ID string `json:"id" url:"id"`
+	// The file name.
+	Name string `json:"name" url:"name"`
+	// When the file was last replaced or renamed, in RFC 3339 format.
+	UpdatedAt time.Time `json:"updated_at" url:"updated_at"`
+	// The URL to download the file from.
+	URL string `json:"url" url:"url"`
+
+	// Private bitmask of fields set to an explicit value and therefore not to be omitted
+	explicitFields *big.Int `json:"-" url:"-"`
+
+	extraProperties map[string]interface{}
+	rawJSON         json.RawMessage
+}
+
+func (a *AccountFile) GetCreatedAt() time.Time {
+	if a == nil {
+		return time.Time{}
+	}
+	return a.CreatedAt
+}
+
+func (a *AccountFile) GetFileType() string {
+	if a == nil {
+		return ""
+	}
+	return a.FileType
+}
+
+func (a *AccountFile) GetID() string {
+	if a == nil {
+		return ""
+	}
+	return a.ID
+}
+
+func (a *AccountFile) GetName() string {
+	if a == nil {
+		return ""
+	}
+	return a.Name
+}
+
+func (a *AccountFile) GetUpdatedAt() time.Time {
+	if a == nil {
+		return time.Time{}
+	}
+	return a.UpdatedAt
+}
+
+func (a *AccountFile) GetURL() string {
+	if a == nil {
+		return ""
+	}
+	return a.URL
+}
+
+func (a *AccountFile) GetExtraProperties() map[string]interface{} {
+	if a == nil {
+		return nil
+	}
+	return a.extraProperties
+}
+
+func (a *AccountFile) require(field *big.Int) {
+	next := new(big.Int)
+	if a.explicitFields != nil {
+		next.Set(a.explicitFields)
+	}
+	next.Or(next, field)
+	a.explicitFields = next
+}
+
+// SetCreatedAt sets the CreatedAt field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (a *AccountFile) SetCreatedAt(createdAt time.Time) {
+	a.CreatedAt = createdAt
+	a.require(accountFileFieldCreatedAt)
+}
+
+// SetFileType sets the FileType field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (a *AccountFile) SetFileType(fileType string) {
+	a.FileType = fileType
+	a.require(accountFileFieldFileType)
+}
+
+// SetID sets the ID field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (a *AccountFile) SetID(id string) {
+	a.ID = id
+	a.require(accountFileFieldID)
+}
+
+// SetName sets the Name field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (a *AccountFile) SetName(name string) {
+	a.Name = name
+	a.require(accountFileFieldName)
+}
+
+// SetUpdatedAt sets the UpdatedAt field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (a *AccountFile) SetUpdatedAt(updatedAt time.Time) {
+	a.UpdatedAt = updatedAt
+	a.require(accountFileFieldUpdatedAt)
+}
+
+// SetURL sets the URL field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (a *AccountFile) SetURL(url string) {
+	a.URL = url
+	a.require(accountFileFieldURL)
+}
+
+func (a *AccountFile) UnmarshalJSON(data []byte) error {
+	type embed AccountFile
+	var unmarshaler = struct {
+		embed
+		CreatedAt *internal.DateTime `json:"created_at"`
+		UpdatedAt *internal.DateTime `json:"updated_at"`
+	}{
+		embed: embed(*a),
+	}
+	if err := json.Unmarshal(data, &unmarshaler); err != nil {
+		return err
+	}
+	*a = AccountFile(unmarshaler.embed)
+	a.CreatedAt = unmarshaler.CreatedAt.Time()
+	a.UpdatedAt = unmarshaler.UpdatedAt.Time()
+	extraProperties, err := internal.ExtractExtraProperties(data, *a)
+	if err != nil {
+		return err
+	}
+	a.extraProperties = extraProperties
+	a.rawJSON = json.RawMessage(data)
+	return nil
+}
+
+func (a *AccountFile) MarshalJSON() ([]byte, error) {
+	type embed AccountFile
+	var marshaler = struct {
+		embed
+		CreatedAt *internal.DateTime `json:"created_at"`
+		UpdatedAt *internal.DateTime `json:"updated_at"`
+	}{
+		embed:     embed(*a),
+		CreatedAt: internal.NewDateTime(a.CreatedAt),
+		UpdatedAt: internal.NewDateTime(a.UpdatedAt),
+	}
+	explicitMarshaler := internal.HandleExplicitFields(marshaler, a.explicitFields)
+	return json.Marshal(explicitMarshaler)
+}
+
+func (a *AccountFile) String() string {
+	if a == nil {
+		return "<nil>"
+	}
+	if len(a.rawJSON) > 0 {
+		if value, err := internal.StringifyJSON(a.rawJSON); err == nil {
+			return value
+		}
+	}
+	if value, err := internal.StringifyJSON(a); err == nil {
+		return value
+	}
+	return fmt.Sprintf("%#v", a)
+}
+
+var (
 	channelFieldChannelID   = big.NewInt(1 << 0)
 	channelFieldChannelName = big.NewInt(1 << 1)
 	channelFieldChannelURL  = big.NewInt(1 << 2)
@@ -1547,6 +1759,110 @@ func (d *DeleteAccountResponseBody) String() string {
 		return value
 	}
 	return fmt.Sprintf("%#v", d)
+}
+
+var (
+	getAccountFilesResponseBodyFieldData      = big.NewInt(1 << 0)
+	getAccountFilesResponseBodyFieldRequestID = big.NewInt(1 << 1)
+)
+
+type GetAccountFilesResponseBody struct {
+	// The data payload of the response.
+	Data []*AccountFile `json:"data" url:"data"`
+	// The request ID for tracking.
+	RequestID string `json:"request_id" url:"request_id"`
+
+	// Private bitmask of fields set to an explicit value and therefore not to be omitted
+	explicitFields *big.Int `json:"-" url:"-"`
+
+	extraProperties map[string]interface{}
+	rawJSON         json.RawMessage
+}
+
+func (g *GetAccountFilesResponseBody) GetData() []*AccountFile {
+	if g == nil {
+		return nil
+	}
+	return g.Data
+}
+
+func (g *GetAccountFilesResponseBody) GetRequestID() string {
+	if g == nil {
+		return ""
+	}
+	return g.RequestID
+}
+
+func (g *GetAccountFilesResponseBody) GetExtraProperties() map[string]interface{} {
+	if g == nil {
+		return nil
+	}
+	return g.extraProperties
+}
+
+func (g *GetAccountFilesResponseBody) require(field *big.Int) {
+	next := new(big.Int)
+	if g.explicitFields != nil {
+		next.Set(g.explicitFields)
+	}
+	next.Or(next, field)
+	g.explicitFields = next
+}
+
+// SetData sets the Data field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (g *GetAccountFilesResponseBody) SetData(data []*AccountFile) {
+	g.Data = data
+	g.require(getAccountFilesResponseBodyFieldData)
+}
+
+// SetRequestID sets the RequestID field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (g *GetAccountFilesResponseBody) SetRequestID(requestID string) {
+	g.RequestID = requestID
+	g.require(getAccountFilesResponseBodyFieldRequestID)
+}
+
+func (g *GetAccountFilesResponseBody) UnmarshalJSON(data []byte) error {
+	type unmarshaler GetAccountFilesResponseBody
+	var value unmarshaler
+	if err := json.Unmarshal(data, &value); err != nil {
+		return err
+	}
+	*g = GetAccountFilesResponseBody(value)
+	extraProperties, err := internal.ExtractExtraProperties(data, *g)
+	if err != nil {
+		return err
+	}
+	g.extraProperties = extraProperties
+	g.rawJSON = json.RawMessage(data)
+	return nil
+}
+
+func (g *GetAccountFilesResponseBody) MarshalJSON() ([]byte, error) {
+	type embed GetAccountFilesResponseBody
+	var marshaler = struct {
+		embed
+	}{
+		embed: embed(*g),
+	}
+	explicitMarshaler := internal.HandleExplicitFields(marshaler, g.explicitFields)
+	return json.Marshal(explicitMarshaler)
+}
+
+func (g *GetAccountFilesResponseBody) String() string {
+	if g == nil {
+		return "<nil>"
+	}
+	if len(g.rawJSON) > 0 {
+		if value, err := internal.StringifyJSON(g.rawJSON); err == nil {
+			return value
+		}
+	}
+	if value, err := internal.StringifyJSON(g); err == nil {
+		return value
+	}
+	return fmt.Sprintf("%#v", g)
 }
 
 var (
@@ -2621,6 +2937,32 @@ func (u UpdateAccountRequestBodyAccountType) Ptr() *UpdateAccountRequestBodyAcco
 	return &u
 }
 
+// The mode for applying tags. Valid values: "append_only", "remove_only", "replace". Defaults to "replace".
+type UpdateAccountRequestBodyTagsApplyMode string
+
+const (
+	UpdateAccountRequestBodyTagsApplyModeAppendOnly UpdateAccountRequestBodyTagsApplyMode = "append_only"
+	UpdateAccountRequestBodyTagsApplyModeRemoveOnly UpdateAccountRequestBodyTagsApplyMode = "remove_only"
+	UpdateAccountRequestBodyTagsApplyModeReplace    UpdateAccountRequestBodyTagsApplyMode = "replace"
+)
+
+func NewUpdateAccountRequestBodyTagsApplyModeFromString(s string) (UpdateAccountRequestBodyTagsApplyMode, error) {
+	switch s {
+	case "append_only":
+		return UpdateAccountRequestBodyTagsApplyModeAppendOnly, nil
+	case "remove_only":
+		return UpdateAccountRequestBodyTagsApplyModeRemoveOnly, nil
+	case "replace":
+		return UpdateAccountRequestBodyTagsApplyModeReplace, nil
+	}
+	var t UpdateAccountRequestBodyTagsApplyMode
+	return "", fmt.Errorf("%s is not a valid %T", s, t)
+}
+
+func (u UpdateAccountRequestBodyTagsApplyMode) Ptr() *UpdateAccountRequestBodyTagsApplyMode {
+	return &u
+}
+
 // The type of the account. Can only be changed to "customer" or "partner".
 type UpdateAccountsRequestAccountType string
 
@@ -2684,6 +3026,7 @@ var (
 	accountsUpdateRequestFieldPrimaryDomain = big.NewInt(1 << 10)
 	accountsUpdateRequestFieldSubaccountIDs = big.NewInt(1 << 11)
 	accountsUpdateRequestFieldTags          = big.NewInt(1 << 12)
+	accountsUpdateRequestFieldTagsApplyMode = big.NewInt(1 << 13)
 )
 
 type AccountsUpdateRequest struct {
@@ -2711,8 +3054,10 @@ type AccountsUpdateRequest struct {
 	PrimaryDomain *string `json:"primary_domain,omitempty" url:"-"`
 	// An array of account IDs to set as this account's subaccounts. If provided, the account's subaccounts become exactly this list; accounts you leave out are detached.
 	SubaccountIDs []string `json:"subaccount_ids,omitempty" url:"-"`
-	// An array of strings to use as tags on this account. If provided, the accounts tags will be updated to the given tags.
+	// An array of strings to use as tags on this account, applied according to tags_apply_mode. By default the account's tags will be updated to the given tags.
 	Tags []string `json:"tags,omitempty" url:"-"`
+	// The mode for applying tags. Valid values: "append_only", "remove_only", "replace". Defaults to "replace".
+	TagsApplyMode *UpdateAccountRequestBodyTagsApplyMode `json:"tags_apply_mode,omitempty" url:"-"`
 
 	// Private bitmask of fields set to an explicit value and therefore not to be omitted
 	explicitFields *big.Int `json:"-" url:"-"`
@@ -2816,6 +3161,13 @@ func (a *AccountsUpdateRequest) SetSubaccountIDs(subaccountIDs []string) {
 func (a *AccountsUpdateRequest) SetTags(tags []string) {
 	a.Tags = tags
 	a.require(accountsUpdateRequestFieldTags)
+}
+
+// SetTagsApplyMode sets the TagsApplyMode field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (a *AccountsUpdateRequest) SetTagsApplyMode(tagsApplyMode *UpdateAccountRequestBodyTagsApplyMode) {
+	a.TagsApplyMode = tagsApplyMode
+	a.require(accountsUpdateRequestFieldTagsApplyMode)
 }
 
 func (a *AccountsUpdateRequest) UnmarshalJSON(data []byte) error {

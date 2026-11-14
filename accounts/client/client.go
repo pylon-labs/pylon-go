@@ -219,14 +219,58 @@ func (c *Client) Merge(
 //
 //	Field | Allowed operators |
 //	--- | --- |
-//	`id` | `equals`, `in`, `not_in` |
-//	`domains` | `contains`, `does_not_contain`, `in`, `not_in` |
-//	`tags` | `contains`, `does_not_contain`, `in`, `not_in` |
-//	`name` | `equals`, `in`, `not_in`, `string_contains` |
-//	`external_ids` | `equals`, `in`, `not_in`, `is_set`, `is_unset` |
-//	`owner_id` | `equals`, `in`, `not_in`, `is_set`, `is_unset` |
+//	`account_id` | `equals`, `in`, `not_in`, `does_not_contain`, `is_set`, `is_unset` |
+//	`created_at` | `time_is_after`, `time_is_before`, `time_range`, `time_is_in_last`, `time_is_not_in_last` |
+//	`domains` | `equals`, `contains`, `does_not_contain`, `in`, `not_in`, `string_contains`, `string_does_not_contain` |
+//	`external_channel_ids` | `equals`, `contains`, `does_not_contain`, `in`, `not_in` |
+//	`external_channel_type` | `equals`, `in`, `not_in`, `does_not_contain`, `is_set`, `is_unset` |
+//	`external_ids` | `equals`, `in`, `not_in`, `does_not_contain`, `is_set`, `is_unset` |
+//	`internal_channel_ids` | `equals`, `contains`, `does_not_contain`, `in`, `not_in` |
+//	`internal_slack_channel_id` | `equals`, `in`, `not_in`, `does_not_contain`, `string_contains`, `string_does_not_contain` |
+//	`internal_slack_channel_name` | `equals`, `in`, `not_in`, `does_not_contain`, `string_contains`, `string_does_not_contain` |
+//	`issue_count_last_90_days` | `equals` |
+//	`last_broadcast_sent_at` | `time_is_after`, `time_is_before`, `time_range`, `time_is_in_last`, `time_is_not_in_last` |
+//	`last_customer_activity_at` | `time_is_after`, `time_is_before`, `time_range`, `time_is_in_last`, `time_is_not_in_last` |
+//	`last_vendor_activity_at` | `time_is_after`, `time_is_before`, `time_range`, `time_is_in_last`, `time_is_not_in_last` |
+//	`name` | `equals`, `in`, `not_in`, `string_contains`, `contains`, `does_not_contain` |
+//	`number_of_users_in_channel` | `equals` |
+//	`owner_id` | `equals`, `in`, `not_in`, `is_set`, `is_unset`, `belongs_to`, `not_belongs_to`, `does_not_contain` |
+//	`parent_account_id` | `equals`, `in`, `not_in`, `does_not_contain`, `is_set`, `is_unset` |
+//	`partner_account_id` | `equals`, `in`, `not_in`, `does_not_contain`, `is_set`, `is_unset` |
+//	`primary_channel_id` | `equals`, `in`, `not_in`, `does_not_contain` |
+//	`primary_domain` | `equals`, `contains`, `does_not_contain`, `in`, `not_in`, `string_contains`, `string_does_not_contain`, `is_set`, `is_unset` |
+//	`slack_channel_id` | `equals`, `in`, `not_in`, `does_not_contain`, `string_contains`, `string_does_not_contain` |
+//	`slack_channel_name` | `equals`, `in`, `not_in`, `does_not_contain`, `string_contains`, `string_does_not_contain` |
+//	`source` | `equals`, `in`, `not_in`, `does_not_contain` |
+//	`state` | `equals`, `in`, `not_in`, `does_not_contain` |
+//	`tags` | `equals`, `contains`, `does_not_contain`, `in`, `not_in` |
+//	`type` | `equals`, `in`, `not_in`, `does_not_contain` |
 //
-// For custom fields, pass the field slug as `field`.
+// ### Filter syntax and operators
+//
+// See [Search filters](https://docs.usepylon.com/pylon-docs/developer/api/conventions#search-filters) for filter structure and operator definitions. The table above lists the operators supported by each field.
+//
+// ### Filter values
+//
+// Timestamp values use RFC 3339 format, such as `2026-10-01T00:00:00Z`.
+//
+//	Field | Values and behavior |
+//	--- | --- |
+//	`state` | `enabled` or `disabled`. |
+//	`name` | `contains` is an alias for `string_contains`. |
+//	`account_id` | `id` is also accepted as a field name. |
+//	`tags` | A tag name or ID. |
+//
+// ### Custom fields
+//
+// Set `field` to the custom field's slug. If a custom field has the same slug as a built-in field, the custom field is matched instead, except for these fields:
+//
+// `account_id`
+// `domains`
+// `tags`
+// `name`
+// `external_ids`
+// `owner_id`
 //
 // **Rate limit:** 120 requests per minute
 //
@@ -330,6 +374,35 @@ func (c *Client) Update(
 	opts ...option.RequestOption,
 ) (*pylon.UpdateAccountResponseBody, error) {
 	response, err := c.WithRawResponse.Update(
+		ctx,
+		request,
+		opts...,
+	)
+	if err != nil {
+		return nil, err
+	}
+	return response.Body, nil
+}
+
+// Returns the files uploaded to an account, newest first, by account ID or external ID.
+//
+// **Rate limit:** 300 requests per minute
+//
+// Example:
+//
+//	request := &pylon.AccountsListFilesRequest{
+//	    AccountID: "id",
+//	}
+//	client.Accounts.ListFiles(
+//	    context.TODO(),
+//	    request,
+//	)
+func (c *Client) ListFiles(
+	ctx context.Context,
+	request *pylon.AccountsListFilesRequest,
+	opts ...option.RequestOption,
+) (*pylon.GetAccountFilesResponseBody, error) {
+	response, err := c.WithRawResponse.ListFiles(
 		ctx,
 		request,
 		opts...,

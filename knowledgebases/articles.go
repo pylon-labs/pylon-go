@@ -423,6 +423,32 @@ func (l ListArticlesRequestMedia) Ptr() *ListArticlesRequestMedia {
 	return &l
 }
 
+// The mode for applying tag_ids. Valid values: "append_only", "remove_only", "replace". Defaults to "replace".
+type UpdateArticleRequestBodyTagsApplyMode string
+
+const (
+	UpdateArticleRequestBodyTagsApplyModeAppendOnly UpdateArticleRequestBodyTagsApplyMode = "append_only"
+	UpdateArticleRequestBodyTagsApplyModeRemoveOnly UpdateArticleRequestBodyTagsApplyMode = "remove_only"
+	UpdateArticleRequestBodyTagsApplyModeReplace    UpdateArticleRequestBodyTagsApplyMode = "replace"
+)
+
+func NewUpdateArticleRequestBodyTagsApplyModeFromString(s string) (UpdateArticleRequestBodyTagsApplyMode, error) {
+	switch s {
+	case "append_only":
+		return UpdateArticleRequestBodyTagsApplyModeAppendOnly, nil
+	case "remove_only":
+		return UpdateArticleRequestBodyTagsApplyModeRemoveOnly, nil
+	case "replace":
+		return UpdateArticleRequestBodyTagsApplyModeReplace, nil
+	}
+	var t UpdateArticleRequestBodyTagsApplyMode
+	return "", fmt.Errorf("%s is not a valid %T", s, t)
+}
+
+func (u UpdateArticleRequestBodyTagsApplyMode) Ptr() *UpdateArticleRequestBodyTagsApplyMode {
+	return &u
+}
+
 var (
 	knowledgeBasesArticlesUpdateRequestFieldKnowledgeBaseID        = big.NewInt(1 << 0)
 	knowledgeBasesArticlesUpdateRequestFieldArticleID              = big.NewInt(1 << 1)
@@ -436,8 +462,9 @@ var (
 	knowledgeBasesArticlesUpdateRequestFieldPosition               = big.NewInt(1 << 9)
 	knowledgeBasesArticlesUpdateRequestFieldPublishUpdatedBodyHTML = big.NewInt(1 << 10)
 	knowledgeBasesArticlesUpdateRequestFieldTagIDs                 = big.NewInt(1 << 11)
-	knowledgeBasesArticlesUpdateRequestFieldTitle                  = big.NewInt(1 << 12)
-	knowledgeBasesArticlesUpdateRequestFieldVisibilityConfig       = big.NewInt(1 << 13)
+	knowledgeBasesArticlesUpdateRequestFieldTagsApplyMode          = big.NewInt(1 << 12)
+	knowledgeBasesArticlesUpdateRequestFieldTitle                  = big.NewInt(1 << 13)
+	knowledgeBasesArticlesUpdateRequestFieldVisibilityConfig       = big.NewInt(1 << 14)
 )
 
 type KnowledgeBasesArticlesUpdateRequest struct {
@@ -463,8 +490,10 @@ type KnowledgeBasesArticlesUpdateRequest struct {
 	Position *int64 `json:"position,omitempty" url:"-"`
 	// Whether to publish the updated body_html. Defaults to false, which leaves the change as a draft.
 	PublishUpdatedBodyHTML *bool `json:"publish_updated_body_html,omitempty" url:"-"`
-	// IDs of article tags to assign. If provided, replaces all tags currently assigned to the article.
+	// IDs of article tags to assign, applied according to tags_apply_mode. By default replaces all tags currently assigned to the article.
 	TagIDs []string `json:"tag_ids,omitempty" url:"-"`
+	// The mode for applying tag_ids. Valid values: "append_only", "remove_only", "replace". Defaults to "replace".
+	TagsApplyMode *UpdateArticleRequestBodyTagsApplyMode `json:"tags_apply_mode,omitempty" url:"-"`
 	// The title of the article. For the default language, applies to the live article immediately.
 	Title            *string                          `json:"title,omitempty" url:"-"`
 	VisibilityConfig *pylongo.ArticleVisibilityConfig `json:"visibility_config,omitempty" url:"-"`
@@ -564,6 +593,13 @@ func (k *KnowledgeBasesArticlesUpdateRequest) SetPublishUpdatedBodyHTML(publishU
 func (k *KnowledgeBasesArticlesUpdateRequest) SetTagIDs(tagIDs []string) {
 	k.TagIDs = tagIDs
 	k.require(knowledgeBasesArticlesUpdateRequestFieldTagIDs)
+}
+
+// SetTagsApplyMode sets the TagsApplyMode field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (k *KnowledgeBasesArticlesUpdateRequest) SetTagsApplyMode(tagsApplyMode *UpdateArticleRequestBodyTagsApplyMode) {
+	k.TagsApplyMode = tagsApplyMode
+	k.require(knowledgeBasesArticlesUpdateRequestFieldTagsApplyMode)
 }
 
 // SetTitle sets the Title field and marks it as non-optional;

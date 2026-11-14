@@ -287,6 +287,32 @@ func TestAccountsUpdateWithWireMock(
 	VerifyRequestCount(t, "TestAccountsUpdateWithWireMock", "PATCH", "/accounts/id", nil, 1)
 }
 
+func TestAccountsListFilesWithWireMock(
+	t *testing.T,
+) {
+	WireMockBaseURL := os.Getenv("WIREMOCK_URL")
+	if WireMockBaseURL == "" {
+		WireMockBaseURL = "http://localhost:8080"
+	}
+	client := client.NewClient(
+		option.WithBaseURL(WireMockBaseURL),
+		option.WithToken("test-token"),
+	)
+	request := &pylon.AccountsListFilesRequest{
+		AccountID: "id",
+	}
+	_, invocationErr := client.Accounts.ListFiles(
+		context.TODO(),
+		request,
+		option.WithHTTPHeader(
+			http.Header{"X-Test-Id": []string{"TestAccountsListFilesWithWireMock"}},
+		),
+	)
+
+	require.NoError(t, invocationErr, "Client method call should succeed")
+	VerifyRequestCount(t, "TestAccountsListFilesWithWireMock", "GET", "/accounts/id/files", nil, 1)
+}
+
 func TestAccountsUploadFileWithWireMock(
 	t *testing.T,
 ) {

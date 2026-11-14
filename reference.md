@@ -421,14 +421,58 @@ Filterable fields and their allowed operators:
 
  Field | Allowed operators |
  --- | --- |
- `id` | `equals`, `in`, `not_in` |
- `domains` | `contains`, `does_not_contain`, `in`, `not_in` |
- `tags` | `contains`, `does_not_contain`, `in`, `not_in` |
- `name` | `equals`, `in`, `not_in`, `string_contains` |
- `external_ids` | `equals`, `in`, `not_in`, `is_set`, `is_unset` |
- `owner_id` | `equals`, `in`, `not_in`, `is_set`, `is_unset` |
+ `account_id` | `equals`, `in`, `not_in`, `does_not_contain`, `is_set`, `is_unset` |
+ `created_at` | `time_is_after`, `time_is_before`, `time_range`, `time_is_in_last`, `time_is_not_in_last` |
+ `domains` | `equals`, `contains`, `does_not_contain`, `in`, `not_in`, `string_contains`, `string_does_not_contain` |
+ `external_channel_ids` | `equals`, `contains`, `does_not_contain`, `in`, `not_in` |
+ `external_channel_type` | `equals`, `in`, `not_in`, `does_not_contain`, `is_set`, `is_unset` |
+ `external_ids` | `equals`, `in`, `not_in`, `does_not_contain`, `is_set`, `is_unset` |
+ `internal_channel_ids` | `equals`, `contains`, `does_not_contain`, `in`, `not_in` |
+ `internal_slack_channel_id` | `equals`, `in`, `not_in`, `does_not_contain`, `string_contains`, `string_does_not_contain` |
+ `internal_slack_channel_name` | `equals`, `in`, `not_in`, `does_not_contain`, `string_contains`, `string_does_not_contain` |
+ `issue_count_last_90_days` | `equals` |
+ `last_broadcast_sent_at` | `time_is_after`, `time_is_before`, `time_range`, `time_is_in_last`, `time_is_not_in_last` |
+ `last_customer_activity_at` | `time_is_after`, `time_is_before`, `time_range`, `time_is_in_last`, `time_is_not_in_last` |
+ `last_vendor_activity_at` | `time_is_after`, `time_is_before`, `time_range`, `time_is_in_last`, `time_is_not_in_last` |
+ `name` | `equals`, `in`, `not_in`, `string_contains`, `contains`, `does_not_contain` |
+ `number_of_users_in_channel` | `equals` |
+ `owner_id` | `equals`, `in`, `not_in`, `is_set`, `is_unset`, `belongs_to`, `not_belongs_to`, `does_not_contain` |
+ `parent_account_id` | `equals`, `in`, `not_in`, `does_not_contain`, `is_set`, `is_unset` |
+ `partner_account_id` | `equals`, `in`, `not_in`, `does_not_contain`, `is_set`, `is_unset` |
+ `primary_channel_id` | `equals`, `in`, `not_in`, `does_not_contain` |
+ `primary_domain` | `equals`, `contains`, `does_not_contain`, `in`, `not_in`, `string_contains`, `string_does_not_contain`, `is_set`, `is_unset` |
+ `slack_channel_id` | `equals`, `in`, `not_in`, `does_not_contain`, `string_contains`, `string_does_not_contain` |
+ `slack_channel_name` | `equals`, `in`, `not_in`, `does_not_contain`, `string_contains`, `string_does_not_contain` |
+ `source` | `equals`, `in`, `not_in`, `does_not_contain` |
+ `state` | `equals`, `in`, `not_in`, `does_not_contain` |
+ `tags` | `equals`, `contains`, `does_not_contain`, `in`, `not_in` |
+ `type` | `equals`, `in`, `not_in`, `does_not_contain` |
 
-For custom fields, pass the field slug as `field`.
+### Filter syntax and operators
+
+See [Search filters](https://docs.usepylon.com/pylon-docs/developer/api/conventions#search-filters) for filter structure and operator definitions. The table above lists the operators supported by each field.
+
+### Filter values
+
+Timestamp values use RFC 3339 format, such as `2026-10-01T00:00:00Z`.
+
+ Field | Values and behavior |
+ --- | --- |
+ `state` | `enabled` or `disabled`. |
+ `name` | `contains` is an alias for `string_contains`. |
+ `account_id` | `id` is also accepted as a field name. |
+ `tags` | A tag name or ID. |
+
+### Custom fields
+
+Set `field` to the custom field's slug. If a custom field has the same slug as a built-in field, the custom field is matched instead, except for these fields:
+
+`account_id`
+`domains`
+`tags`
+`name`
+`external_ids`
+`owner_id`
 
 **Rate limit:** 120 requests per minute
 </dd>
@@ -778,7 +822,77 @@ client.Accounts.Update(
 <dl>
 <dd>
 
-**tags:** `[]string` — An array of strings to use as tags on this account. If provided, the accounts tags will be updated to the given tags.
+**tags:** `[]string` — An array of strings to use as tags on this account, applied according to tags_apply_mode. By default the account's tags will be updated to the given tags.
+    
+</dd>
+</dl>
+
+<dl>
+<dd>
+
+**tagsApplyMode:** `*pylon.UpdateAccountRequestBodyTagsApplyMode` — The mode for applying tags. Valid values: "append_only", "remove_only", "replace". Defaults to "replace".
+    
+</dd>
+</dl>
+</dd>
+</dl>
+
+
+</dd>
+</dl>
+</details>
+
+<details><summary><code>client.Accounts.ListFiles(AccountID) -> *pylon.GetAccountFilesResponseBody</code></summary>
+<dl>
+<dd>
+
+#### 📝 Description
+
+<dl>
+<dd>
+
+<dl>
+<dd>
+
+Returns the files uploaded to an account, newest first, by account ID or external ID.
+
+**Rate limit:** 300 requests per minute
+</dd>
+</dl>
+</dd>
+</dl>
+
+#### 🔌 Usage
+
+<dl>
+<dd>
+
+<dl>
+<dd>
+
+```go
+request := &pylon.AccountsListFilesRequest{
+    AccountID: "id",
+}
+client.Accounts.ListFiles(
+    context.TODO(),
+    request,
+)
+```
+</dd>
+</dl>
+</dd>
+</dl>
+
+#### ⚙️ Parameters
+
+<dl>
+<dd>
+
+<dl>
+<dd>
+
+**accountID:** `string` — The ID or external ID of the account.
     
 </dd>
 </dl>
@@ -1124,8 +1238,17 @@ Filterable fields and their allowed operators:
  `action_happened_at` | `time_is_after`, `time_is_before`, `time_range` |
  `object_id` | `equals`, `in`, `not_in` |
 
-Timestamp values use RFC3339 format. `object_id` is the ID of the object the entry is
-for, matching the `object_id` field of the returned entries.
+### Filter syntax and operators
+
+See [Search filters](https://docs.usepylon.com/pylon-docs/developer/api/conventions#search-filters) for filter structure and operator definitions. The table above lists the operators supported by each field.
+
+### Filter values
+
+Timestamp values use RFC 3339 format, such as `2026-10-01T00:00:00Z`.
+
+ Field | Values and behavior |
+ --- | --- |
+ `object_id` | The ID of the object the entry is for, matching `object_id` in the returned entries. |
 
 **Rate limit:** 30 requests per minute
 </dd>
@@ -1364,7 +1487,13 @@ Filterable fields and their allowed operators:
  `title` | `equals`, `string_contains` |
  `start_time` | `time_is_after`, `time_is_before`, `time_range` |
 
-Timestamp values use RFC3339 format.
+### Filter syntax and operators
+
+See [Search filters](https://docs.usepylon.com/pylon-docs/developer/api/conventions#search-filters) for filter structure and operator definitions. The table above lists the operators supported by each field.
+
+### Timestamp values
+
+Timestamp values use RFC 3339 format, such as `2026-10-01T00:00:00Z`.
 
 **Rate limit:** 120 requests per minute
 </dd>
@@ -1933,11 +2062,17 @@ Filterable fields and their allowed operators:
  Field | Allowed operators |
  --- | --- |
  `id` | `equals`, `in`, `not_in` |
- `email` | `equals`, `in`, `not_in`, `string_contains` |
- `name` | `equals`, `in`, `not_in`, `string_contains` |
+ `email` | `equals`, `in`, `not_in`, `string_contains`, `string_does_not_contain` |
+ `name` | `equals`, `in`, `not_in`, `string_contains`, `string_does_not_contain` |
  `account_id` | `equals`, `in`, `not_in` |
 
-For custom fields, pass the field slug as `field`.
+### Filter syntax and operators
+
+See [Search filters](https://docs.usepylon.com/pylon-docs/developer/api/conventions#search-filters) for filter structure and operator definitions. The table above lists the operators supported by each field.
+
+### Custom fields
+
+Set `field` to the custom field's slug.
 
 **Rate limit:** 120 requests per minute
 </dd>
@@ -2415,7 +2550,7 @@ client.CustomFields.List(
 <dl>
 <dd>
 
-**objectType:** `pylon.ListCustomFieldsRequestObjectType` — The object type of the custom fields. Can be "account", "issue", "contact", "task", "project", "meeting", or "opportunity".
+**objectType:** `pylon.ListCustomFieldsRequestObjectType` — The object type of the custom fields. Can be "account", "issue", "contact", "task", "project", "meeting", "opportunity", or "feature_request".
     
 </dd>
 </dl>
@@ -2503,6 +2638,30 @@ client.CustomFields.Create(
 <dl>
 <dd>
 
+**instructions:** `*string` — Field-wide instructions for how AI should populate the field. For AI-enabled fields, an empty value falls back to description.
+    
+</dd>
+</dl>
+
+<dl>
+<dd>
+
+**isAiEnabled:** `*bool` — Whether AI should populate the field. Web research fields are always AI-enabled.
+    
+</dd>
+</dl>
+
+<dl>
+<dd>
+
+**jsonSchema:** `*string` — JSON schema for structured web research results. Required for contact web research fields.
+    
+</dd>
+</dl>
+
+<dl>
+<dd>
+
 **label:** `string` — The label of the custom field.
     
 </dd>
@@ -2511,7 +2670,7 @@ client.CustomFields.Create(
 <dl>
 <dd>
 
-**objectType:** `pylon.CreateCustomFieldRequestBodyObjectType` — The object type of the custom field. Can be "account", "issue", "contact", "task", "project", "meeting", or "opportunity".
+**objectType:** `pylon.CreateCustomFieldRequestBodyObjectType` — The object type of the custom field. Can be "account", "issue", "contact", "task", "project", "meeting", "opportunity", or "feature_request".
     
 </dd>
 </dl>
@@ -2535,7 +2694,7 @@ client.CustomFields.Create(
 <dl>
 <dd>
 
-**type_:** `string` — The type of the custom field. Can be one of `text`, `number`, `decimal`, `boolean`, `date`, `datetime`, `user`, `url`, `select`, or `multiselect`.
+**type_:** `string` — The type of the custom field. Can be one of `text`, `number`, `boolean`, `date`, `datetime`, `user`, `url`, `select`, `multiselect`, or `web_research`. Number fields accept integers and fractional values, such as 7.4; decimal is not a separate field type. Web research is supported for accounts and for contacts when enabled for the organization.
     
 </dd>
 </dl>
@@ -2667,6 +2826,14 @@ client.CustomFields.Update(
 <dl>
 <dd>
 
+**addSelectOptions:** `[]*pylon.CustomFieldDefinitionSelectOption` — Options to add without replacing existing options or changing existing labels and AI criteria. Cannot be combined with select_options.
+    
+</dd>
+</dl>
+
+<dl>
+<dd>
+
 **defaultValue:** `*string` — The default value for single-valued custom fields.
     
 </dd>
@@ -2691,7 +2858,39 @@ client.CustomFields.Update(
 <dl>
 <dd>
 
+**instructions:** `*string` — Field-wide instructions for how AI should populate the field. An empty string clears saved instructions when AI is disabled.
+    
+</dd>
+</dl>
+
+<dl>
+<dd>
+
+**isAiEnabled:** `*bool` — Whether AI should populate the field. Omit to preserve the current setting.
+    
+</dd>
+</dl>
+
+<dl>
+<dd>
+
 **label:** `*string` — The label of the custom field.
+    
+</dd>
+</dl>
+
+<dl>
+<dd>
+
+**optionDescriptions:** `map[string]string` — AI selection criteria keyed by exact option slug. Omitted options are preserved; an empty string clears an option's criteria.
+    
+</dd>
+</dl>
+
+<dl>
+<dd>
+
+**requirement:** `*pylon.UpdateCustomFieldRequirement` 
     
 </dd>
 </dl>
@@ -2708,6 +2907,14 @@ client.CustomFields.Update(
 <dd>
 
 **slug:** `*string` — The slug of the custom field.
+    
+</dd>
+</dl>
+
+<dl>
+<dd>
+
+**visibleByDefault:** `*bool` — Whether the custom field shows on records in Pylon by default. When false, it shows only where a field visibility condition makes it visible. Omit to keep the current setting.
     
 </dd>
 </dl>
@@ -2979,8 +3186,23 @@ Filterable fields and their allowed operators:
  `created_at` | `time_is_after`, `time_is_before`, `time_range` |
  `updated_at` | `time_is_after`, `time_is_before`, `time_range` |
 
-`account` is the built-in Account relationship field present on every custom object type; its values are account IDs.
-Timestamp values use RFC3339 format. For custom fields, pass the field slug as `field`.
+### Filter syntax and operators
+
+See [Search filters](https://docs.usepylon.com/pylon-docs/developer/api/conventions#search-filters) for filter structure and operator definitions. The table above lists the operators supported by each field.
+
+### Filter values
+
+Timestamp values use RFC 3339 format, such as `2026-10-01T00:00:00Z`.
+
+ Field | Values and behavior |
+ --- | --- |
+ `account` | The built-in Account relationship field on every custom object type. Use account IDs as values. |
+
+### Custom fields
+
+Set `field` to the custom field's slug.
+
+### Opportunities
 
 A `{type}` of `opportunity` is an alias for the opportunities API and filters on a different set of fields:
 
@@ -3281,158 +3503,6 @@ client.CustomObjects.Update(
 <dd>
 
 **name:** `*string` — The name of the custom object.
-    
-</dd>
-</dl>
-</dd>
-</dl>
-
-
-</dd>
-</dl>
-</details>
-
-## CustomerPortal
-<details><summary><code>client.CustomerPortal.GetSettings() -> *pylon.GetCustomerPortalSettingsResponseBody</code></summary>
-<dl>
-<dd>
-
-#### 📝 Description
-
-<dl>
-<dd>
-
-<dl>
-<dd>
-
-Returns the organization's customer portal settings.
-
-**Rate limit:** 120 requests per minute
-</dd>
-</dl>
-</dd>
-</dl>
-
-#### 🔌 Usage
-
-<dl>
-<dd>
-
-<dl>
-<dd>
-
-```go
-client.CustomerPortal.GetSettings(
-    context.TODO(),
-)
-```
-</dd>
-</dl>
-</dd>
-</dl>
-
-
-</dd>
-</dl>
-</details>
-
-<details><summary><code>client.CustomerPortal.UpdateSettings(request) -> *pylon.GetCustomerPortalSettingsResponseBody</code></summary>
-<dl>
-<dd>
-
-#### 📝 Description
-
-<dl>
-<dd>
-
-<dl>
-<dd>
-
-Updates the organization's customer portal settings. Only provided fields are modified.
-
-**Rate limit:** 30 requests per minute
-</dd>
-</dl>
-</dd>
-</dl>
-
-#### 🔌 Usage
-
-<dl>
-<dd>
-
-<dl>
-<dd>
-
-```go
-request := &pylon.CustomerPortalUpdateSettingsRequest{}
-client.CustomerPortal.UpdateSettings(
-    context.TODO(),
-    request,
-)
-```
-</dd>
-</dl>
-</dd>
-</dl>
-
-#### ⚙️ Parameters
-
-<dl>
-<dd>
-
-<dl>
-<dd>
-
-**access:** `*pylon.UpdateCustomerPortalAccessSettings` 
-    
-</dd>
-</dl>
-
-<dl>
-<dd>
-
-**branding:** `*pylon.UpdateCustomerPortalBranding` 
-    
-</dd>
-</dl>
-
-<dl>
-<dd>
-
-**display:** `*pylon.UpdateCustomerPortalDisplaySettings` 
-    
-</dd>
-</dl>
-
-<dl>
-<dd>
-
-**enabled:** `*bool` — Whether the customer portal is enabled. Enabling it requires a plan that includes the customer portal.
-    
-</dd>
-</dl>
-
-<dl>
-<dd>
-
-**navigation:** `*pylon.UpdateCustomerPortalNavigation` 
-    
-</dd>
-</dl>
-
-<dl>
-<dd>
-
-**portalUserPermissions:** `*pylon.UpdateCustomerPortalUserPermissions` 
-    
-</dd>
-</dl>
-
-<dl>
-<dd>
-
-**tabs:** `*pylon.UpdateCustomerPortalTabs` 
     
 </dd>
 </dl>
@@ -5011,10 +5081,10 @@ Filterable fields and their allowed operators:
  `follower_user_id` | `equals`, `in`, `not_in` |
  `follower_contact_id` | `equals`, `in`, `not_in` |
  `state` | `equals`, `in`, `not_in` |
- `tags` | `contains`, `does_not_contain`, `in`, `not_in` |
- `title` | `string_contains`, `string_does_not_contain` |
+ `tags` | `contains`, `does_not_contain`, `in`, `not_in`, `includes_exactly` |
+ `subject` | `string_contains`, `string_does_not_contain` |
  `body_html` | `string_contains`, `string_does_not_contain` |
- `assignee_id` | `equals`, `in`, `not_in`, `is_set`, `is_unset` |
+ `assignee_id` | `equals`, `in`, `not_in`, `is_set`, `is_unset`, `belongs_to`, `not_belongs_to` |
  `team_id` | `equals`, `in`, `not_in` |
  `issue_type` | `equals`, `in`, `not_in`, `is_set`, `is_unset` |
  `issue_is_issue_group` | `equals`, `in`, `not_in` |
@@ -5024,10 +5094,126 @@ Filterable fields and their allowed operators:
  `slack_channel_id` | `equals`, `in`, `not_in` |
  `workspace_email` | `equals`, `in`, `not_in`, `is_set`, `is_unset` |
  `reopened` | `equals`, `in`, `not_in` |
+ `number` | `equals`, `in`, `not_in` |
+ `source` | `equals`, `in`, `not_in` |
+ `first_response_at` | `time_is_after`, `time_is_before`, `time_range`, `time_is_in_last`, `time_is_not_in_last`, `is_set`, `is_unset` |
+ `latest_customer_message_activity_at` | `time_is_after`, `time_is_before`, `time_range`, `time_is_in_last`, `time_is_not_in_last`, `is_set`, `is_unset` |
+ `latest_vendor_message_activity_at` | `time_is_after`, `time_is_before`, `time_range`, `time_is_in_last`, `time_is_not_in_last`, `is_set`, `is_unset` |
+ `partner_account_id` | `equals`, `in`, `not_in`, `is_set`, `is_unset` |
+ `is_snoozed` | `equals`, `in`, `not_in` |
+ `requester_email` | the operators of the requester's `email` |
+ `parent_issue_group_id` | `equals`, `in`, `not_in`, `is_set`, `is_unset` |
+ `number_of_touches` | `equals`, `greater_than`, `greater_than_or_equals`, `less_than`, `less_than_or_equals` |
+ `email_subject` | `string_contains`, `string_does_not_contain`, `starts_with`, `ends_with`, `is_set`, `is_unset` |
+ `first_message_from` | `equals`, `in`, `not_in`, `is_set` |
+ `last_message_from` | `equals`, `in`, `not_in`, `is_set` |
+ `latest_public_message_activity_at` | `time_is_after`, `time_is_before`, `time_range`, `time_is_in_last`, `time_is_not_in_last`, `is_set`, `is_unset` |
+ `number_of_customer_messages` | `equals`, `greater_than`, `greater_than_or_equals`, `less_than`, `less_than_or_equals`, `is_set`, `is_unset` |
+ `message_redaction_used` | `equals`, `in`, `not_in` |
+ `time_to_first_response` | `greater_than`, `greater_than_or_equals`, `less_than`, `less_than_or_equals`, `is_set` |
+ `from_email` | `equals`, `in`, `not_in`, `string_contains`, `string_does_not_contain`, `starts_with`, `ends_with`, `is_set` |
+ `cc_email` | `equals`, `in`, `not_in`, `string_contains`, `string_does_not_contain`, `starts_with`, `ends_with`, `is_set`, `is_unset` |
+ `ccs` | `equals`, `in`, `not_in`, `string_contains`, `string_does_not_contain`, `starts_with`, `ends_with`, `is_set`, `is_unset` |
+ `asana_product_issue` | `equals`, `in`, `not_in`, `is_set`, `is_unset` |
+ `github_product_issue` | `equals`, `in`, `not_in`, `is_set`, `is_unset` |
+ `jira_product_issue` | `equals`, `in`, `not_in`, `string_contains`, `starts_with`, `ends_with`, `is_set`, `is_unset` |
+ `linear_product_issue` | `equals`, `in`, `not_in`, `string_contains`, `starts_with`, `is_set`, `is_unset` |
+ `shortcut_product_issue` | `equals`, `in`, `not_in`, `is_set`, `is_unset` |
+ `product_issue_source` | `equals`, `in`, `not_in`, `is_set`, `is_unset` |
+ `product_ticket_completion` | `equals` |
+ `number_of_child_issues` | `equals`, `greater_than`, `greater_than_or_equals`, `less_than`, `less_than_or_equals`, `is_set`, `is_unset` |
+ `created_in_channel_id` | `equals`, `in`, `not_in`, `string_contains`, `starts_with`, `ends_with`, `is_set`, `is_unset` |
+ `product_area` | `equals`, `in`, `not_in`, `is_set`, `is_unset` |
 
-Timestamp values use RFC3339 format. Standard `state` values are `new`, `waiting_on_you`, `waiting_on_customer`, `on_hold`, and `closed`; custom status slugs are also supported. `issue_type` values are `conversation` and `ticket`.
+### Filter syntax and operators
 
-For tag filters, pass the tag name. For custom fields, pass the field slug as `field`. `slack_channel_id` identifies the Slack channel where the issue was created. `workspace_email` identifies the email address connected to the Pylon workspace through which the issue's email conversation is routed. `customer_portal_visible` values are `true` and `false`; issue groups are never visible in the customer portal, so they always match `false`. `reopened` values are `true` and `false`; it is a sticky flag set the first time an issue is reopened after being resolved, and it records no timestamp.
+See [Search filters](https://docs.usepylon.com/pylon-docs/developer/api/conventions#search-filters) for filter structure, combining conditions, related objects, and operator definitions. The table above lists the operators supported by each issue field.
+
+### Status and issue properties
+
+Standard `state` values:
+
+`new`
+`waiting_on_you`
+`waiting_on_customer`
+`on_hold`
+`closed`
+
+Custom status slugs are also supported.
+
+ Field | Values and behavior |
+ --- | --- |
+ `issue_type` | `conversation` or `ticket`. |
+ `is_snoozed` | `true` or `false`. |
+ `customer_portal_visible` | `true` or `false`. Issue groups always match `false`. |
+ `reopened` | `true` or `false`. Set the first time an issue is reopened after being resolved; stays set and records no timestamp. |
+ `parent_issue_group_id` | The ID of the issue group the issue belongs to. |
+ `product_area` | A product area slug, such as `billing`. |
+ `tags` | A tag name or ID. |
+
+### Messages, timestamps, and counts
+
+Timestamp values use RFC 3339 format, such as `2026-10-01T00:00:00Z`.
+
+ Field | Values and behavior |
+ --- | --- |
+ `subject` | The issue title. `title` is also accepted as a field name. |
+ `subject`, `body_html` | `contains` and `does_not_contain` are aliases for `string_contains` and `string_does_not_contain`. |
+ `latest_vendor_message_activity_at` | The timestamp of the latest message from your team. |
+ `latest_customer_message_activity_at` | The timestamp of the latest message from the customer. |
+ `first_message_from`, `last_message_from` | `customer`, `vendor`, or a team ID to match messages from that team's members. For example, `"value": "customer"`. |
+ `time_to_first_response` | Seconds by default. Use `"value": "3600"` with `greater_than` for over an hour. `"<N>,seconds"` and `"<N>,milliseconds"` are also accepted. |
+ `number_of_touches` | The issue's `number_of_touches` value. |
+ `number_of_customer_messages`, `number_of_child_issues` | Whole numbers. |
+ `message_redaction_used` | `true` or `false`. |
+
+### Sources, channels, and email
+
+ Field | Values and behavior |
+ --- | --- |
+ `source` | The issue's source, such as `slack`, `email`, `chat_widget`, or `manual`. Issues created with a `custom_issue_source_id` match that custom source's slug. |
+ `slack_channel_id` | The Slack channel ID where the issue was created. |
+ `workspace_email` | The email address connected to the Pylon workspace through which the issue's email conversation is routed. |
+ `requester_email` | Shorthand for a `related_object` filter on the requester's `email`. |
+ `ccs` | The CC addresses on the issue's latest email. |
+ `cc_email` | The CC recipients recorded on the issue. |
+
+For `from_email`, `ccs`, and `cc_email`, use an address such as `jane@acme.com`, or `string_contains` with `@acme.com` to match a domain.
+
+`created_in_channel_id` matches the channel where the issue was created. The value depends on the operator:
+
+ Operators | Matches | Example |
+ --- | --- | --- |
+ `equals`, `in`, `not_in` | Channel ID; for email issues, an email address. | `C0123ABCDEF` or `support@acme.com` |
+ `string_contains`, `starts_with`, `ends_with` | Channel name. | `support` |
+
+### Linked engineering tickets
+
+Use the linked ticket's `external_id` from the issue's `external_issues` entry. Each integration uses a different ID format:
+
+ Field | ID format | Example |
+ --- | --- | --- |
+ `linear_product_issue` | Linear issue UUID. | `2f8c1d3e-6b1a-4c55-9e0f-7a2b3c4d5e6f` |
+ `jira_product_issue` | Jira issue numeric ID. | `10042` |
+ `github_product_issue` | `owner/repo/number`. | `acme/api/123` |
+ `shortcut_product_issue` | Story numeric ID. | `1234` |
+ `asana_product_issue` | Task numeric ID. | `1204567890123456` |
+
+Human-readable ticket keys such as `ENG-123`, `PROJ-42`, and `sc-1234` aren't accepted for these filters.
+
+`product_issue_source` accepts:
+
+`asana`
+`github`
+`jira`
+`linear`
+`shortcut`
+
+`product_ticket_completion` accepts `any_done` or `all_done`.
+
+### Custom fields
+
+Set `field` to the custom field's slug. If a custom field has the same slug as one of the built-in fields listed above, the custom field is matched instead.
 
 **Rate limit:** 120 requests per minute
 </dd>
@@ -5323,6 +5509,14 @@ client.Issues.Update(
 <dl>
 <dd>
 
+**customerPortalTitle:** `*string` — The customer-facing title displayed in the customer portal, separate from the internal issue title. At most 191 characters. Pass an empty string to clear it. Omit to leave unchanged.
+    
+</dd>
+</dl>
+
+<dl>
+<dd>
+
 **customerPortalVisible:** `*bool` — Whether the issue should be visible in the customer portal.
     
 </dd>
@@ -5355,7 +5549,15 @@ client.Issues.Update(
 <dl>
 <dd>
 
-**tags:** `[]string` — An array of strings to use as tags on this issue. If provided, the issue tags will be updated to be exactly the given tags.
+**tags:** `[]string` — An array of strings to use as tags on this issue, applied according to tags_apply_mode. By default the issue tags will be updated to be exactly the given tags.
+    
+</dd>
+</dl>
+
+<dl>
+<dd>
+
+**tagsApplyMode:** `*pylon.UpdateIssueRequestBodyTagsApplyMode` — The mode for applying tags. Valid values: "append_only", "remove_only", "replace". Defaults to "replace".
     
 </dd>
 </dl>
@@ -6790,7 +6992,17 @@ Filterable fields and their allowed operators:
  `started_at` | `time_is_after`, `time_is_before`, `time_range`, `is_set` |
  `completed_at` | `time_is_after`, `time_is_before`, `time_range`, `is_set` |
 
-Timestamp values use RFC3339 format. Milestones belonging to an unlaunched project are not returned.
+### Filter syntax and operators
+
+See [Search filters](https://docs.usepylon.com/pylon-docs/developer/api/conventions#search-filters) for filter structure and operator definitions. The table above lists the operators supported by each field.
+
+### Timestamp values
+
+Timestamp values use RFC 3339 format, such as `2026-10-01T00:00:00Z`.
+
+### Project availability
+
+Milestones belonging to an unlaunched project are not returned.
 
 **Rate limit:** 120 requests per minute
 </dd>
@@ -7206,7 +7418,23 @@ Filterable fields and their allowed operators:
  `created_at` | `time_is_after`, `time_is_before`, `time_range` |
  `updated_at` | `time_is_after`, `time_is_before`, `time_range` |
 
-Timestamp values use RFC3339 format. Valid `status` values are `not_started`, `in_progress`, and `completed`. For custom fields, pass the field slug as `field`.
+### Filter syntax and operators
+
+See [Search filters](https://docs.usepylon.com/pylon-docs/developer/api/conventions#search-filters) for filter structure and operator definitions. The table above lists the operators supported by each field.
+
+### Filter values
+
+Timestamp values use RFC 3339 format, such as `2026-10-01T00:00:00Z`.
+
+`status` accepts:
+
+`not_started`
+`in_progress`
+`completed`
+
+### Custom fields
+
+Set `field` to the custom field's slug.
 
 **Rate limit:** 120 requests per minute
 </dd>
@@ -7590,7 +7818,13 @@ Filterable fields and their allowed operators:
  --- | --- |
  `updated_at` | `time_is_after`, `time_is_before`, `time_range` |
 
-Timestamp values use RFC3339 format.
+### Filter syntax and operators
+
+See [Search filters](https://docs.usepylon.com/pylon-docs/developer/api/conventions#search-filters) for filter structure and operator definitions. The table above lists the operators supported by each field.
+
+### Timestamp values
+
+Timestamp values use RFC 3339 format, such as `2026-10-01T00:00:00Z`.
 
 **Rate limit:** 120 requests per minute
 </dd>
@@ -8416,7 +8650,23 @@ Filterable fields and their allowed operators:
  `due_date` | `time_is_after`, `time_is_before`, `time_range`, `is_set` |
  `updated_at` | `time_is_after`, `time_is_before`, `time_range` |
 
-Timestamp values use RFC3339 format. Valid `status` values are `not_started`, `in_progress`, and `completed`. For custom fields, pass the field slug as `field`.
+### Filter syntax and operators
+
+See [Search filters](https://docs.usepylon.com/pylon-docs/developer/api/conventions#search-filters) for filter structure and operator definitions. The table above lists the operators supported by each field.
+
+### Filter values
+
+Timestamp values use RFC 3339 format, such as `2026-10-01T00:00:00Z`.
+
+`status` accepts:
+
+`not_started`
+`in_progress`
+`completed`
+
+### Custom fields
+
+Set `field` to the custom field's slug.
 
 **Rate limit:** 120 requests per minute
 </dd>
@@ -9831,7 +10081,10 @@ client.TrainingData.Get(
 <dl>
 <dd>
 
-Returns all user roles for the organization.
+Returns all user roles for the organization, with the actions each role grants.
+Permission and issue access rule filters use the same filter shape that search endpoints accept;
+a filter the API can't represent is omitted and marked filter_unsupported. A "current_user"
+value in a filter means the user the permission is checked for.
 
 **Rate limit:** 300 requests per minute
 </dd>
@@ -10064,6 +10317,10 @@ Filterable fields and their allowed operators:
  Field | Allowed operators |
  --- | --- |
  `email` | `equals`, `in`, `not_in` |
+
+### Filter syntax and operators
+
+See [Search filters](https://docs.usepylon.com/pylon-docs/developer/api/conventions#search-filters) for filter structure and operator definitions. The table above lists the operators supported by each field.
 
 **Rate limit:** 120 requests per minute
 </dd>
@@ -11828,6 +12085,8 @@ client.Issues.Followers.Add(
 
 Returns messages for the specified issue, including replies and internal notes, ordered from oldest to newest.
 
+Set public_only=true to exclude internal notes and hidden messages and remove internal metadata. This option does not authenticate a customer or apply customer-portal access rules.
+
 To post a reply, use the message's top-level id—not thread_id or email_info.message_id. To post an internal note, use an internal thread's thread_id or an internal note's top-level id. Omit both limit and cursor to return all messages; when cursor is provided without limit, the page size defaults to 100.
 
 **Rate limit:** 120 requests per minute
@@ -11883,6 +12142,14 @@ client.Issues.Messages.List(
 <dd>
 
 **limit:** `*int64` — The number of messages to fetch. Must be greater than 0 and at most 1000. If omitted, all messages are returned for backward compatibility.
+    
+</dd>
+</dl>
+
+<dl>
+<dd>
+
+**publicOnly:** `*bool` — Return only customer-visible messages, excluding internal notes and hidden messages. Clears BCC recipients, email-open tracking, Slack metadata, internal thread IDs, and the author's internal user email. Defaults to false. This does not enforce a portal visitor's ticket access or portal identity settings; callers must authorize their customers separately.
     
 </dd>
 </dl>
@@ -12989,7 +13256,15 @@ client.KnowledgeBases.Articles.Update(
 <dl>
 <dd>
 
-**tagIDs:** `[]string` — IDs of article tags to assign. If provided, replaces all tags currently assigned to the article.
+**tagIDs:** `[]string` — IDs of article tags to assign, applied according to tags_apply_mode. By default replaces all tags currently assigned to the article.
+    
+</dd>
+</dl>
+
+<dl>
+<dd>
+
+**tagsApplyMode:** `*knowledgebases.UpdateArticleRequestBodyTagsApplyMode` — The mode for applying tag_ids. Valid values: "append_only", "remove_only", "replace". Defaults to "replace".
     
 </dd>
 </dl>
@@ -13516,6 +13791,68 @@ client.KnowledgeBases.Collections.Update(
 </details>
 
 ## KnowledgeBases RouteRedirects
+<details><summary><code>client.KnowledgeBases.RouteRedirects.List(KnowledgeBaseID) -> *pylon.GetRouteRedirectsResponseBody</code></summary>
+<dl>
+<dd>
+
+#### 📝 Description
+
+<dl>
+<dd>
+
+<dl>
+<dd>
+
+Returns every path redirect in a knowledge base.
+
+**Rate limit:** 300 requests per minute
+</dd>
+</dl>
+</dd>
+</dl>
+
+#### 🔌 Usage
+
+<dl>
+<dd>
+
+<dl>
+<dd>
+
+```go
+request := &knowledgebases.KnowledgeBasesRouteRedirectsListRequest{
+    KnowledgeBaseID: "id",
+}
+client.KnowledgeBases.RouteRedirects.List(
+    context.TODO(),
+    request,
+)
+```
+</dd>
+</dl>
+</dd>
+</dl>
+
+#### ⚙️ Parameters
+
+<dl>
+<dd>
+
+<dl>
+<dd>
+
+**knowledgeBaseID:** `string` — The ID of the knowledge base.
+    
+</dd>
+</dl>
+</dd>
+</dl>
+
+
+</dd>
+</dl>
+</details>
+
 <details><summary><code>client.KnowledgeBases.RouteRedirects.Create(KnowledgeBaseID, request) -> *pylon.CreateRouteRedirectResponseBody</code></summary>
 <dl>
 <dd>
@@ -13548,7 +13885,6 @@ Creates a path redirect within a knowledge base, mapping a source path to an art
 request := &knowledgebases.KnowledgeBasesRouteRedirectsCreateRequest{
     KnowledgeBaseID: "id",
     FromPath: "from_path",
-    ObjectID: "object_id",
     ObjectType: "object_type",
 }
 client.KnowledgeBases.RouteRedirects.Create(
@@ -13593,7 +13929,7 @@ client.KnowledgeBases.RouteRedirects.Create(
 <dl>
 <dd>
 
-**objectID:** `string` — The ID of the object to redirect to.
+**objectID:** `*string` — The ID of the article or collection to redirect to. Omit when object_type is "knowledgebase".
     
 </dd>
 </dl>
@@ -13601,7 +13937,78 @@ client.KnowledgeBases.RouteRedirects.Create(
 <dl>
 <dd>
 
-**objectType:** `string` — The type of the object to redirect to. Must be "article" or "collection".
+**objectType:** `string` — The type of the object to redirect to: "article", "collection", or "knowledgebase" for the knowledge base homepage.
+    
+</dd>
+</dl>
+</dd>
+</dl>
+
+
+</dd>
+</dl>
+</details>
+
+<details><summary><code>client.KnowledgeBases.RouteRedirects.Delete(KnowledgeBaseID, RedirectID) -> *pylon.DeleteRouteRedirectResponseBody</code></summary>
+<dl>
+<dd>
+
+#### 📝 Description
+
+<dl>
+<dd>
+
+<dl>
+<dd>
+
+Deletes a path redirect from a knowledge base. Requires knowledge base admin permission.
+
+**Rate limit:** 30 requests per minute
+</dd>
+</dl>
+</dd>
+</dl>
+
+#### 🔌 Usage
+
+<dl>
+<dd>
+
+<dl>
+<dd>
+
+```go
+request := &knowledgebases.KnowledgeBasesRouteRedirectsDeleteRequest{
+    KnowledgeBaseID: "id",
+    RedirectID: "redirect_id",
+}
+client.KnowledgeBases.RouteRedirects.Delete(
+    context.TODO(),
+    request,
+)
+```
+</dd>
+</dl>
+</dd>
+</dl>
+
+#### ⚙️ Parameters
+
+<dl>
+<dd>
+
+<dl>
+<dd>
+
+**knowledgeBaseID:** `string` — The ID of the knowledge base.
+    
+</dd>
+</dl>
+
+<dl>
+<dd>
+
+**redirectID:** `string` — The ID of the route redirect.
     
 </dd>
 </dl>
