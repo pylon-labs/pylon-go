@@ -38,6 +38,8 @@ func NewClient(options *core.RequestOptions) *Client {
 
 // Returns messages for the specified issue, including replies and internal notes, ordered from oldest to newest.
 //
+// Set public_only=true to exclude internal notes and hidden messages and remove internal metadata. This option does not authenticate a customer or apply customer-portal access rules.
+//
 // To post a reply, use the message's top-level id—not thread_id or email_info.message_id. To post an internal note, use an internal thread's thread_id or an internal note's top-level id. Omit both limit and cursor to return all messages; when cursor is provided without limit, the page size defaults to 100.
 //
 // **Rate limit:** 120 requests per minute

@@ -33,6 +33,51 @@ func NewRawClient(options *core.RequestOptions) *RawClient {
 	}
 }
 
+func (r *RawClient) List(
+	ctx context.Context,
+	request *knowledgebases.KnowledgeBasesRouteRedirectsListRequest,
+	opts ...option.RequestOption,
+) (*core.Response[*pylon.GetRouteRedirectsResponseBody], error) {
+	options := core.NewRequestOptions(opts...)
+	baseURL := internal.ResolveBaseURL(
+		options.BaseURL,
+		r.baseURL,
+		"https://api.usepylon.com",
+	)
+	endpointURL := internal.EncodeURL(
+		baseURL+"/knowledge-bases/%v/route-redirects",
+		request.KnowledgeBaseID,
+	)
+	headers := internal.MergeHeaders(
+		r.options.ToHeader(),
+		options.ToHeader(),
+	)
+	var response *pylon.GetRouteRedirectsResponseBody
+	raw, err := r.caller.Call(
+		ctx,
+		&internal.CallParams{
+			URL:             endpointURL,
+			Method:          http.MethodGet,
+			Headers:         headers,
+			MaxAttempts:     options.MaxAttempts,
+			DisableRetries:  options.DisableRetries,
+			BodyProperties:  options.BodyProperties,
+			QueryParameters: options.QueryParameters,
+			Client:          options.HTTPClient,
+			Response:        &response,
+			ErrorDecoder:    internal.NewErrorDecoder(knowledgebases.ErrorCodes),
+		},
+	)
+	if err != nil {
+		return nil, err
+	}
+	return &core.Response[*pylon.GetRouteRedirectsResponseBody]{
+		StatusCode: raw.StatusCode,
+		Header:     raw.Header,
+		Body:       response,
+	}, nil
+}
+
 func (r *RawClient) Create(
 	ctx context.Context,
 	request *knowledgebases.KnowledgeBasesRouteRedirectsCreateRequest,
@@ -74,6 +119,52 @@ func (r *RawClient) Create(
 		return nil, err
 	}
 	return &core.Response[*pylon.CreateRouteRedirectResponseBody]{
+		StatusCode: raw.StatusCode,
+		Header:     raw.Header,
+		Body:       response,
+	}, nil
+}
+
+func (r *RawClient) Delete(
+	ctx context.Context,
+	request *knowledgebases.KnowledgeBasesRouteRedirectsDeleteRequest,
+	opts ...option.RequestOption,
+) (*core.Response[*pylon.DeleteRouteRedirectResponseBody], error) {
+	options := core.NewRequestOptions(opts...)
+	baseURL := internal.ResolveBaseURL(
+		options.BaseURL,
+		r.baseURL,
+		"https://api.usepylon.com",
+	)
+	endpointURL := internal.EncodeURL(
+		baseURL+"/knowledge-bases/%v/route-redirects/%v",
+		request.KnowledgeBaseID,
+		request.RedirectID,
+	)
+	headers := internal.MergeHeaders(
+		r.options.ToHeader(),
+		options.ToHeader(),
+	)
+	var response *pylon.DeleteRouteRedirectResponseBody
+	raw, err := r.caller.Call(
+		ctx,
+		&internal.CallParams{
+			URL:             endpointURL,
+			Method:          http.MethodDelete,
+			Headers:         headers,
+			MaxAttempts:     options.MaxAttempts,
+			DisableRetries:  options.DisableRetries,
+			BodyProperties:  options.BodyProperties,
+			QueryParameters: options.QueryParameters,
+			Client:          options.HTTPClient,
+			Response:        &response,
+			ErrorDecoder:    internal.NewErrorDecoder(knowledgebases.ErrorCodes),
+		},
+	)
+	if err != nil {
+		return nil, err
+	}
+	return &core.Response[*pylon.DeleteRouteRedirectResponseBody]{
 		StatusCode: raw.StatusCode,
 		Header:     raw.Header,
 		Body:       response,

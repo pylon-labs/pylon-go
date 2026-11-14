@@ -345,6 +345,51 @@ func (r *RawClient) Update(
 	}, nil
 }
 
+func (r *RawClient) ListFiles(
+	ctx context.Context,
+	request *pylon.AccountsListFilesRequest,
+	opts ...option.RequestOption,
+) (*core.Response[*pylon.GetAccountFilesResponseBody], error) {
+	options := core.NewRequestOptions(opts...)
+	baseURL := internal.ResolveBaseURL(
+		options.BaseURL,
+		r.baseURL,
+		"https://api.usepylon.com",
+	)
+	endpointURL := internal.EncodeURL(
+		baseURL+"/accounts/%v/files",
+		request.AccountID,
+	)
+	headers := internal.MergeHeaders(
+		r.options.ToHeader(),
+		options.ToHeader(),
+	)
+	var response *pylon.GetAccountFilesResponseBody
+	raw, err := r.caller.Call(
+		ctx,
+		&internal.CallParams{
+			URL:             endpointURL,
+			Method:          http.MethodGet,
+			Headers:         headers,
+			MaxAttempts:     options.MaxAttempts,
+			DisableRetries:  options.DisableRetries,
+			BodyProperties:  options.BodyProperties,
+			QueryParameters: options.QueryParameters,
+			Client:          options.HTTPClient,
+			Response:        &response,
+			ErrorDecoder:    internal.NewErrorDecoder(pylon.ErrorCodes),
+		},
+	)
+	if err != nil {
+		return nil, err
+	}
+	return &core.Response[*pylon.GetAccountFilesResponseBody]{
+		StatusCode: raw.StatusCode,
+		Header:     raw.Header,
+		Body:       response,
+	}, nil
+}
+
 func (r *RawClient) UploadFile(
 	ctx context.Context,
 	request *pylon.AccountsUploadFileRequest,

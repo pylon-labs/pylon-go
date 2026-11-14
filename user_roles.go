@@ -130,16 +130,21 @@ func (g *GetUserRolesResponseBody) String() string {
 }
 
 var (
-	userRoleFieldID   = big.NewInt(1 << 0)
-	userRoleFieldName = big.NewInt(1 << 1)
-	userRoleFieldSlug = big.NewInt(1 << 2)
+	userRoleFieldID                = big.NewInt(1 << 0)
+	userRoleFieldIssueAccessPolicy = big.NewInt(1 << 1)
+	userRoleFieldName              = big.NewInt(1 << 2)
+	userRoleFieldPermissions       = big.NewInt(1 << 3)
+	userRoleFieldSlug              = big.NewInt(1 << 4)
 )
 
 type UserRole struct {
 	// The ID of the role.
-	ID string `json:"id" url:"id"`
+	ID                string                     `json:"id" url:"id"`
+	IssueAccessPolicy *UserRoleIssueAccessPolicy `json:"issue_access_policy,omitempty" url:"issue_access_policy,omitempty"`
 	// The name of the role.
 	Name string `json:"name" url:"name"`
+	// The actions the role grants. An action with a filter applies only to the objects that match it.
+	Permissions []*UserRolePermission `json:"permissions" url:"permissions"`
 	// The slug of the role.
 	Slug string `json:"slug" url:"slug"`
 
@@ -157,11 +162,25 @@ func (u *UserRole) GetID() string {
 	return u.ID
 }
 
+func (u *UserRole) GetIssueAccessPolicy() *UserRoleIssueAccessPolicy {
+	if u == nil {
+		return nil
+	}
+	return u.IssueAccessPolicy
+}
+
 func (u *UserRole) GetName() string {
 	if u == nil {
 		return ""
 	}
 	return u.Name
+}
+
+func (u *UserRole) GetPermissions() []*UserRolePermission {
+	if u == nil {
+		return nil
+	}
+	return u.Permissions
 }
 
 func (u *UserRole) GetSlug() string {
@@ -194,11 +213,25 @@ func (u *UserRole) SetID(id string) {
 	u.require(userRoleFieldID)
 }
 
+// SetIssueAccessPolicy sets the IssueAccessPolicy field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (u *UserRole) SetIssueAccessPolicy(issueAccessPolicy *UserRoleIssueAccessPolicy) {
+	u.IssueAccessPolicy = issueAccessPolicy
+	u.require(userRoleFieldIssueAccessPolicy)
+}
+
 // SetName sets the Name field and marks it as non-optional;
 // this prevents an empty or null value for this field from being omitted during serialization.
 func (u *UserRole) SetName(name string) {
 	u.Name = name
 	u.require(userRoleFieldName)
+}
+
+// SetPermissions sets the Permissions field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (u *UserRole) SetPermissions(permissions []*UserRolePermission) {
+	u.Permissions = permissions
+	u.require(userRoleFieldPermissions)
 }
 
 // SetSlug sets the Slug field and marks it as non-optional;
@@ -236,6 +269,385 @@ func (u *UserRole) MarshalJSON() ([]byte, error) {
 }
 
 func (u *UserRole) String() string {
+	if u == nil {
+		return "<nil>"
+	}
+	if len(u.rawJSON) > 0 {
+		if value, err := internal.StringifyJSON(u.rawJSON); err == nil {
+			return value
+		}
+	}
+	if value, err := internal.StringifyJSON(u); err == nil {
+		return value
+	}
+	return fmt.Sprintf("%#v", u)
+}
+
+var (
+	userRoleIssueAccessPolicyFieldDefaultActions = big.NewInt(1 << 0)
+	userRoleIssueAccessPolicyFieldRules          = big.NewInt(1 << 1)
+)
+
+type UserRoleIssueAccessPolicy struct {
+	// The actions granted on an issue that matches no rule.
+	DefaultActions []string `json:"default_actions" url:"default_actions"`
+	// Rules checked in order. An issue gets only the actions of the first rule that matches it, even when
+	// they are fewer than default_actions.
+	Rules []*UserRoleIssueAccessRule `json:"rules" url:"rules"`
+
+	// Private bitmask of fields set to an explicit value and therefore not to be omitted
+	explicitFields *big.Int `json:"-" url:"-"`
+
+	extraProperties map[string]interface{}
+	rawJSON         json.RawMessage
+}
+
+func (u *UserRoleIssueAccessPolicy) GetDefaultActions() []string {
+	if u == nil {
+		return nil
+	}
+	return u.DefaultActions
+}
+
+func (u *UserRoleIssueAccessPolicy) GetRules() []*UserRoleIssueAccessRule {
+	if u == nil {
+		return nil
+	}
+	return u.Rules
+}
+
+func (u *UserRoleIssueAccessPolicy) GetExtraProperties() map[string]interface{} {
+	if u == nil {
+		return nil
+	}
+	return u.extraProperties
+}
+
+func (u *UserRoleIssueAccessPolicy) require(field *big.Int) {
+	next := new(big.Int)
+	if u.explicitFields != nil {
+		next.Set(u.explicitFields)
+	}
+	next.Or(next, field)
+	u.explicitFields = next
+}
+
+// SetDefaultActions sets the DefaultActions field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (u *UserRoleIssueAccessPolicy) SetDefaultActions(defaultActions []string) {
+	u.DefaultActions = defaultActions
+	u.require(userRoleIssueAccessPolicyFieldDefaultActions)
+}
+
+// SetRules sets the Rules field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (u *UserRoleIssueAccessPolicy) SetRules(rules []*UserRoleIssueAccessRule) {
+	u.Rules = rules
+	u.require(userRoleIssueAccessPolicyFieldRules)
+}
+
+func (u *UserRoleIssueAccessPolicy) UnmarshalJSON(data []byte) error {
+	type unmarshaler UserRoleIssueAccessPolicy
+	var value unmarshaler
+	if err := json.Unmarshal(data, &value); err != nil {
+		return err
+	}
+	*u = UserRoleIssueAccessPolicy(value)
+	extraProperties, err := internal.ExtractExtraProperties(data, *u)
+	if err != nil {
+		return err
+	}
+	u.extraProperties = extraProperties
+	u.rawJSON = json.RawMessage(data)
+	return nil
+}
+
+func (u *UserRoleIssueAccessPolicy) MarshalJSON() ([]byte, error) {
+	type embed UserRoleIssueAccessPolicy
+	var marshaler = struct {
+		embed
+	}{
+		embed: embed(*u),
+	}
+	explicitMarshaler := internal.HandleExplicitFields(marshaler, u.explicitFields)
+	return json.Marshal(explicitMarshaler)
+}
+
+func (u *UserRoleIssueAccessPolicy) String() string {
+	if u == nil {
+		return "<nil>"
+	}
+	if len(u.rawJSON) > 0 {
+		if value, err := internal.StringifyJSON(u.rawJSON); err == nil {
+			return value
+		}
+	}
+	if value, err := internal.StringifyJSON(u); err == nil {
+		return value
+	}
+	return fmt.Sprintf("%#v", u)
+}
+
+var (
+	userRoleIssueAccessRuleFieldActions           = big.NewInt(1 << 0)
+	userRoleIssueAccessRuleFieldFilter            = big.NewInt(1 << 1)
+	userRoleIssueAccessRuleFieldFilterUnsupported = big.NewInt(1 << 2)
+	userRoleIssueAccessRuleFieldID                = big.NewInt(1 << 3)
+)
+
+type UserRoleIssueAccessRule struct {
+	// The actions granted on issues for which this is the first matching rule.
+	Actions []string `json:"actions" url:"actions"`
+	Filter  *Filter  `json:"filter,omitempty" url:"filter,omitempty"`
+	// True when the rule has a filter that the API can't represent, so filter is absent.
+	FilterUnsupported *bool `json:"filter_unsupported,omitempty" url:"filter_unsupported,omitempty"`
+	// The ID of the rule.
+	ID string `json:"id" url:"id"`
+
+	// Private bitmask of fields set to an explicit value and therefore not to be omitted
+	explicitFields *big.Int `json:"-" url:"-"`
+
+	extraProperties map[string]interface{}
+	rawJSON         json.RawMessage
+}
+
+func (u *UserRoleIssueAccessRule) GetActions() []string {
+	if u == nil {
+		return nil
+	}
+	return u.Actions
+}
+
+func (u *UserRoleIssueAccessRule) GetFilter() *Filter {
+	if u == nil {
+		return nil
+	}
+	return u.Filter
+}
+
+func (u *UserRoleIssueAccessRule) GetFilterUnsupported() *bool {
+	if u == nil {
+		return nil
+	}
+	return u.FilterUnsupported
+}
+
+func (u *UserRoleIssueAccessRule) GetID() string {
+	if u == nil {
+		return ""
+	}
+	return u.ID
+}
+
+func (u *UserRoleIssueAccessRule) GetExtraProperties() map[string]interface{} {
+	if u == nil {
+		return nil
+	}
+	return u.extraProperties
+}
+
+func (u *UserRoleIssueAccessRule) require(field *big.Int) {
+	next := new(big.Int)
+	if u.explicitFields != nil {
+		next.Set(u.explicitFields)
+	}
+	next.Or(next, field)
+	u.explicitFields = next
+}
+
+// SetActions sets the Actions field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (u *UserRoleIssueAccessRule) SetActions(actions []string) {
+	u.Actions = actions
+	u.require(userRoleIssueAccessRuleFieldActions)
+}
+
+// SetFilter sets the Filter field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (u *UserRoleIssueAccessRule) SetFilter(filter *Filter) {
+	u.Filter = filter
+	u.require(userRoleIssueAccessRuleFieldFilter)
+}
+
+// SetFilterUnsupported sets the FilterUnsupported field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (u *UserRoleIssueAccessRule) SetFilterUnsupported(filterUnsupported *bool) {
+	u.FilterUnsupported = filterUnsupported
+	u.require(userRoleIssueAccessRuleFieldFilterUnsupported)
+}
+
+// SetID sets the ID field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (u *UserRoleIssueAccessRule) SetID(id string) {
+	u.ID = id
+	u.require(userRoleIssueAccessRuleFieldID)
+}
+
+func (u *UserRoleIssueAccessRule) UnmarshalJSON(data []byte) error {
+	type unmarshaler UserRoleIssueAccessRule
+	var value unmarshaler
+	if err := json.Unmarshal(data, &value); err != nil {
+		return err
+	}
+	*u = UserRoleIssueAccessRule(value)
+	extraProperties, err := internal.ExtractExtraProperties(data, *u)
+	if err != nil {
+		return err
+	}
+	u.extraProperties = extraProperties
+	u.rawJSON = json.RawMessage(data)
+	return nil
+}
+
+func (u *UserRoleIssueAccessRule) MarshalJSON() ([]byte, error) {
+	type embed UserRoleIssueAccessRule
+	var marshaler = struct {
+		embed
+	}{
+		embed: embed(*u),
+	}
+	explicitMarshaler := internal.HandleExplicitFields(marshaler, u.explicitFields)
+	return json.Marshal(explicitMarshaler)
+}
+
+func (u *UserRoleIssueAccessRule) String() string {
+	if u == nil {
+		return "<nil>"
+	}
+	if len(u.rawJSON) > 0 {
+		if value, err := internal.StringifyJSON(u.rawJSON); err == nil {
+			return value
+		}
+	}
+	if value, err := internal.StringifyJSON(u); err == nil {
+		return value
+	}
+	return fmt.Sprintf("%#v", u)
+}
+
+var (
+	userRolePermissionFieldAction                       = big.NewInt(1 << 0)
+	userRolePermissionFieldFieldRestrictionsUnsupported = big.NewInt(1 << 1)
+	userRolePermissionFieldFilter                       = big.NewInt(1 << 2)
+	userRolePermissionFieldFilterUnsupported            = big.NewInt(1 << 3)
+)
+
+type UserRolePermission struct {
+	// The action, for example "read:issue".
+	Action string `json:"action" url:"action"`
+	// True when the action also hides or locks fields through restrictions that the API can't represent.
+	FieldRestrictionsUnsupported *bool   `json:"field_restrictions_unsupported,omitempty" url:"field_restrictions_unsupported,omitempty"`
+	Filter                       *Filter `json:"filter,omitempty" url:"filter,omitempty"`
+	// True when the action is limited by a filter that the API can't represent, so filter is absent.
+	FilterUnsupported *bool `json:"filter_unsupported,omitempty" url:"filter_unsupported,omitempty"`
+
+	// Private bitmask of fields set to an explicit value and therefore not to be omitted
+	explicitFields *big.Int `json:"-" url:"-"`
+
+	extraProperties map[string]interface{}
+	rawJSON         json.RawMessage
+}
+
+func (u *UserRolePermission) GetAction() string {
+	if u == nil {
+		return ""
+	}
+	return u.Action
+}
+
+func (u *UserRolePermission) GetFieldRestrictionsUnsupported() *bool {
+	if u == nil {
+		return nil
+	}
+	return u.FieldRestrictionsUnsupported
+}
+
+func (u *UserRolePermission) GetFilter() *Filter {
+	if u == nil {
+		return nil
+	}
+	return u.Filter
+}
+
+func (u *UserRolePermission) GetFilterUnsupported() *bool {
+	if u == nil {
+		return nil
+	}
+	return u.FilterUnsupported
+}
+
+func (u *UserRolePermission) GetExtraProperties() map[string]interface{} {
+	if u == nil {
+		return nil
+	}
+	return u.extraProperties
+}
+
+func (u *UserRolePermission) require(field *big.Int) {
+	next := new(big.Int)
+	if u.explicitFields != nil {
+		next.Set(u.explicitFields)
+	}
+	next.Or(next, field)
+	u.explicitFields = next
+}
+
+// SetAction sets the Action field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (u *UserRolePermission) SetAction(action string) {
+	u.Action = action
+	u.require(userRolePermissionFieldAction)
+}
+
+// SetFieldRestrictionsUnsupported sets the FieldRestrictionsUnsupported field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (u *UserRolePermission) SetFieldRestrictionsUnsupported(fieldRestrictionsUnsupported *bool) {
+	u.FieldRestrictionsUnsupported = fieldRestrictionsUnsupported
+	u.require(userRolePermissionFieldFieldRestrictionsUnsupported)
+}
+
+// SetFilter sets the Filter field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (u *UserRolePermission) SetFilter(filter *Filter) {
+	u.Filter = filter
+	u.require(userRolePermissionFieldFilter)
+}
+
+// SetFilterUnsupported sets the FilterUnsupported field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (u *UserRolePermission) SetFilterUnsupported(filterUnsupported *bool) {
+	u.FilterUnsupported = filterUnsupported
+	u.require(userRolePermissionFieldFilterUnsupported)
+}
+
+func (u *UserRolePermission) UnmarshalJSON(data []byte) error {
+	type unmarshaler UserRolePermission
+	var value unmarshaler
+	if err := json.Unmarshal(data, &value); err != nil {
+		return err
+	}
+	*u = UserRolePermission(value)
+	extraProperties, err := internal.ExtractExtraProperties(data, *u)
+	if err != nil {
+		return err
+	}
+	u.extraProperties = extraProperties
+	u.rawJSON = json.RawMessage(data)
+	return nil
+}
+
+func (u *UserRolePermission) MarshalJSON() ([]byte, error) {
+	type embed UserRolePermission
+	var marshaler = struct {
+		embed
+	}{
+		embed: embed(*u),
+	}
+	explicitMarshaler := internal.HandleExplicitFields(marshaler, u.explicitFields)
+	return json.Marshal(explicitMarshaler)
+}
+
+func (u *UserRolePermission) String() string {
 	if u == nil {
 		return "<nil>"
 	}

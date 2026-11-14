@@ -35,6 +35,35 @@ func NewClient(options *core.RequestOptions) *Client {
 	}
 }
 
+// Returns every path redirect in a knowledge base.
+//
+// **Rate limit:** 300 requests per minute
+//
+// Example:
+//
+//	request := &knowledgebases.KnowledgeBasesRouteRedirectsListRequest{
+//	    KnowledgeBaseID: "id",
+//	}
+//	client.KnowledgeBases.RouteRedirects.List(
+//	    context.TODO(),
+//	    request,
+//	)
+func (c *Client) List(
+	ctx context.Context,
+	request *knowledgebases.KnowledgeBasesRouteRedirectsListRequest,
+	opts ...option.RequestOption,
+) (*pylon.GetRouteRedirectsResponseBody, error) {
+	response, err := c.WithRawResponse.List(
+		ctx,
+		request,
+		opts...,
+	)
+	if err != nil {
+		return nil, err
+	}
+	return response.Body, nil
+}
+
 // Creates a path redirect within a knowledge base, mapping a source path to an article or collection.
 //
 // **Rate limit:** 30 requests per minute
@@ -44,7 +73,6 @@ func NewClient(options *core.RequestOptions) *Client {
 //	request := &knowledgebases.KnowledgeBasesRouteRedirectsCreateRequest{
 //	    KnowledgeBaseID: "id",
 //	    FromPath: "from_path",
-//	    ObjectID: "object_id",
 //	    ObjectType: "object_type",
 //	}
 //	client.KnowledgeBases.RouteRedirects.Create(
@@ -57,6 +85,36 @@ func (c *Client) Create(
 	opts ...option.RequestOption,
 ) (*pylon.CreateRouteRedirectResponseBody, error) {
 	response, err := c.WithRawResponse.Create(
+		ctx,
+		request,
+		opts...,
+	)
+	if err != nil {
+		return nil, err
+	}
+	return response.Body, nil
+}
+
+// Deletes a path redirect from a knowledge base. Requires knowledge base admin permission.
+//
+// **Rate limit:** 30 requests per minute
+//
+// Example:
+//
+//	request := &knowledgebases.KnowledgeBasesRouteRedirectsDeleteRequest{
+//	    KnowledgeBaseID: "id",
+//	    RedirectID: "redirect_id",
+//	}
+//	client.KnowledgeBases.RouteRedirects.Delete(
+//	    context.TODO(),
+//	    request,
+//	)
+func (c *Client) Delete(
+	ctx context.Context,
+	request *knowledgebases.KnowledgeBasesRouteRedirectsDeleteRequest,
+	opts ...option.RequestOption,
+) (*pylon.DeleteRouteRedirectResponseBody, error) {
+	response, err := c.WithRawResponse.Delete(
 		ctx,
 		request,
 		opts...,
