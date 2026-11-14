@@ -4165,7 +4165,7 @@ var (
 type CustomFieldValue struct {
 	// The slug of the custom field.
 	Slug *string `json:"slug,omitempty" url:"slug,omitempty"`
-	// The value of the custom field. Only to be used for single-valued custom fields. If unset, the custom field will be unset. If the custom field is a select field, the value must be the select option slug, which you can find from the GET /custom-fields endpoint. If the custom field is a relationship field, the value must be the related object ID.
+	// The value of the custom field. Only to be used for single-valued custom fields. If unset, the custom field will be unset. If the custom field is a select field, the value must be the select option slug, which you can find from the GET /custom-fields endpoint. If the custom field is a relationship field, the value must be the related object ID. If the custom field is a date or datetime field, the value must be an RFC3339 timestamp, such as 2026-01-31T00:00:00Z.
 	Value *string `json:"value,omitempty" url:"value,omitempty"`
 	// The values of the custom field. Only to be used for multi-valued custom fields (ex. multiselect). Replaces the full selection; it does not add to or remove from the existing values. If unset, the custom field will be unset. If the custom field is a multiselect field, the values must be the select option slugs which you can find from the GET /custom-fields endpoint.
 	Values []string `json:"values,omitempty" url:"values,omitempty"`
@@ -5004,6 +5004,93 @@ func (d *DeleteMessageResponseBody) MarshalJSON() ([]byte, error) {
 }
 
 func (d *DeleteMessageResponseBody) String() string {
+	if d == nil {
+		return "<nil>"
+	}
+	if len(d.rawJSON) > 0 {
+		if value, err := internal.StringifyJSON(d.rawJSON); err == nil {
+			return value
+		}
+	}
+	if value, err := internal.StringifyJSON(d); err == nil {
+		return value
+	}
+	return fmt.Sprintf("%#v", d)
+}
+
+var (
+	deleteRouteRedirectResponseBodyFieldRequestID = big.NewInt(1 << 0)
+)
+
+type DeleteRouteRedirectResponseBody struct {
+	// The request ID for tracking.
+	RequestID string `json:"request_id" url:"request_id"`
+
+	// Private bitmask of fields set to an explicit value and therefore not to be omitted
+	explicitFields *big.Int `json:"-" url:"-"`
+
+	extraProperties map[string]interface{}
+	rawJSON         json.RawMessage
+}
+
+func (d *DeleteRouteRedirectResponseBody) GetRequestID() string {
+	if d == nil {
+		return ""
+	}
+	return d.RequestID
+}
+
+func (d *DeleteRouteRedirectResponseBody) GetExtraProperties() map[string]interface{} {
+	if d == nil {
+		return nil
+	}
+	return d.extraProperties
+}
+
+func (d *DeleteRouteRedirectResponseBody) require(field *big.Int) {
+	next := new(big.Int)
+	if d.explicitFields != nil {
+		next.Set(d.explicitFields)
+	}
+	next.Or(next, field)
+	d.explicitFields = next
+}
+
+// SetRequestID sets the RequestID field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (d *DeleteRouteRedirectResponseBody) SetRequestID(requestID string) {
+	d.RequestID = requestID
+	d.require(deleteRouteRedirectResponseBodyFieldRequestID)
+}
+
+func (d *DeleteRouteRedirectResponseBody) UnmarshalJSON(data []byte) error {
+	type unmarshaler DeleteRouteRedirectResponseBody
+	var value unmarshaler
+	if err := json.Unmarshal(data, &value); err != nil {
+		return err
+	}
+	*d = DeleteRouteRedirectResponseBody(value)
+	extraProperties, err := internal.ExtractExtraProperties(data, *d)
+	if err != nil {
+		return err
+	}
+	d.extraProperties = extraProperties
+	d.rawJSON = json.RawMessage(data)
+	return nil
+}
+
+func (d *DeleteRouteRedirectResponseBody) MarshalJSON() ([]byte, error) {
+	type embed DeleteRouteRedirectResponseBody
+	var marshaler = struct {
+		embed
+	}{
+		embed: embed(*d),
+	}
+	explicitMarshaler := internal.HandleExplicitFields(marshaler, d.explicitFields)
+	return json.Marshal(explicitMarshaler)
+}
+
+func (d *DeleteRouteRedirectResponseBody) String() string {
 	if d == nil {
 		return "<nil>"
 	}
@@ -6477,8 +6564,8 @@ type Filter struct {
 	// On fields that hold user IDs, "current_user" means the API token's user; on fields that
 	// hold team IDs, "my_teams" means that user's teams. The same applies to values.
 	Value *string `json:"value,omitempty" url:"value,omitempty"`
-	// The values for this filter. Used by multi-valued operators: "in", "not_in", and
-	// "includes_all_of". For "time_range", set to [start, end].
+	// The values for this filter. Used by multi-valued operators: "in", "not_in", "includes_all_of",
+	// "includes_exactly", "belongs_to", and "not_belongs_to". For "time_range", set to [start, end].
 	Values []string `json:"values,omitempty" url:"values,omitempty"`
 
 	// Private bitmask of fields set to an explicit value and therefore not to be omitted
@@ -6854,6 +6941,9 @@ const (
 	FilterOperatorTimeIsNotInLast      FilterOperator = "time_is_not_in_last"
 	FilterOperatorTimeIsInNext         FilterOperator = "time_is_in_next"
 	FilterOperatorTimeIsNotInNext      FilterOperator = "time_is_not_in_next"
+	FilterOperatorIncludesExactly      FilterOperator = "includes_exactly"
+	FilterOperatorBelongsTo            FilterOperator = "belongs_to"
+	FilterOperatorNotBelongsTo         FilterOperator = "not_belongs_to"
 )
 
 func NewFilterOperatorFromString(s string) (FilterOperator, error) {
@@ -6912,6 +7002,12 @@ func NewFilterOperatorFromString(s string) (FilterOperator, error) {
 		return FilterOperatorTimeIsInNext, nil
 	case "time_is_not_in_next":
 		return FilterOperatorTimeIsNotInNext, nil
+	case "includes_exactly":
+		return FilterOperatorIncludesExactly, nil
+	case "belongs_to":
+		return FilterOperatorBelongsTo, nil
+	case "not_belongs_to":
+		return FilterOperatorNotBelongsTo, nil
 	}
 	var t FilterOperator
 	return "", fmt.Errorf("%s is not a valid %T", s, t)
@@ -8701,6 +8797,110 @@ func (g *GetKnowledgeBaseThemeResponseBody) MarshalJSON() ([]byte, error) {
 }
 
 func (g *GetKnowledgeBaseThemeResponseBody) String() string {
+	if g == nil {
+		return "<nil>"
+	}
+	if len(g.rawJSON) > 0 {
+		if value, err := internal.StringifyJSON(g.rawJSON); err == nil {
+			return value
+		}
+	}
+	if value, err := internal.StringifyJSON(g); err == nil {
+		return value
+	}
+	return fmt.Sprintf("%#v", g)
+}
+
+var (
+	getRouteRedirectsResponseBodyFieldData      = big.NewInt(1 << 0)
+	getRouteRedirectsResponseBodyFieldRequestID = big.NewInt(1 << 1)
+)
+
+type GetRouteRedirectsResponseBody struct {
+	// The data payload of the response.
+	Data []*RouteRedirect `json:"data" url:"data"`
+	// The request ID for tracking.
+	RequestID string `json:"request_id" url:"request_id"`
+
+	// Private bitmask of fields set to an explicit value and therefore not to be omitted
+	explicitFields *big.Int `json:"-" url:"-"`
+
+	extraProperties map[string]interface{}
+	rawJSON         json.RawMessage
+}
+
+func (g *GetRouteRedirectsResponseBody) GetData() []*RouteRedirect {
+	if g == nil {
+		return nil
+	}
+	return g.Data
+}
+
+func (g *GetRouteRedirectsResponseBody) GetRequestID() string {
+	if g == nil {
+		return ""
+	}
+	return g.RequestID
+}
+
+func (g *GetRouteRedirectsResponseBody) GetExtraProperties() map[string]interface{} {
+	if g == nil {
+		return nil
+	}
+	return g.extraProperties
+}
+
+func (g *GetRouteRedirectsResponseBody) require(field *big.Int) {
+	next := new(big.Int)
+	if g.explicitFields != nil {
+		next.Set(g.explicitFields)
+	}
+	next.Or(next, field)
+	g.explicitFields = next
+}
+
+// SetData sets the Data field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (g *GetRouteRedirectsResponseBody) SetData(data []*RouteRedirect) {
+	g.Data = data
+	g.require(getRouteRedirectsResponseBodyFieldData)
+}
+
+// SetRequestID sets the RequestID field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (g *GetRouteRedirectsResponseBody) SetRequestID(requestID string) {
+	g.RequestID = requestID
+	g.require(getRouteRedirectsResponseBodyFieldRequestID)
+}
+
+func (g *GetRouteRedirectsResponseBody) UnmarshalJSON(data []byte) error {
+	type unmarshaler GetRouteRedirectsResponseBody
+	var value unmarshaler
+	if err := json.Unmarshal(data, &value); err != nil {
+		return err
+	}
+	*g = GetRouteRedirectsResponseBody(value)
+	extraProperties, err := internal.ExtractExtraProperties(data, *g)
+	if err != nil {
+		return err
+	}
+	g.extraProperties = extraProperties
+	g.rawJSON = json.RawMessage(data)
+	return nil
+}
+
+func (g *GetRouteRedirectsResponseBody) MarshalJSON() ([]byte, error) {
+	type embed GetRouteRedirectsResponseBody
+	var marshaler = struct {
+		embed
+	}{
+		embed: embed(*g),
+	}
+	explicitMarshaler := internal.HandleExplicitFields(marshaler, g.explicitFields)
+	return json.Marshal(explicitMarshaler)
+}
+
+func (g *GetRouteRedirectsResponseBody) String() string {
 	if g == nil {
 		return "<nil>"
 	}
@@ -11376,43 +11576,44 @@ var (
 	issueFieldCreatedAt                         = big.NewInt(1 << 13)
 	issueFieldCsatResponses                     = big.NewInt(1 << 14)
 	issueFieldCustomFields                      = big.NewInt(1 << 15)
-	issueFieldCustomerPortalVisible             = big.NewInt(1 << 16)
-	issueFieldExternalIncidents                 = big.NewInt(1 << 17)
-	issueFieldExternalIssues                    = big.NewInt(1 << 18)
-	issueFieldFirstResolutionTime               = big.NewInt(1 << 19)
-	issueFieldFirstResponseAssigneeIDAtBreach   = big.NewInt(1 << 20)
-	issueFieldFirstResponseBreachTime           = big.NewInt(1 << 21)
-	issueFieldFirstResponseResolvingUserID      = big.NewInt(1 << 22)
-	issueFieldFirstResponseSeconds              = big.NewInt(1 << 23)
-	issueFieldFirstResponseTime                 = big.NewInt(1 << 24)
-	issueFieldFollowUp                          = big.NewInt(1 << 25)
-	issueFieldID                                = big.NewInt(1 << 26)
-	issueFieldIsIssueGroup                      = big.NewInt(1 << 27)
-	issueFieldLatestMessageTime                 = big.NewInt(1 << 28)
-	issueFieldLink                              = big.NewInt(1 << 29)
-	issueFieldNextReply                         = big.NewInt(1 << 30)
-	issueFieldNumber                            = big.NewInt(1 << 31)
-	issueFieldNumberOfTouches                   = big.NewInt(1 << 32)
-	issueFieldParentIssueGroup                  = big.NewInt(1 << 33)
-	issueFieldRequester                         = big.NewInt(1 << 34)
-	issueFieldResolutionAssigneeIDAtBreach      = big.NewInt(1 << 35)
-	issueFieldResolutionBreachTime              = big.NewInt(1 << 36)
-	issueFieldResolutionResolvingUserID         = big.NewInt(1 << 37)
-	issueFieldResolutionSeconds                 = big.NewInt(1 << 38)
-	issueFieldResolutionTime                    = big.NewInt(1 << 39)
-	issueFieldSlack                             = big.NewInt(1 << 40)
-	issueFieldSnoozedUntilTime                  = big.NewInt(1 << 41)
-	issueFieldSource                            = big.NewInt(1 << 42)
-	issueFieldState                             = big.NewInt(1 << 43)
-	issueFieldTags                              = big.NewInt(1 << 44)
-	issueFieldTeam                              = big.NewInt(1 << 45)
-	issueFieldTeamSlas                          = big.NewInt(1 << 46)
-	issueFieldTimeInStatusSeconds               = big.NewInt(1 << 47)
-	issueFieldTitle                             = big.NewInt(1 << 48)
-	issueFieldType                              = big.NewInt(1 << 49)
-	issueFieldUpdatedAt                         = big.NewInt(1 << 50)
-	issueFieldWorkspaceEmail                    = big.NewInt(1 << 51)
-	issueFieldWorkspacePhoneNumber              = big.NewInt(1 << 52)
+	issueFieldCustomerPortalTitle               = big.NewInt(1 << 16)
+	issueFieldCustomerPortalVisible             = big.NewInt(1 << 17)
+	issueFieldExternalIncidents                 = big.NewInt(1 << 18)
+	issueFieldExternalIssues                    = big.NewInt(1 << 19)
+	issueFieldFirstResolutionTime               = big.NewInt(1 << 20)
+	issueFieldFirstResponseAssigneeIDAtBreach   = big.NewInt(1 << 21)
+	issueFieldFirstResponseBreachTime           = big.NewInt(1 << 22)
+	issueFieldFirstResponseResolvingUserID      = big.NewInt(1 << 23)
+	issueFieldFirstResponseSeconds              = big.NewInt(1 << 24)
+	issueFieldFirstResponseTime                 = big.NewInt(1 << 25)
+	issueFieldFollowUp                          = big.NewInt(1 << 26)
+	issueFieldID                                = big.NewInt(1 << 27)
+	issueFieldIsIssueGroup                      = big.NewInt(1 << 28)
+	issueFieldLatestMessageTime                 = big.NewInt(1 << 29)
+	issueFieldLink                              = big.NewInt(1 << 30)
+	issueFieldNextReply                         = big.NewInt(1 << 31)
+	issueFieldNumber                            = big.NewInt(1 << 32)
+	issueFieldNumberOfTouches                   = big.NewInt(1 << 33)
+	issueFieldParentIssueGroup                  = big.NewInt(1 << 34)
+	issueFieldRequester                         = big.NewInt(1 << 35)
+	issueFieldResolutionAssigneeIDAtBreach      = big.NewInt(1 << 36)
+	issueFieldResolutionBreachTime              = big.NewInt(1 << 37)
+	issueFieldResolutionResolvingUserID         = big.NewInt(1 << 38)
+	issueFieldResolutionSeconds                 = big.NewInt(1 << 39)
+	issueFieldResolutionTime                    = big.NewInt(1 << 40)
+	issueFieldSlack                             = big.NewInt(1 << 41)
+	issueFieldSnoozedUntilTime                  = big.NewInt(1 << 42)
+	issueFieldSource                            = big.NewInt(1 << 43)
+	issueFieldState                             = big.NewInt(1 << 44)
+	issueFieldTags                              = big.NewInt(1 << 45)
+	issueFieldTeam                              = big.NewInt(1 << 46)
+	issueFieldTeamSlas                          = big.NewInt(1 << 47)
+	issueFieldTimeInStatusSeconds               = big.NewInt(1 << 48)
+	issueFieldTitle                             = big.NewInt(1 << 49)
+	issueFieldType                              = big.NewInt(1 << 50)
+	issueFieldUpdatedAt                         = big.NewInt(1 << 51)
+	issueFieldWorkspaceEmail                    = big.NewInt(1 << 52)
+	issueFieldWorkspacePhoneNumber              = big.NewInt(1 << 53)
 )
 
 // issueNullableFields maps the wire names of Issue's nullable fields (required or optional) to their field bits.
@@ -11459,6 +11660,8 @@ type Issue struct {
 	CsatResponses []*CsatResponse `json:"csat_responses,omitempty" url:"csat_responses,omitempty"`
 	// Custom field values associated with the issue.
 	CustomFields map[string]*CustomFieldValue `json:"custom_fields,omitempty" url:"custom_fields,omitempty"`
+	// The customer-facing title displayed in the customer portal, separate from the internal issue title.
+	CustomerPortalTitle string `json:"customer_portal_title" url:"customer_portal_title"`
 	// Whether the issue is visible in the customer portal.
 	CustomerPortalVisible bool `json:"customer_portal_visible" url:"customer_portal_visible"`
 	// Incidents from incident.io or Rootly linked to this issue.
@@ -11649,6 +11852,13 @@ func (i *Issue) GetCustomFields() map[string]*CustomFieldValue {
 		return nil
 	}
 	return i.CustomFields
+}
+
+func (i *Issue) GetCustomerPortalTitle() string {
+	if i == nil {
+		return ""
+	}
+	return i.CustomerPortalTitle
 }
 
 func (i *Issue) GetCustomerPortalVisible() bool {
@@ -12036,6 +12246,13 @@ func (i *Issue) SetCsatResponses(csatResponses []*CsatResponse) {
 func (i *Issue) SetCustomFields(customFields map[string]*CustomFieldValue) {
 	i.CustomFields = customFields
 	i.require(issueFieldCustomFields)
+}
+
+// SetCustomerPortalTitle sets the CustomerPortalTitle field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (i *Issue) SetCustomerPortalTitle(customerPortalTitle string) {
+	i.CustomerPortalTitle = customerPortalTitle
+	i.require(issueFieldCustomerPortalTitle)
 }
 
 // SetCustomerPortalVisible sets the CustomerPortalVisible field and marks it as non-optional;
@@ -14778,9 +14995,9 @@ type RouteRedirect struct {
 	ID string `json:"id" url:"id"`
 	// The language of the object to redirect to.
 	Language *string `json:"language,omitempty" url:"language,omitempty"`
-	// The ID of the object to redirect to.
+	// The ID of the object to redirect to. Empty when object_type is knowledgebase.
 	ObjectID string `json:"object_id" url:"object_id"`
-	// The type of the object to redirect to.
+	// The type of the object to redirect to: article, collection, or knowledgebase for the knowledge base homepage.
 	ObjectType string `json:"object_type" url:"object_type"`
 
 	// Private bitmask of fields set to an explicit value and therefore not to be omitted

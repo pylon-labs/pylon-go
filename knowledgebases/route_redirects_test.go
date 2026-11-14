@@ -36,7 +36,7 @@ func TestSettersKnowledgeBasesRouteRedirectsCreateRequest(t *testing.T) {
 
 	t.Run("SetObjectID", func(t *testing.T) {
 		obj := &KnowledgeBasesRouteRedirectsCreateRequest{}
-		var fernTestValueObjectID string
+		var fernTestValueObjectID *string
 		obj.SetObjectID(fernTestValueObjectID)
 		assert.Equal(t, fernTestValueObjectID, obj.ObjectID)
 		assert.NotNil(t, obj.explicitFields)
@@ -150,7 +150,7 @@ func TestSettersMarkExplicitKnowledgeBasesRouteRedirectsCreateRequest(t *testing
 		t.Parallel()
 		// Arrange
 		obj := &KnowledgeBasesRouteRedirectsCreateRequest{}
-		var fernTestValueObjectID string
+		var fernTestValueObjectID *string
 
 		// Act
 		obj.SetObjectID(fernTestValueObjectID)
@@ -185,6 +185,135 @@ func TestSettersMarkExplicitKnowledgeBasesRouteRedirectsCreateRequest(t *testing
 
 		// Act
 		obj.SetObjectType(fernTestValueObjectType)
+
+		// Assert - object with explicitly set field can be marshaled/unmarshaled
+		bytes, err := json.Marshal(obj)
+		require.NoError(t, err, "marshaling should succeed for test setup")
+
+		// This test ensures JSON marshaling and unmarshaling succeed when the field has a zero/nil value
+		// Detect if marshaled JSON is an object or primitive to use correct unmarshal target
+		if len(bytes) > 0 && bytes[0] == '{' {
+			// JSON object - unmarshal into map
+			var unmarshaled map[string]interface{}
+			err = json.Unmarshal(bytes, &unmarshaled)
+			require.NoError(t, err, "unmarshaling should succeed for test verification")
+		} else {
+			// JSON primitive (string, number, boolean, null) - unmarshal into interface{}
+			var unmarshaled interface{}
+			err = json.Unmarshal(bytes, &unmarshaled)
+			require.NoError(t, err, "unmarshaling should succeed for test verification")
+		}
+
+		// Note: This does not explicitly assert the presence of a specific JSON field
+		// It verifies that setting a field via setter allows successful JSON round-trip
+	})
+
+}
+
+func TestSettersKnowledgeBasesRouteRedirectsDeleteRequest(t *testing.T) {
+	t.Run("SetKnowledgeBaseID", func(t *testing.T) {
+		obj := &KnowledgeBasesRouteRedirectsDeleteRequest{}
+		var fernTestValueKnowledgeBaseID string
+		obj.SetKnowledgeBaseID(fernTestValueKnowledgeBaseID)
+		assert.Equal(t, fernTestValueKnowledgeBaseID, obj.KnowledgeBaseID)
+		assert.NotNil(t, obj.explicitFields)
+	})
+
+	t.Run("SetRedirectID", func(t *testing.T) {
+		obj := &KnowledgeBasesRouteRedirectsDeleteRequest{}
+		var fernTestValueRedirectID string
+		obj.SetRedirectID(fernTestValueRedirectID)
+		assert.Equal(t, fernTestValueRedirectID, obj.RedirectID)
+		assert.NotNil(t, obj.explicitFields)
+	})
+
+}
+
+func TestSettersMarkExplicitKnowledgeBasesRouteRedirectsDeleteRequest(t *testing.T) {
+	t.Run("SetKnowledgeBaseID_MarksExplicit", func(t *testing.T) {
+		t.Parallel()
+		// Arrange
+		obj := &KnowledgeBasesRouteRedirectsDeleteRequest{}
+		var fernTestValueKnowledgeBaseID string
+
+		// Act
+		obj.SetKnowledgeBaseID(fernTestValueKnowledgeBaseID)
+
+		// Assert - object with explicitly set field can be marshaled/unmarshaled
+		bytes, err := json.Marshal(obj)
+		require.NoError(t, err, "marshaling should succeed for test setup")
+
+		// This test ensures JSON marshaling and unmarshaling succeed when the field has a zero/nil value
+		// Detect if marshaled JSON is an object or primitive to use correct unmarshal target
+		if len(bytes) > 0 && bytes[0] == '{' {
+			// JSON object - unmarshal into map
+			var unmarshaled map[string]interface{}
+			err = json.Unmarshal(bytes, &unmarshaled)
+			require.NoError(t, err, "unmarshaling should succeed for test verification")
+		} else {
+			// JSON primitive (string, number, boolean, null) - unmarshal into interface{}
+			var unmarshaled interface{}
+			err = json.Unmarshal(bytes, &unmarshaled)
+			require.NoError(t, err, "unmarshaling should succeed for test verification")
+		}
+
+		// Note: This does not explicitly assert the presence of a specific JSON field
+		// It verifies that setting a field via setter allows successful JSON round-trip
+	})
+
+	t.Run("SetRedirectID_MarksExplicit", func(t *testing.T) {
+		t.Parallel()
+		// Arrange
+		obj := &KnowledgeBasesRouteRedirectsDeleteRequest{}
+		var fernTestValueRedirectID string
+
+		// Act
+		obj.SetRedirectID(fernTestValueRedirectID)
+
+		// Assert - object with explicitly set field can be marshaled/unmarshaled
+		bytes, err := json.Marshal(obj)
+		require.NoError(t, err, "marshaling should succeed for test setup")
+
+		// This test ensures JSON marshaling and unmarshaling succeed when the field has a zero/nil value
+		// Detect if marshaled JSON is an object or primitive to use correct unmarshal target
+		if len(bytes) > 0 && bytes[0] == '{' {
+			// JSON object - unmarshal into map
+			var unmarshaled map[string]interface{}
+			err = json.Unmarshal(bytes, &unmarshaled)
+			require.NoError(t, err, "unmarshaling should succeed for test verification")
+		} else {
+			// JSON primitive (string, number, boolean, null) - unmarshal into interface{}
+			var unmarshaled interface{}
+			err = json.Unmarshal(bytes, &unmarshaled)
+			require.NoError(t, err, "unmarshaling should succeed for test verification")
+		}
+
+		// Note: This does not explicitly assert the presence of a specific JSON field
+		// It verifies that setting a field via setter allows successful JSON round-trip
+	})
+
+}
+
+func TestSettersKnowledgeBasesRouteRedirectsListRequest(t *testing.T) {
+	t.Run("SetKnowledgeBaseID", func(t *testing.T) {
+		obj := &KnowledgeBasesRouteRedirectsListRequest{}
+		var fernTestValueKnowledgeBaseID string
+		obj.SetKnowledgeBaseID(fernTestValueKnowledgeBaseID)
+		assert.Equal(t, fernTestValueKnowledgeBaseID, obj.KnowledgeBaseID)
+		assert.NotNil(t, obj.explicitFields)
+	})
+
+}
+
+func TestSettersMarkExplicitKnowledgeBasesRouteRedirectsListRequest(t *testing.T) {
+	t.Run("SetKnowledgeBaseID_MarksExplicit", func(t *testing.T) {
+		t.Parallel()
+		// Arrange
+		obj := &KnowledgeBasesRouteRedirectsListRequest{}
+		var fernTestValueKnowledgeBaseID string
+
+		// Act
+		obj.SetKnowledgeBaseID(fernTestValueKnowledgeBaseID)
 
 		// Assert - object with explicitly set field can be marshaled/unmarshaled
 		bytes, err := json.Marshal(obj)

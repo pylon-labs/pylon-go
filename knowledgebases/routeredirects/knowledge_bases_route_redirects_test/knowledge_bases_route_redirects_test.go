@@ -77,6 +77,32 @@ func VerifyRequestCount(
 	require.Equal(t, expected, len(result.Requests))
 }
 
+func TestKnowledgeBasesRouteRedirectsListWithWireMock(
+	t *testing.T,
+) {
+	WireMockBaseURL := os.Getenv("WIREMOCK_URL")
+	if WireMockBaseURL == "" {
+		WireMockBaseURL = "http://localhost:8080"
+	}
+	client := client.NewClient(
+		option.WithBaseURL(WireMockBaseURL),
+		option.WithToken("test-token"),
+	)
+	request := &knowledgebases.KnowledgeBasesRouteRedirectsListRequest{
+		KnowledgeBaseID: "id",
+	}
+	_, invocationErr := client.KnowledgeBases.RouteRedirects.List(
+		context.TODO(),
+		request,
+		option.WithHTTPHeader(
+			http.Header{"X-Test-Id": []string{"TestKnowledgeBasesRouteRedirectsListWithWireMock"}},
+		),
+	)
+
+	require.NoError(t, invocationErr, "Client method call should succeed")
+	VerifyRequestCount(t, "TestKnowledgeBasesRouteRedirectsListWithWireMock", "GET", "/knowledge-bases/id/route-redirects", nil, 1)
+}
+
 func TestKnowledgeBasesRouteRedirectsCreateWithWireMock(
 	t *testing.T,
 ) {
@@ -91,7 +117,6 @@ func TestKnowledgeBasesRouteRedirectsCreateWithWireMock(
 	request := &knowledgebases.KnowledgeBasesRouteRedirectsCreateRequest{
 		KnowledgeBaseID: "id",
 		FromPath:        "from_path",
-		ObjectID:        "object_id",
 		ObjectType:      "object_type",
 	}
 	_, invocationErr := client.KnowledgeBases.RouteRedirects.Create(
@@ -104,4 +129,31 @@ func TestKnowledgeBasesRouteRedirectsCreateWithWireMock(
 
 	require.NoError(t, invocationErr, "Client method call should succeed")
 	VerifyRequestCount(t, "TestKnowledgeBasesRouteRedirectsCreateWithWireMock", "POST", "/knowledge-bases/id/route-redirects", nil, 1)
+}
+
+func TestKnowledgeBasesRouteRedirectsDeleteWithWireMock(
+	t *testing.T,
+) {
+	WireMockBaseURL := os.Getenv("WIREMOCK_URL")
+	if WireMockBaseURL == "" {
+		WireMockBaseURL = "http://localhost:8080"
+	}
+	client := client.NewClient(
+		option.WithBaseURL(WireMockBaseURL),
+		option.WithToken("test-token"),
+	)
+	request := &knowledgebases.KnowledgeBasesRouteRedirectsDeleteRequest{
+		KnowledgeBaseID: "id",
+		RedirectID:      "redirect_id",
+	}
+	_, invocationErr := client.KnowledgeBases.RouteRedirects.Delete(
+		context.TODO(),
+		request,
+		option.WithHTTPHeader(
+			http.Header{"X-Test-Id": []string{"TestKnowledgeBasesRouteRedirectsDeleteWithWireMock"}},
+		),
+	)
+
+	require.NoError(t, invocationErr, "Client method call should succeed")
+	VerifyRequestCount(t, "TestKnowledgeBasesRouteRedirectsDeleteWithWireMock", "DELETE", "/knowledge-bases/id/route-redirects/redirect_id", nil, 1)
 }

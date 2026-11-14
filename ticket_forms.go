@@ -584,13 +584,14 @@ func (s *SubmitTicketFormResponseBody) String() string {
 }
 
 var (
-	ticketFormFieldDescriptionHTML = big.NewInt(1 << 0)
-	ticketFormFieldFields          = big.NewInt(1 << 1)
-	ticketFormFieldID              = big.NewInt(1 << 2)
-	ticketFormFieldIsPublic        = big.NewInt(1 << 3)
-	ticketFormFieldName            = big.NewInt(1 << 4)
-	ticketFormFieldSlug            = big.NewInt(1 << 5)
-	ticketFormFieldURL             = big.NewInt(1 << 6)
+	ticketFormFieldAiSearchEnabled = big.NewInt(1 << 0)
+	ticketFormFieldDescriptionHTML = big.NewInt(1 << 1)
+	ticketFormFieldFields          = big.NewInt(1 << 2)
+	ticketFormFieldID              = big.NewInt(1 << 3)
+	ticketFormFieldIsPublic        = big.NewInt(1 << 4)
+	ticketFormFieldName            = big.NewInt(1 << 5)
+	ticketFormFieldSlug            = big.NewInt(1 << 6)
+	ticketFormFieldURL             = big.NewInt(1 << 7)
 )
 
 // ticketFormNullableFields maps the wire names of TicketForm's nullable fields (required or optional) to their field bits.
@@ -599,6 +600,8 @@ var ticketFormNullableFields = map[string]*big.Int{
 }
 
 type TicketForm struct {
+	// Whether the form offers AI search before submission.
+	AiSearchEnabled bool `json:"ai_search_enabled" url:"ai_search_enabled"`
 	// The description of the ticket form in HTML.
 	DescriptionHTML string `json:"description_html" url:"description_html"`
 	// The layout of the ticket form.
@@ -619,6 +622,13 @@ type TicketForm struct {
 
 	extraProperties map[string]interface{}
 	rawJSON         json.RawMessage
+}
+
+func (t *TicketForm) GetAiSearchEnabled() bool {
+	if t == nil {
+		return false
+	}
+	return t.AiSearchEnabled
 }
 
 func (t *TicketForm) GetDescriptionHTML() string {
@@ -684,6 +694,13 @@ func (t *TicketForm) require(field *big.Int) {
 	}
 	next.Or(next, field)
 	t.explicitFields = next
+}
+
+// SetAiSearchEnabled sets the AiSearchEnabled field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (t *TicketForm) SetAiSearchEnabled(aiSearchEnabled bool) {
+	t.AiSearchEnabled = aiSearchEnabled
+	t.require(ticketFormFieldAiSearchEnabled)
 }
 
 // SetDescriptionHTML sets the DescriptionHTML field and marks it as non-optional;

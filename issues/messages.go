@@ -47,9 +47,10 @@ func (i *IssuesMessagesDeleteRequest) SetMessageID(messageID string) {
 }
 
 var (
-	issuesMessagesListRequestFieldIssueID = big.NewInt(1 << 0)
-	issuesMessagesListRequestFieldCursor  = big.NewInt(1 << 1)
-	issuesMessagesListRequestFieldLimit   = big.NewInt(1 << 2)
+	issuesMessagesListRequestFieldIssueID    = big.NewInt(1 << 0)
+	issuesMessagesListRequestFieldCursor     = big.NewInt(1 << 1)
+	issuesMessagesListRequestFieldLimit      = big.NewInt(1 << 2)
+	issuesMessagesListRequestFieldPublicOnly = big.NewInt(1 << 3)
 )
 
 type IssuesMessagesListRequest struct {
@@ -59,6 +60,8 @@ type IssuesMessagesListRequest struct {
 	Cursor *string `json:"-" url:"cursor,omitempty"`
 	// The number of messages to fetch. Must be greater than 0 and at most 1000. If omitted, all messages are returned for backward compatibility.
 	Limit *int64 `json:"-" url:"limit,omitempty"`
+	// Return only customer-visible messages, excluding internal notes and hidden messages. Clears BCC recipients, email-open tracking, Slack metadata, internal thread IDs, and the author's internal user email. Defaults to false. This does not enforce a portal visitor's ticket access or portal identity settings; callers must authorize their customers separately.
+	PublicOnly *bool `json:"-" url:"public_only,omitempty"`
 
 	// Private bitmask of fields set to an explicit value and therefore not to be omitted
 	explicitFields *big.Int `json:"-" url:"-"`
@@ -92,6 +95,13 @@ func (i *IssuesMessagesListRequest) SetCursor(cursor *string) {
 func (i *IssuesMessagesListRequest) SetLimit(limit *int64) {
 	i.Limit = limit
 	i.require(issuesMessagesListRequestFieldLimit)
+}
+
+// SetPublicOnly sets the PublicOnly field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (i *IssuesMessagesListRequest) SetPublicOnly(publicOnly *bool) {
+	i.PublicOnly = publicOnly
+	i.require(issuesMessagesListRequestFieldPublicOnly)
 }
 
 var (
