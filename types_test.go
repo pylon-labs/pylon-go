@@ -17543,6 +17543,14 @@ func TestSettersImportIssueRequest(t *testing.T) {
 		assert.NotNil(t, obj.explicitFields)
 	})
 
+	t.Run("SetBodyHTML", func(t *testing.T) {
+		obj := &ImportIssueRequest{}
+		var fernTestValueBodyHTML *string
+		obj.SetBodyHTML(fernTestValueBodyHTML)
+		assert.Equal(t, fernTestValueBodyHTML, obj.BodyHTML)
+		assert.NotNil(t, obj.explicitFields)
+	})
+
 	t.Run("SetCreatedAt", func(t *testing.T) {
 		obj := &ImportIssueRequest{}
 		var fernTestValueCreatedAt *time.Time
@@ -17556,6 +17564,14 @@ func TestSettersImportIssueRequest(t *testing.T) {
 		var fernTestValueCustomFields []*CustomFieldValue
 		obj.SetCustomFields(fernTestValueCustomFields)
 		assert.Equal(t, fernTestValueCustomFields, obj.CustomFields)
+		assert.NotNil(t, obj.explicitFields)
+	})
+
+	t.Run("SetCustomerPortalVisible", func(t *testing.T) {
+		obj := &ImportIssueRequest{}
+		var fernTestValueCustomerPortalVisible *bool
+		obj.SetCustomerPortalVisible(fernTestValueCustomerPortalVisible)
+		assert.Equal(t, fernTestValueCustomerPortalVisible, obj.CustomerPortalVisible)
 		assert.NotNil(t, obj.explicitFields)
 	})
 
@@ -17580,6 +17596,14 @@ func TestSettersImportIssueRequest(t *testing.T) {
 		var fernTestValueFirstResponseTime *time.Time
 		obj.SetFirstResponseTime(fernTestValueFirstResponseTime)
 		assert.Equal(t, fernTestValueFirstResponseTime, obj.FirstResponseTime)
+		assert.NotNil(t, obj.explicitFields)
+	})
+
+	t.Run("SetIdempotencyKey", func(t *testing.T) {
+		obj := &ImportIssueRequest{}
+		var fernTestValueIdempotencyKey *string
+		obj.SetIdempotencyKey(fernTestValueIdempotencyKey)
+		assert.Equal(t, fernTestValueIdempotencyKey, obj.IdempotencyKey)
 		assert.NotNil(t, obj.explicitFields)
 	})
 
@@ -17765,6 +17789,39 @@ func TestGettersImportIssueRequest(t *testing.T) {
 		_ = obj.GetAttachmentURLs() // Should return zero value
 	})
 
+	t.Run("GetBodyHTML", func(t *testing.T) {
+		t.Parallel()
+		// Arrange
+		obj := &ImportIssueRequest{}
+		var expected *string
+		obj.BodyHTML = expected
+
+		// Act & Assert
+		assert.Equal(t, expected, obj.GetBodyHTML(), "getter should return the property value")
+	})
+
+	t.Run("GetBodyHTML_NilValue", func(t *testing.T) {
+		t.Parallel()
+		// Arrange
+		obj := &ImportIssueRequest{}
+		obj.BodyHTML = nil
+
+		// Act & Assert
+		assert.Nil(t, obj.GetBodyHTML(), "getter should return nil when property is nil")
+	})
+
+	t.Run("GetBodyHTML_NilReceiver", func(t *testing.T) {
+		t.Parallel()
+		var obj *ImportIssueRequest
+		// Should not panic - getters should handle nil receiver gracefully
+		defer func() {
+			if r := recover(); r != nil {
+				t.Errorf("Getter panicked on nil receiver: %v", r)
+			}
+		}()
+		_ = obj.GetBodyHTML() // Should return zero value
+	})
+
 	t.Run("GetCreatedAt", func(t *testing.T) {
 		t.Parallel()
 		// Arrange
@@ -17829,6 +17886,39 @@ func TestGettersImportIssueRequest(t *testing.T) {
 			}
 		}()
 		_ = obj.GetCustomFields() // Should return zero value
+	})
+
+	t.Run("GetCustomerPortalVisible", func(t *testing.T) {
+		t.Parallel()
+		// Arrange
+		obj := &ImportIssueRequest{}
+		var expected *bool
+		obj.CustomerPortalVisible = expected
+
+		// Act & Assert
+		assert.Equal(t, expected, obj.GetCustomerPortalVisible(), "getter should return the property value")
+	})
+
+	t.Run("GetCustomerPortalVisible_NilValue", func(t *testing.T) {
+		t.Parallel()
+		// Arrange
+		obj := &ImportIssueRequest{}
+		obj.CustomerPortalVisible = nil
+
+		// Act & Assert
+		assert.Nil(t, obj.GetCustomerPortalVisible(), "getter should return nil when property is nil")
+	})
+
+	t.Run("GetCustomerPortalVisible_NilReceiver", func(t *testing.T) {
+		t.Parallel()
+		var obj *ImportIssueRequest
+		// Should not panic - getters should handle nil receiver gracefully
+		defer func() {
+			if r := recover(); r != nil {
+				t.Errorf("Getter panicked on nil receiver: %v", r)
+			}
+		}()
+		_ = obj.GetCustomerPortalVisible() // Should return zero value
 	})
 
 	t.Run("GetExternalIssues", func(t *testing.T) {
@@ -17928,6 +18018,39 @@ func TestGettersImportIssueRequest(t *testing.T) {
 			}
 		}()
 		_ = obj.GetFirstResponseTime() // Should return zero value
+	})
+
+	t.Run("GetIdempotencyKey", func(t *testing.T) {
+		t.Parallel()
+		// Arrange
+		obj := &ImportIssueRequest{}
+		var expected *string
+		obj.IdempotencyKey = expected
+
+		// Act & Assert
+		assert.Equal(t, expected, obj.GetIdempotencyKey(), "getter should return the property value")
+	})
+
+	t.Run("GetIdempotencyKey_NilValue", func(t *testing.T) {
+		t.Parallel()
+		// Arrange
+		obj := &ImportIssueRequest{}
+		obj.IdempotencyKey = nil
+
+		// Act & Assert
+		assert.Nil(t, obj.GetIdempotencyKey(), "getter should return nil when property is nil")
+	})
+
+	t.Run("GetIdempotencyKey_NilReceiver", func(t *testing.T) {
+		t.Parallel()
+		var obj *ImportIssueRequest
+		// Should not panic - getters should handle nil receiver gracefully
+		defer func() {
+			if r := recover(); r != nil {
+				t.Errorf("Getter panicked on nil receiver: %v", r)
+			}
+		}()
+		_ = obj.GetIdempotencyKey() // Should return zero value
 	})
 
 	t.Run("GetIssueNumber", func(t *testing.T) {
@@ -18336,6 +18459,37 @@ func TestSettersMarkExplicitImportIssueRequest(t *testing.T) {
 		// It verifies that setting a field via setter allows successful JSON round-trip
 	})
 
+	t.Run("SetBodyHTML_MarksExplicit", func(t *testing.T) {
+		t.Parallel()
+		// Arrange
+		obj := &ImportIssueRequest{}
+		var fernTestValueBodyHTML *string
+
+		// Act
+		obj.SetBodyHTML(fernTestValueBodyHTML)
+
+		// Assert - object with explicitly set field can be marshaled/unmarshaled
+		bytes, err := json.Marshal(obj)
+		require.NoError(t, err, "marshaling should succeed for test setup")
+
+		// This test ensures JSON marshaling and unmarshaling succeed when the field has a zero/nil value
+		// Detect if marshaled JSON is an object or primitive to use correct unmarshal target
+		if len(bytes) > 0 && bytes[0] == '{' {
+			// JSON object - unmarshal into map
+			var unmarshaled map[string]interface{}
+			err = json.Unmarshal(bytes, &unmarshaled)
+			require.NoError(t, err, "unmarshaling should succeed for test verification")
+		} else {
+			// JSON primitive (string, number, boolean, null) - unmarshal into interface{}
+			var unmarshaled interface{}
+			err = json.Unmarshal(bytes, &unmarshaled)
+			require.NoError(t, err, "unmarshaling should succeed for test verification")
+		}
+
+		// Note: This does not explicitly assert the presence of a specific JSON field
+		// It verifies that setting a field via setter allows successful JSON round-trip
+	})
+
 	t.Run("SetCreatedAt_MarksExplicit", func(t *testing.T) {
 		t.Parallel()
 		// Arrange
@@ -18375,6 +18529,37 @@ func TestSettersMarkExplicitImportIssueRequest(t *testing.T) {
 
 		// Act
 		obj.SetCustomFields(fernTestValueCustomFields)
+
+		// Assert - object with explicitly set field can be marshaled/unmarshaled
+		bytes, err := json.Marshal(obj)
+		require.NoError(t, err, "marshaling should succeed for test setup")
+
+		// This test ensures JSON marshaling and unmarshaling succeed when the field has a zero/nil value
+		// Detect if marshaled JSON is an object or primitive to use correct unmarshal target
+		if len(bytes) > 0 && bytes[0] == '{' {
+			// JSON object - unmarshal into map
+			var unmarshaled map[string]interface{}
+			err = json.Unmarshal(bytes, &unmarshaled)
+			require.NoError(t, err, "unmarshaling should succeed for test verification")
+		} else {
+			// JSON primitive (string, number, boolean, null) - unmarshal into interface{}
+			var unmarshaled interface{}
+			err = json.Unmarshal(bytes, &unmarshaled)
+			require.NoError(t, err, "unmarshaling should succeed for test verification")
+		}
+
+		// Note: This does not explicitly assert the presence of a specific JSON field
+		// It verifies that setting a field via setter allows successful JSON round-trip
+	})
+
+	t.Run("SetCustomerPortalVisible_MarksExplicit", func(t *testing.T) {
+		t.Parallel()
+		// Arrange
+		obj := &ImportIssueRequest{}
+		var fernTestValueCustomerPortalVisible *bool
+
+		// Act
+		obj.SetCustomerPortalVisible(fernTestValueCustomerPortalVisible)
 
 		// Assert - object with explicitly set field can be marshaled/unmarshaled
 		bytes, err := json.Marshal(obj)
@@ -18468,6 +18653,37 @@ func TestSettersMarkExplicitImportIssueRequest(t *testing.T) {
 
 		// Act
 		obj.SetFirstResponseTime(fernTestValueFirstResponseTime)
+
+		// Assert - object with explicitly set field can be marshaled/unmarshaled
+		bytes, err := json.Marshal(obj)
+		require.NoError(t, err, "marshaling should succeed for test setup")
+
+		// This test ensures JSON marshaling and unmarshaling succeed when the field has a zero/nil value
+		// Detect if marshaled JSON is an object or primitive to use correct unmarshal target
+		if len(bytes) > 0 && bytes[0] == '{' {
+			// JSON object - unmarshal into map
+			var unmarshaled map[string]interface{}
+			err = json.Unmarshal(bytes, &unmarshaled)
+			require.NoError(t, err, "unmarshaling should succeed for test verification")
+		} else {
+			// JSON primitive (string, number, boolean, null) - unmarshal into interface{}
+			var unmarshaled interface{}
+			err = json.Unmarshal(bytes, &unmarshaled)
+			require.NoError(t, err, "unmarshaling should succeed for test verification")
+		}
+
+		// Note: This does not explicitly assert the presence of a specific JSON field
+		// It verifies that setting a field via setter allows successful JSON round-trip
+	})
+
+	t.Run("SetIdempotencyKey_MarksExplicit", func(t *testing.T) {
+		t.Parallel()
+		// Arrange
+		obj := &ImportIssueRequest{}
+		var fernTestValueIdempotencyKey *string
+
+		// Act
+		obj.SetIdempotencyKey(fernTestValueIdempotencyKey)
 
 		// Assert - object with explicitly set field can be marshaled/unmarshaled
 		bytes, err := json.Marshal(obj)

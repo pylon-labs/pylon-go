@@ -19,11 +19,12 @@ var (
 	tasksCreateRequestFieldCustomFields          = big.NewInt(1 << 5)
 	tasksCreateRequestFieldCustomerPortalVisible = big.NewInt(1 << 6)
 	tasksCreateRequestFieldDueDate               = big.NewInt(1 << 7)
-	tasksCreateRequestFieldMilestoneID           = big.NewInt(1 << 8)
-	tasksCreateRequestFieldParentTaskID          = big.NewInt(1 << 9)
-	tasksCreateRequestFieldProjectID             = big.NewInt(1 << 10)
-	tasksCreateRequestFieldStatus                = big.NewInt(1 << 11)
-	tasksCreateRequestFieldTitle                 = big.NewInt(1 << 12)
+	tasksCreateRequestFieldDueDateIsDateOnly     = big.NewInt(1 << 8)
+	tasksCreateRequestFieldMilestoneID           = big.NewInt(1 << 9)
+	tasksCreateRequestFieldParentTaskID          = big.NewInt(1 << 10)
+	tasksCreateRequestFieldProjectID             = big.NewInt(1 << 11)
+	tasksCreateRequestFieldStatus                = big.NewInt(1 << 12)
+	tasksCreateRequestFieldTitle                 = big.NewInt(1 << 13)
 )
 
 type TasksCreateRequest struct {
@@ -43,6 +44,9 @@ type TasksCreateRequest struct {
 	CustomerPortalVisible *bool `json:"customer_portal_visible,omitempty" url:"-"`
 	// Due date for this task, in RFC 3339 format
 	DueDate *time.Time `json:"due_date,omitempty" url:"-"`
+	// Interpret due_date as a calendar date in UTC, without timezone conversion.
+	// Must be supplied with a nonempty due_date when true.
+	DueDateIsDateOnly *bool `json:"due_date_is_date_only,omitempty" url:"-"`
 	// Milestone ID for this task
 	MilestoneID *string `json:"milestone_id,omitempty" url:"-"`
 	// Parent task ID, to create this task as a subtask
@@ -120,6 +124,13 @@ func (t *TasksCreateRequest) SetCustomerPortalVisible(customerPortalVisible *boo
 func (t *TasksCreateRequest) SetDueDate(dueDate *time.Time) {
 	t.DueDate = dueDate
 	t.require(tasksCreateRequestFieldDueDate)
+}
+
+// SetDueDateIsDateOnly sets the DueDateIsDateOnly field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (t *TasksCreateRequest) SetDueDateIsDateOnly(dueDateIsDateOnly *bool) {
+	t.DueDateIsDateOnly = dueDateIsDateOnly
+	t.require(tasksCreateRequestFieldDueDateIsDateOnly)
 }
 
 // SetMilestoneID sets the MilestoneID field and marks it as non-optional;
@@ -1332,17 +1343,18 @@ var (
 	taskFieldCustomFields          = big.NewInt(1 << 8)
 	taskFieldCustomerPortalVisible = big.NewInt(1 << 9)
 	taskFieldDueDate               = big.NewInt(1 << 10)
-	taskFieldExternalIssues        = big.NewInt(1 << 11)
-	taskFieldID                    = big.NewInt(1 << 12)
-	taskFieldLink                  = big.NewInt(1 << 13)
-	taskFieldLinkedIssues          = big.NewInt(1 << 14)
-	taskFieldMilestone             = big.NewInt(1 << 15)
-	taskFieldParentTaskID          = big.NewInt(1 << 16)
-	taskFieldProject               = big.NewInt(1 << 17)
-	taskFieldStatus                = big.NewInt(1 << 18)
-	taskFieldSubtaskIDs            = big.NewInt(1 << 19)
-	taskFieldTitle                 = big.NewInt(1 << 20)
-	taskFieldUpdatedAt             = big.NewInt(1 << 21)
+	taskFieldDueDateIsDateOnly     = big.NewInt(1 << 11)
+	taskFieldExternalIssues        = big.NewInt(1 << 12)
+	taskFieldID                    = big.NewInt(1 << 13)
+	taskFieldLink                  = big.NewInt(1 << 14)
+	taskFieldLinkedIssues          = big.NewInt(1 << 15)
+	taskFieldMilestone             = big.NewInt(1 << 16)
+	taskFieldParentTaskID          = big.NewInt(1 << 17)
+	taskFieldProject               = big.NewInt(1 << 18)
+	taskFieldStatus                = big.NewInt(1 << 19)
+	taskFieldSubtaskIDs            = big.NewInt(1 << 20)
+	taskFieldTitle                 = big.NewInt(1 << 21)
+	taskFieldUpdatedAt             = big.NewInt(1 << 22)
 )
 
 // taskNullableFields maps the wire names of Task's nullable fields (required or optional) to their field bits.
@@ -1372,8 +1384,10 @@ type Task struct {
 	CustomFields map[string]*CustomFieldValue `json:"custom_fields,omitempty" url:"custom_fields,omitempty"`
 	// The customer portal visible of the task.
 	CustomerPortalVisible bool `json:"customer_portal_visible" url:"customer_portal_visible"`
-	// The due date of the task in RFC3339 format.
+	// Due date in RFC3339 format. Date-only deadlines use UTC midnight; interpret the UTC calendar day when due_date_is_date_only is true.
 	DueDate *time.Time `json:"due_date,omitempty" url:"due_date,omitempty"`
+	// Whether due_date is a calendar date without a specific time or timezone.
+	DueDateIsDateOnly bool `json:"due_date_is_date_only" url:"due_date_is_date_only"`
 	// The external product issues associated with the task, if any.
 	ExternalIssues []*ExternalIssue `json:"external_issues,omitempty" url:"external_issues,omitempty"`
 	// The ID of the task.
@@ -1476,6 +1490,13 @@ func (t *Task) GetDueDate() *time.Time {
 		return nil
 	}
 	return t.DueDate
+}
+
+func (t *Task) GetDueDateIsDateOnly() bool {
+	if t == nil {
+		return false
+	}
+	return t.DueDateIsDateOnly
 }
 
 func (t *Task) GetExternalIssues() []*ExternalIssue {
@@ -1646,6 +1667,13 @@ func (t *Task) SetCustomerPortalVisible(customerPortalVisible bool) {
 func (t *Task) SetDueDate(dueDate *time.Time) {
 	t.DueDate = dueDate
 	t.require(taskFieldDueDate)
+}
+
+// SetDueDateIsDateOnly sets the DueDateIsDateOnly field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (t *Task) SetDueDateIsDateOnly(dueDateIsDateOnly bool) {
+	t.DueDateIsDateOnly = dueDateIsDateOnly
+	t.require(taskFieldDueDateIsDateOnly)
 }
 
 // SetExternalIssues sets the ExternalIssues field and marks it as non-optional;
@@ -1909,10 +1937,11 @@ var (
 	tasksUpdateRequestFieldCustomFields          = big.NewInt(1 << 6)
 	tasksUpdateRequestFieldCustomerPortalVisible = big.NewInt(1 << 7)
 	tasksUpdateRequestFieldDueDate               = big.NewInt(1 << 8)
-	tasksUpdateRequestFieldMilestoneID           = big.NewInt(1 << 9)
-	tasksUpdateRequestFieldProjectID             = big.NewInt(1 << 10)
-	tasksUpdateRequestFieldStatus                = big.NewInt(1 << 11)
-	tasksUpdateRequestFieldTitle                 = big.NewInt(1 << 12)
+	tasksUpdateRequestFieldDueDateIsDateOnly     = big.NewInt(1 << 9)
+	tasksUpdateRequestFieldMilestoneID           = big.NewInt(1 << 10)
+	tasksUpdateRequestFieldProjectID             = big.NewInt(1 << 11)
+	tasksUpdateRequestFieldStatus                = big.NewInt(1 << 12)
+	tasksUpdateRequestFieldTitle                 = big.NewInt(1 << 13)
 )
 
 type TasksUpdateRequest struct {
@@ -1934,6 +1963,9 @@ type TasksUpdateRequest struct {
 	CustomerPortalVisible *bool `json:"customer_portal_visible,omitempty" url:"-"`
 	// Due date for this task, in RFC 3339 format. Set to an empty string to clear it.
 	DueDate *string `json:"due_date,omitempty" url:"-"`
+	// Interpret due_date as a calendar date in UTC, without timezone conversion.
+	// Must be supplied with a nonempty due_date when true.
+	DueDateIsDateOnly *bool `json:"due_date_is_date_only,omitempty" url:"-"`
 	// Milestone ID for this task
 	MilestoneID *string `json:"milestone_id,omitempty" url:"-"`
 	// Project ID for this task
@@ -2016,6 +2048,13 @@ func (t *TasksUpdateRequest) SetCustomerPortalVisible(customerPortalVisible *boo
 func (t *TasksUpdateRequest) SetDueDate(dueDate *string) {
 	t.DueDate = dueDate
 	t.require(tasksUpdateRequestFieldDueDate)
+}
+
+// SetDueDateIsDateOnly sets the DueDateIsDateOnly field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (t *TasksUpdateRequest) SetDueDateIsDateOnly(dueDateIsDateOnly *bool) {
+	t.DueDateIsDateOnly = dueDateIsDateOnly
+	t.require(tasksUpdateRequestFieldDueDateIsDateOnly)
 }
 
 // SetMilestoneID sets the MilestoneID field and marks it as non-optional;
