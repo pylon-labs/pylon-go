@@ -9863,24 +9863,27 @@ func (i *ImportIssueMessage) String() string {
 }
 
 var (
-	importIssueRequestFieldAccountID         = big.NewInt(1 << 0)
-	importIssueRequestFieldAssigneeID        = big.NewInt(1 << 1)
-	importIssueRequestFieldAttachmentURLs    = big.NewInt(1 << 2)
-	importIssueRequestFieldCreatedAt         = big.NewInt(1 << 3)
-	importIssueRequestFieldCustomFields      = big.NewInt(1 << 4)
-	importIssueRequestFieldExternalIssues    = big.NewInt(1 << 5)
-	importIssueRequestFieldExternalRefs      = big.NewInt(1 << 6)
-	importIssueRequestFieldFirstResponseTime = big.NewInt(1 << 7)
-	importIssueRequestFieldIssueNumber       = big.NewInt(1 << 8)
-	importIssueRequestFieldMessages          = big.NewInt(1 << 9)
-	importIssueRequestFieldPartnerAccountID  = big.NewInt(1 << 10)
-	importIssueRequestFieldRequesterID       = big.NewInt(1 << 11)
-	importIssueRequestFieldResolutionTime    = big.NewInt(1 << 12)
-	importIssueRequestFieldState             = big.NewInt(1 << 13)
-	importIssueRequestFieldTags              = big.NewInt(1 << 14)
-	importIssueRequestFieldTeamID            = big.NewInt(1 << 15)
-	importIssueRequestFieldTitle             = big.NewInt(1 << 16)
-	importIssueRequestFieldUpdatedAt         = big.NewInt(1 << 17)
+	importIssueRequestFieldAccountID             = big.NewInt(1 << 0)
+	importIssueRequestFieldAssigneeID            = big.NewInt(1 << 1)
+	importIssueRequestFieldAttachmentURLs        = big.NewInt(1 << 2)
+	importIssueRequestFieldBodyHTML              = big.NewInt(1 << 3)
+	importIssueRequestFieldCreatedAt             = big.NewInt(1 << 4)
+	importIssueRequestFieldCustomFields          = big.NewInt(1 << 5)
+	importIssueRequestFieldCustomerPortalVisible = big.NewInt(1 << 6)
+	importIssueRequestFieldExternalIssues        = big.NewInt(1 << 7)
+	importIssueRequestFieldExternalRefs          = big.NewInt(1 << 8)
+	importIssueRequestFieldFirstResponseTime     = big.NewInt(1 << 9)
+	importIssueRequestFieldIdempotencyKey        = big.NewInt(1 << 10)
+	importIssueRequestFieldIssueNumber           = big.NewInt(1 << 11)
+	importIssueRequestFieldMessages              = big.NewInt(1 << 12)
+	importIssueRequestFieldPartnerAccountID      = big.NewInt(1 << 13)
+	importIssueRequestFieldRequesterID           = big.NewInt(1 << 14)
+	importIssueRequestFieldResolutionTime        = big.NewInt(1 << 15)
+	importIssueRequestFieldState                 = big.NewInt(1 << 16)
+	importIssueRequestFieldTags                  = big.NewInt(1 << 17)
+	importIssueRequestFieldTeamID                = big.NewInt(1 << 18)
+	importIssueRequestFieldTitle                 = big.NewInt(1 << 19)
+	importIssueRequestFieldUpdatedAt             = big.NewInt(1 << 20)
 )
 
 type ImportIssueRequest struct {
@@ -9890,22 +9893,29 @@ type ImportIssueRequest struct {
 	AssigneeID *string `json:"assignee_id,omitempty" url:"assignee_id,omitempty"`
 	// An array of attachment URLs to attach to this issue.
 	AttachmentURLs []string `json:"attachment_urls,omitempty" url:"attachment_urls,omitempty"`
+	// The issue description in HTML. If omitted or blank after sanitization, the description defaults to the first message's body, when present.
+	BodyHTML *string `json:"body_html,omitempty" url:"body_html,omitempty"`
 	// CreatedAt is the time the issue was created (RFC3339).
 	CreatedAt *time.Time `json:"created_at,omitempty" url:"created_at,omitempty"`
 	// An array of custom fields to be used on this issue.
 	CustomFields []*CustomFieldValue `json:"custom_fields,omitempty" url:"custom_fields,omitempty"`
+	// Whether the issue is visible in the customer portal. Defaults to true when omitted.
+	CustomerPortalVisible *bool `json:"customer_portal_visible,omitempty" url:"customer_portal_visible,omitempty"`
 	// External issues to link to this issue.
 	ExternalIssues []*ImportExternalIssue   `json:"external_issues,omitempty" url:"external_issues,omitempty"`
 	ExternalRefs   *ImportIssueExternalRefs `json:"external_refs,omitempty" url:"external_refs,omitempty"`
 	// FirstResponseTime is the time the issue was first responded to (RFC3339).
 	FirstResponseTime *time.Time `json:"first_response_time,omitempty" url:"first_response_time,omitempty"`
+	// Optional key of at most 255 bytes, scoped to the organization and retained for 14 days.
+	// Reuse the same key and request body to safely retry an import.
+	IdempotencyKey *string `json:"idempotency_key,omitempty" url:"idempotency_key,omitempty"`
 	// An optional issue number to preserve from the platform the issue is being imported from.
 	// Usually, do not set this field. Pylon normally assigns its own auto-incrementing ticket numbers.
 	// Use it only for customers who require their historical ticket numbers to be preserved.
 	// When set, it must be positive and lower than the organization's current ticket number counter.
 	IssueNumber *int64 `json:"issue_number,omitempty" url:"issue_number,omitempty"`
-	// Messages to be imported for this issue. At least one message is required.
-	Messages []*ImportIssueMessage `json:"messages" url:"messages"`
+	// Messages to import for this issue. Omit this field or pass an empty array for an issue without messages.
+	Messages []*ImportIssueMessage `json:"messages,omitempty" url:"messages,omitempty"`
 	// The ID of a partner account that serves account_id. Requires account_id.
 	PartnerAccountID *string `json:"partner_account_id,omitempty" url:"partner_account_id,omitempty"`
 	// ContactID that the issue should be on behalf of. If omitted, the issue has no requester.
@@ -9951,6 +9961,13 @@ func (i *ImportIssueRequest) GetAttachmentURLs() []string {
 	return i.AttachmentURLs
 }
 
+func (i *ImportIssueRequest) GetBodyHTML() *string {
+	if i == nil {
+		return nil
+	}
+	return i.BodyHTML
+}
+
 func (i *ImportIssueRequest) GetCreatedAt() *time.Time {
 	if i == nil {
 		return nil
@@ -9963,6 +9980,13 @@ func (i *ImportIssueRequest) GetCustomFields() []*CustomFieldValue {
 		return nil
 	}
 	return i.CustomFields
+}
+
+func (i *ImportIssueRequest) GetCustomerPortalVisible() *bool {
+	if i == nil {
+		return nil
+	}
+	return i.CustomerPortalVisible
 }
 
 func (i *ImportIssueRequest) GetExternalIssues() []*ImportExternalIssue {
@@ -9984,6 +10008,13 @@ func (i *ImportIssueRequest) GetFirstResponseTime() *time.Time {
 		return nil
 	}
 	return i.FirstResponseTime
+}
+
+func (i *ImportIssueRequest) GetIdempotencyKey() *string {
+	if i == nil {
+		return nil
+	}
+	return i.IdempotencyKey
 }
 
 func (i *ImportIssueRequest) GetIssueNumber() *int64 {
@@ -10093,6 +10124,13 @@ func (i *ImportIssueRequest) SetAttachmentURLs(attachmentURLs []string) {
 	i.require(importIssueRequestFieldAttachmentURLs)
 }
 
+// SetBodyHTML sets the BodyHTML field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (i *ImportIssueRequest) SetBodyHTML(bodyHTML *string) {
+	i.BodyHTML = bodyHTML
+	i.require(importIssueRequestFieldBodyHTML)
+}
+
 // SetCreatedAt sets the CreatedAt field and marks it as non-optional;
 // this prevents an empty or null value for this field from being omitted during serialization.
 func (i *ImportIssueRequest) SetCreatedAt(createdAt *time.Time) {
@@ -10105,6 +10143,13 @@ func (i *ImportIssueRequest) SetCreatedAt(createdAt *time.Time) {
 func (i *ImportIssueRequest) SetCustomFields(customFields []*CustomFieldValue) {
 	i.CustomFields = customFields
 	i.require(importIssueRequestFieldCustomFields)
+}
+
+// SetCustomerPortalVisible sets the CustomerPortalVisible field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (i *ImportIssueRequest) SetCustomerPortalVisible(customerPortalVisible *bool) {
+	i.CustomerPortalVisible = customerPortalVisible
+	i.require(importIssueRequestFieldCustomerPortalVisible)
 }
 
 // SetExternalIssues sets the ExternalIssues field and marks it as non-optional;
@@ -10126,6 +10171,13 @@ func (i *ImportIssueRequest) SetExternalRefs(externalRefs *ImportIssueExternalRe
 func (i *ImportIssueRequest) SetFirstResponseTime(firstResponseTime *time.Time) {
 	i.FirstResponseTime = firstResponseTime
 	i.require(importIssueRequestFieldFirstResponseTime)
+}
+
+// SetIdempotencyKey sets the IdempotencyKey field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (i *ImportIssueRequest) SetIdempotencyKey(idempotencyKey *string) {
+	i.IdempotencyKey = idempotencyKey
+	i.require(importIssueRequestFieldIdempotencyKey)
 }
 
 // SetIssueNumber sets the IssueNumber field and marks it as non-optional;
@@ -11711,7 +11763,7 @@ type Issue struct {
 	SnoozedUntilTime *time.Time `json:"snoozed_until_time,omitempty" url:"snoozed_until_time,omitempty"`
 	// The source of the issue.
 	//
-	// Known values: `slack`, `microsoft_teams`, `microsoft_teams_chat`, `chat_widget`, `customer_portal`, `email`, `manual`, `form`, `discord`, `google_chat`, `whatsapp`, `sms`, `telegram`, `phone`. This list is not exhaustive.
+	// Known values: `slack`, `microsoft_teams`, `microsoft_teams_chat`, `chat_widget`, `customer_portal`, `email`, `manual`, `form`, `discord`, `google_chat`, `whatsapp`, `sms`, `telegram`, `phone`, `support_api`. This list is not exhaustive.
 	Source string `json:"source" url:"source"`
 	// The state of the issue. Standard values are `new`, `waiting_on_you`, `waiting_on_customer`, `on_hold`, and `closed`; custom status slugs are also supported.
 	State string `json:"state" url:"state"`

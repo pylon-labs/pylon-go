@@ -557,10 +557,11 @@ var (
 	issuesCreateNoteRequestFieldIssueID        = big.NewInt(1 << 0)
 	issuesCreateNoteRequestFieldAttachmentURLs = big.NewInt(1 << 1)
 	issuesCreateNoteRequestFieldBodyHTML       = big.NewInt(1 << 2)
-	issuesCreateNoteRequestFieldMessageID      = big.NewInt(1 << 3)
-	issuesCreateNoteRequestFieldThreadID       = big.NewInt(1 << 4)
-	issuesCreateNoteRequestFieldThreadName     = big.NewInt(1 << 5)
-	issuesCreateNoteRequestFieldUserID         = big.NewInt(1 << 6)
+	issuesCreateNoteRequestFieldEmailInfo      = big.NewInt(1 << 3)
+	issuesCreateNoteRequestFieldMessageID      = big.NewInt(1 << 4)
+	issuesCreateNoteRequestFieldThreadID       = big.NewInt(1 << 5)
+	issuesCreateNoteRequestFieldThreadName     = big.NewInt(1 << 6)
+	issuesCreateNoteRequestFieldUserID         = big.NewInt(1 << 7)
 )
 
 type IssuesCreateNoteRequest struct {
@@ -569,7 +570,8 @@ type IssuesCreateNoteRequest struct {
 	// URLs of files to attach to this internal note.
 	AttachmentURLs []string `json:"attachment_urls,omitempty" url:"-"`
 	// The body of the message in HTML.
-	BodyHTML string `json:"body_html" url:"-"`
+	BodyHTML  string                    `json:"body_html" url:"-"`
+	EmailInfo *CreateIssueNoteEmailInfo `json:"email_info,omitempty" url:"-"`
 	// The ID of an internal note whose thread should receive the new note. Use the top-level `id` from GET /issues/{id}/messages. Cannot be combined with thread_id.
 	MessageID *string `json:"message_id,omitempty" url:"-"`
 	// The ID of the internal thread to post the note to. Use the `id` field (not `thread_id`) from GET /issues/{id}/threads. Cannot be combined with message_id.
@@ -611,6 +613,13 @@ func (i *IssuesCreateNoteRequest) SetAttachmentURLs(attachmentURLs []string) {
 func (i *IssuesCreateNoteRequest) SetBodyHTML(bodyHTML string) {
 	i.BodyHTML = bodyHTML
 	i.require(issuesCreateNoteRequestFieldBodyHTML)
+}
+
+// SetEmailInfo sets the EmailInfo field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (i *IssuesCreateNoteRequest) SetEmailInfo(emailInfo *CreateIssueNoteEmailInfo) {
+	i.EmailInfo = emailInfo
+	i.require(issuesCreateNoteRequestFieldEmailInfo)
 }
 
 // SetMessageID sets the MessageID field and marks it as non-optional;
@@ -1817,6 +1826,130 @@ func (c *CreateIssueDraftReplyResponseData) MarshalJSON() ([]byte, error) {
 }
 
 func (c *CreateIssueDraftReplyResponseData) String() string {
+	if c == nil {
+		return "<nil>"
+	}
+	if len(c.rawJSON) > 0 {
+		if value, err := internal.StringifyJSON(c.rawJSON); err == nil {
+			return value
+		}
+	}
+	if value, err := internal.StringifyJSON(c); err == nil {
+		return value
+	}
+	return fmt.Sprintf("%#v", c)
+}
+
+var (
+	createIssueNoteEmailInfoFieldBccEmails = big.NewInt(1 << 0)
+	createIssueNoteEmailInfoFieldCcEmails  = big.NewInt(1 << 1)
+	createIssueNoteEmailInfoFieldToEmails  = big.NewInt(1 << 2)
+)
+
+// Recipient information for notes posted to an internal email thread.
+// Provide at least one address across to_emails, cc_emails, and bcc_emails.
+// Recipients are not inferred from the thread.
+type CreateIssueNoteEmailInfo struct {
+	// The blind-carbon-copy recipients of the email.
+	BccEmails []string `json:"bcc_emails,omitempty" url:"bcc_emails,omitempty"`
+	// The carbon-copy recipients of the email.
+	CcEmails []string `json:"cc_emails,omitempty" url:"cc_emails,omitempty"`
+	// The primary recipients of the email.
+	ToEmails []string `json:"to_emails,omitempty" url:"to_emails,omitempty"`
+
+	// Private bitmask of fields set to an explicit value and therefore not to be omitted
+	explicitFields *big.Int `json:"-" url:"-"`
+
+	extraProperties map[string]interface{}
+	rawJSON         json.RawMessage
+}
+
+func (c *CreateIssueNoteEmailInfo) GetBccEmails() []string {
+	if c == nil {
+		return nil
+	}
+	return c.BccEmails
+}
+
+func (c *CreateIssueNoteEmailInfo) GetCcEmails() []string {
+	if c == nil {
+		return nil
+	}
+	return c.CcEmails
+}
+
+func (c *CreateIssueNoteEmailInfo) GetToEmails() []string {
+	if c == nil {
+		return nil
+	}
+	return c.ToEmails
+}
+
+func (c *CreateIssueNoteEmailInfo) GetExtraProperties() map[string]interface{} {
+	if c == nil {
+		return nil
+	}
+	return c.extraProperties
+}
+
+func (c *CreateIssueNoteEmailInfo) require(field *big.Int) {
+	next := new(big.Int)
+	if c.explicitFields != nil {
+		next.Set(c.explicitFields)
+	}
+	next.Or(next, field)
+	c.explicitFields = next
+}
+
+// SetBccEmails sets the BccEmails field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (c *CreateIssueNoteEmailInfo) SetBccEmails(bccEmails []string) {
+	c.BccEmails = bccEmails
+	c.require(createIssueNoteEmailInfoFieldBccEmails)
+}
+
+// SetCcEmails sets the CcEmails field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (c *CreateIssueNoteEmailInfo) SetCcEmails(ccEmails []string) {
+	c.CcEmails = ccEmails
+	c.require(createIssueNoteEmailInfoFieldCcEmails)
+}
+
+// SetToEmails sets the ToEmails field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (c *CreateIssueNoteEmailInfo) SetToEmails(toEmails []string) {
+	c.ToEmails = toEmails
+	c.require(createIssueNoteEmailInfoFieldToEmails)
+}
+
+func (c *CreateIssueNoteEmailInfo) UnmarshalJSON(data []byte) error {
+	type unmarshaler CreateIssueNoteEmailInfo
+	var value unmarshaler
+	if err := json.Unmarshal(data, &value); err != nil {
+		return err
+	}
+	*c = CreateIssueNoteEmailInfo(value)
+	extraProperties, err := internal.ExtractExtraProperties(data, *c)
+	if err != nil {
+		return err
+	}
+	c.extraProperties = extraProperties
+	c.rawJSON = json.RawMessage(data)
+	return nil
+}
+
+func (c *CreateIssueNoteEmailInfo) MarshalJSON() ([]byte, error) {
+	type embed CreateIssueNoteEmailInfo
+	var marshaler = struct {
+		embed
+	}{
+		embed: embed(*c),
+	}
+	explicitMarshaler := internal.HandleExplicitFields(marshaler, c.explicitFields)
+	return json.Marshal(explicitMarshaler)
+}
+
+func (c *CreateIssueNoteEmailInfo) String() string {
 	if c == nil {
 		return "<nil>"
 	}

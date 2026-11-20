@@ -39,11 +39,14 @@ func (s *SurveysGetRequest) SetID(id string) {
 }
 
 var (
-	surveysSearchRequestFieldFilter = big.NewInt(1 << 0)
-	surveysSearchRequestFieldLimit  = big.NewInt(1 << 1)
+	surveysSearchRequestFieldCursor = big.NewInt(1 << 0)
+	surveysSearchRequestFieldFilter = big.NewInt(1 << 1)
+	surveysSearchRequestFieldLimit  = big.NewInt(1 << 2)
 )
 
 type SurveysSearchRequest struct {
+	// The pagination cursor returned by the previous page. Reuse the same filter.
+	Cursor *string `json:"cursor,omitempty" url:"-"`
 	Filter *Filter `json:"filter,omitempty" url:"-"`
 	// The number of surveys to fetch. Defaults to 100. Must be between 1 and 1000.
 	Limit *int64 `json:"limit,omitempty" url:"-"`
@@ -59,6 +62,13 @@ func (s *SurveysSearchRequest) require(field *big.Int) {
 	}
 	next.Or(next, field)
 	s.explicitFields = next
+}
+
+// SetCursor sets the Cursor field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (s *SurveysSearchRequest) SetCursor(cursor *string) {
+	s.Cursor = cursor
+	s.require(surveysSearchRequestFieldCursor)
 }
 
 // SetFilter sets the Filter field and marks it as non-optional;
@@ -304,13 +314,15 @@ func (g *GetSurveysResponseBody) String() string {
 }
 
 var (
-	searchSurveysResponseBodyFieldData      = big.NewInt(1 << 0)
-	searchSurveysResponseBodyFieldRequestID = big.NewInt(1 << 1)
+	searchSurveysResponseBodyFieldData       = big.NewInt(1 << 0)
+	searchSurveysResponseBodyFieldPagination = big.NewInt(1 << 1)
+	searchSurveysResponseBodyFieldRequestID  = big.NewInt(1 << 2)
 )
 
 type SearchSurveysResponseBody struct {
-	Data      []*Survey `json:"data" url:"data"`
-	RequestID string    `json:"request_id" url:"request_id"`
+	Data       []*Survey   `json:"data" url:"data"`
+	Pagination *Pagination `json:"pagination,omitempty" url:"pagination,omitempty"`
+	RequestID  string      `json:"request_id" url:"request_id"`
 
 	// Private bitmask of fields set to an explicit value and therefore not to be omitted
 	explicitFields *big.Int `json:"-" url:"-"`
@@ -324,6 +336,13 @@ func (s *SearchSurveysResponseBody) GetData() []*Survey {
 		return nil
 	}
 	return s.Data
+}
+
+func (s *SearchSurveysResponseBody) GetPagination() *Pagination {
+	if s == nil {
+		return nil
+	}
+	return s.Pagination
 }
 
 func (s *SearchSurveysResponseBody) GetRequestID() string {
@@ -354,6 +373,13 @@ func (s *SearchSurveysResponseBody) require(field *big.Int) {
 func (s *SearchSurveysResponseBody) SetData(data []*Survey) {
 	s.Data = data
 	s.require(searchSurveysResponseBodyFieldData)
+}
+
+// SetPagination sets the Pagination field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (s *SearchSurveysResponseBody) SetPagination(pagination *Pagination) {
+	s.Pagination = pagination
+	s.require(searchSurveysResponseBodyFieldPagination)
 }
 
 // SetRequestID sets the RequestID field and marks it as non-optional;

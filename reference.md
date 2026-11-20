@@ -3861,6 +3861,14 @@ client.FeatureRequests.Search(
 <dl>
 <dd>
 
+**cursor:** `*string` — The pagination cursor returned by the previous page. Reuse the same query and filters.
+    
+</dd>
+</dl>
+
+<dl>
+<dd>
+
 **limit:** `*int64` — The maximum number of feature requests to return. Defaults to 100, max 1000.
     
 </dd>
@@ -3869,7 +3877,7 @@ client.FeatureRequests.Search(
 <dl>
 <dd>
 
-**query:** `*string` — A search query string for semantic and keyword matching. If omitted, all feature requests are returned (subject to other filters and limit).
+**query:** `*string` — A search query string for semantic and keyword matching. Pagination covers the ranked search results when a query is provided. Omit the query to list all feature requests matching the filters.
     
 </dd>
 </dl>
@@ -5975,6 +5983,8 @@ Thread selection:
 * If neither is provided, posts to the most recently created Slack-backed internal thread. If none exists, creates a Pylon-only internal thread.
 * thread_name names that newly created Pylon-only thread and is otherwise ignored.
 
+Notes posted to an internal email thread are sent as email, so email_info must contain at least one recipient across to_emails, cc_emails, and bcc_emails.
+
 Empty thread_id, message_id, and thread_name values are treated as omitted.
 
 **Rate limit:** 30 requests per minute
@@ -6031,6 +6041,14 @@ client.Issues.CreateNote(
 <dd>
 
 **bodyHTML:** `string` — The body of the message in HTML.
+    
+</dd>
+</dl>
+
+<dl>
+<dd>
+
+**emailInfo:** `*pylon.CreateIssueNoteEmailInfo` 
     
 </dd>
 </dl>
@@ -6948,6 +6966,17 @@ client.Milestones.Create(
 <dl>
 <dd>
 
+**dueDateIsDateOnly:** `*bool` 
+
+Interpret due_date as a calendar date in UTC, without timezone conversion.
+Must be supplied with a nonempty due_date when true.
+    
+</dd>
+</dl>
+
+<dl>
+<dd>
+
 **name:** `string` — Name for this milestone
     
 </dd>
@@ -7249,6 +7278,17 @@ client.Milestones.Update(
 <dd>
 
 **dueDate:** `*string` — Due date for this milestone, in RFC 3339 format. Set to an empty string to clear it.
+    
+</dd>
+</dl>
+
+<dl>
+<dd>
+
+**dueDateIsDateOnly:** `*bool` 
+
+Interpret due_date as a calendar date in UTC, without timezone conversion.
+Must be supplied with a nonempty due_date when true.
     
 </dd>
 </dl>
@@ -7856,6 +7896,14 @@ client.Surveys.Search(
 
 <dl>
 <dd>
+
+<dl>
+<dd>
+
+**cursor:** `*string` — The pagination cursor returned by the previous page. Reuse the same filter.
+    
+</dd>
+</dl>
 
 <dl>
 <dd>
@@ -8581,6 +8629,17 @@ client.Tasks.Create(
 <dl>
 <dd>
 
+**dueDateIsDateOnly:** `*bool` 
+
+Interpret due_date as a calendar date in UTC, without timezone conversion.
+Must be supplied with a nonempty due_date when true.
+    
+</dd>
+</dl>
+
+<dl>
+<dd>
+
 **milestoneID:** `*string` — Milestone ID for this task
     
 </dd>
@@ -8969,6 +9028,17 @@ client.Tasks.Update(
 <dd>
 
 **dueDate:** `*string` — Due date for this task, in RFC 3339 format. Set to an empty string to clear it.
+    
+</dd>
+</dl>
+
+<dl>
+<dd>
+
+**dueDateIsDateOnly:** `*bool` 
+
+Interpret due_date as a calendar date in UTC, without timezone conversion.
+Must be supplied with a nonempty due_date when true.
     
 </dd>
 </dl>
