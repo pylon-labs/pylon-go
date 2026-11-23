@@ -11,10 +11,11 @@ import (
 )
 
 var (
-	milestonesCreateRequestFieldAccountID = big.NewInt(1 << 0)
-	milestonesCreateRequestFieldDueDate   = big.NewInt(1 << 1)
-	milestonesCreateRequestFieldName      = big.NewInt(1 << 2)
-	milestonesCreateRequestFieldProjectID = big.NewInt(1 << 3)
+	milestonesCreateRequestFieldAccountID         = big.NewInt(1 << 0)
+	milestonesCreateRequestFieldDueDate           = big.NewInt(1 << 1)
+	milestonesCreateRequestFieldDueDateIsDateOnly = big.NewInt(1 << 2)
+	milestonesCreateRequestFieldName              = big.NewInt(1 << 3)
+	milestonesCreateRequestFieldProjectID         = big.NewInt(1 << 4)
 )
 
 type MilestonesCreateRequest struct {
@@ -22,6 +23,9 @@ type MilestonesCreateRequest struct {
 	AccountID *string `json:"account_id,omitempty" url:"-"`
 	// Due date for this milestone, in RFC 3339 format
 	DueDate *time.Time `json:"due_date,omitempty" url:"-"`
+	// Interpret due_date as a calendar date in UTC, without timezone conversion.
+	// Must be supplied with a nonempty due_date when true.
+	DueDateIsDateOnly *bool `json:"due_date_is_date_only,omitempty" url:"-"`
 	// Name for this milestone
 	Name string `json:"name" url:"-"`
 	// Project ID for this milestone
@@ -52,6 +56,13 @@ func (m *MilestonesCreateRequest) SetAccountID(accountID *string) {
 func (m *MilestonesCreateRequest) SetDueDate(dueDate *time.Time) {
 	m.DueDate = dueDate
 	m.require(milestonesCreateRequestFieldDueDate)
+}
+
+// SetDueDateIsDateOnly sets the DueDateIsDateOnly field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (m *MilestonesCreateRequest) SetDueDateIsDateOnly(dueDateIsDateOnly *bool) {
+	m.DueDateIsDateOnly = dueDateIsDateOnly
+	m.require(milestonesCreateRequestFieldDueDateIsDateOnly)
 }
 
 // SetName sets the Name field and marks it as non-optional;
@@ -515,23 +526,26 @@ func (g *GetMilestoneResponseBody) String() string {
 }
 
 var (
-	milestoneFieldAccount   = big.NewInt(1 << 0)
-	milestoneFieldCreatedAt = big.NewInt(1 << 1)
-	milestoneFieldDueDate   = big.NewInt(1 << 2)
-	milestoneFieldID        = big.NewInt(1 << 3)
-	milestoneFieldName      = big.NewInt(1 << 4)
-	milestoneFieldProject   = big.NewInt(1 << 5)
-	milestoneFieldUpdatedAt = big.NewInt(1 << 6)
+	milestoneFieldAccount           = big.NewInt(1 << 0)
+	milestoneFieldCreatedAt         = big.NewInt(1 << 1)
+	milestoneFieldDueDate           = big.NewInt(1 << 2)
+	milestoneFieldDueDateIsDateOnly = big.NewInt(1 << 3)
+	milestoneFieldID                = big.NewInt(1 << 4)
+	milestoneFieldName              = big.NewInt(1 << 5)
+	milestoneFieldProject           = big.NewInt(1 << 6)
+	milestoneFieldUpdatedAt         = big.NewInt(1 << 7)
 )
 
 type Milestone struct {
 	Account   *MiniAccount `json:"account,omitempty" url:"account,omitempty"`
 	CreatedAt time.Time    `json:"created_at" url:"created_at"`
 	DueDate   *time.Time   `json:"due_date,omitempty" url:"due_date,omitempty"`
-	ID        string       `json:"id" url:"id"`
-	Name      string       `json:"name" url:"name"`
-	Project   *MiniProject `json:"project,omitempty" url:"project,omitempty"`
-	UpdatedAt time.Time    `json:"updated_at" url:"updated_at"`
+	// When true, due_date represents a calendar date in UTC without timezone conversion.
+	DueDateIsDateOnly bool         `json:"due_date_is_date_only" url:"due_date_is_date_only"`
+	ID                string       `json:"id" url:"id"`
+	Name              string       `json:"name" url:"name"`
+	Project           *MiniProject `json:"project,omitempty" url:"project,omitempty"`
+	UpdatedAt         time.Time    `json:"updated_at" url:"updated_at"`
 
 	// Private bitmask of fields set to an explicit value and therefore not to be omitted
 	explicitFields *big.Int `json:"-" url:"-"`
@@ -559,6 +573,13 @@ func (m *Milestone) GetDueDate() *time.Time {
 		return nil
 	}
 	return m.DueDate
+}
+
+func (m *Milestone) GetDueDateIsDateOnly() bool {
+	if m == nil {
+		return false
+	}
+	return m.DueDateIsDateOnly
 }
 
 func (m *Milestone) GetID() string {
@@ -624,6 +645,13 @@ func (m *Milestone) SetCreatedAt(createdAt time.Time) {
 func (m *Milestone) SetDueDate(dueDate *time.Time) {
 	m.DueDate = dueDate
 	m.require(milestoneFieldDueDate)
+}
+
+// SetDueDateIsDateOnly sets the DueDateIsDateOnly field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (m *Milestone) SetDueDateIsDateOnly(dueDateIsDateOnly bool) {
+	m.DueDateIsDateOnly = dueDateIsDateOnly
+	m.require(milestoneFieldDueDateIsDateOnly)
 }
 
 // SetID sets the ID field and marks it as non-optional;
@@ -934,9 +962,10 @@ func (u *UpdateMilestoneResponseBody) String() string {
 }
 
 var (
-	milestonesUpdateRequestFieldID      = big.NewInt(1 << 0)
-	milestonesUpdateRequestFieldDueDate = big.NewInt(1 << 1)
-	milestonesUpdateRequestFieldName    = big.NewInt(1 << 2)
+	milestonesUpdateRequestFieldID                = big.NewInt(1 << 0)
+	milestonesUpdateRequestFieldDueDate           = big.NewInt(1 << 1)
+	milestonesUpdateRequestFieldDueDateIsDateOnly = big.NewInt(1 << 2)
+	milestonesUpdateRequestFieldName              = big.NewInt(1 << 3)
 )
 
 type MilestonesUpdateRequest struct {
@@ -944,6 +973,9 @@ type MilestonesUpdateRequest struct {
 	ID string `json:"-" url:"-"`
 	// Due date for this milestone, in RFC 3339 format. Set to an empty string to clear it.
 	DueDate *string `json:"due_date,omitempty" url:"-"`
+	// Interpret due_date as a calendar date in UTC, without timezone conversion.
+	// Must be supplied with a nonempty due_date when true.
+	DueDateIsDateOnly *bool `json:"due_date_is_date_only,omitempty" url:"-"`
 	// Name for this milestone
 	Name *string `json:"name,omitempty" url:"-"`
 
@@ -972,6 +1004,13 @@ func (m *MilestonesUpdateRequest) SetID(id string) {
 func (m *MilestonesUpdateRequest) SetDueDate(dueDate *string) {
 	m.DueDate = dueDate
 	m.require(milestonesUpdateRequestFieldDueDate)
+}
+
+// SetDueDateIsDateOnly sets the DueDateIsDateOnly field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (m *MilestonesUpdateRequest) SetDueDateIsDateOnly(dueDateIsDateOnly *bool) {
+	m.DueDateIsDateOnly = dueDateIsDateOnly
+	m.require(milestonesUpdateRequestFieldDueDateIsDateOnly)
 }
 
 // SetName sets the Name field and marks it as non-optional;

@@ -62,9 +62,9 @@ func (c *Client) List(
 
 // Filterable fields and their allowed operators:
 //
-//	Field | Allowed operators |
-//	--- | --- |
-//	`updated_at` | `time_is_after`, `time_is_before`, `time_range` |
+// Field | Allowed operators |
+// --- | --- |
+// `updated_at` | `time_is_after`, `time_is_before`, `time_range` |
 //
 // ### Filter syntax and operators
 //

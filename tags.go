@@ -912,7 +912,6 @@ type TagsUpdateRequest struct {
 	ID string `json:"-" url:"-"`
 	// The hex code of the tag's color.
 	HexColor *string `json:"hex_color,omitempty" url:"-"`
-	// in: body
 	// The name of the tag.
 	Value *string `json:"value,omitempty" url:"-"`
 

@@ -38,8 +38,8 @@ func NewClient(options *core.RequestOptions) *Client {
 
 // Returns custom activities for the specified account, ordered from newest to oldest.
 // The {id} parameter accepts either:
-// Internal account ID (UUID format)
-// External ID (any string format)
+// - Internal account ID (UUID format)
+// - External ID (any string format)
 //
 // **Rate limit:** 300 requests per minute
 //
@@ -116,8 +116,8 @@ func (c *Client) List(
 }
 
 // The {id} parameter accepts either:
-// Internal account ID (UUID format)
-// External ID (any string format)
+// - Internal account ID (UUID format)
+// - External ID (any string format)
 //
 // **Rate limit:** 120 requests per minute
 //
