@@ -1900,7 +1900,6 @@ type ContactsUpdateRequest struct {
 	Emails []*UpdateContactEmail `json:"emails,omitempty" url:"-"`
 	// An array of external IDs to be used on this contact. If provided, the contact's external IDs will be updated to the given external IDs.
 	ExternalIDs []*ExternalID `json:"external_ids,omitempty" url:"-"`
-	// in: body
 	// The name of the contact.
 	Name *string `json:"name,omitempty" url:"-"`
 	// The phone numbers of the contact. Must contain only digits 0-9, optionally preceded by + (E.164, e.g. +4365446231), and be 15 digits or less. Include the + and country code for non-US numbers; a 10-digit number without + is treated as US.

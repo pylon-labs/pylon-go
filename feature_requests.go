@@ -354,17 +354,20 @@ func (f *FeatureRequestsMergeRequest) MarshalJSON() ([]byte, error) {
 
 var (
 	featureRequestsSearchRequestFieldAccountIDs      = big.NewInt(1 << 0)
-	featureRequestsSearchRequestFieldLimit           = big.NewInt(1 << 1)
-	featureRequestsSearchRequestFieldQuery           = big.NewInt(1 << 2)
-	featureRequestsSearchRequestFieldRequestStatuses = big.NewInt(1 << 3)
+	featureRequestsSearchRequestFieldCursor          = big.NewInt(1 << 1)
+	featureRequestsSearchRequestFieldLimit           = big.NewInt(1 << 2)
+	featureRequestsSearchRequestFieldQuery           = big.NewInt(1 << 3)
+	featureRequestsSearchRequestFieldRequestStatuses = big.NewInt(1 << 4)
 )
 
 type FeatureRequestsSearchRequest struct {
 	// Filter by one or more account IDs. Returns only feature requests with evidence linked to any of the given accounts.
 	AccountIDs []string `json:"account_ids,omitempty" url:"-"`
+	// The pagination cursor returned by the previous page. Reuse the same query and filters.
+	Cursor *string `json:"cursor,omitempty" url:"-"`
 	// The maximum number of feature requests to return. Defaults to 100, max 1000.
 	Limit *int64 `json:"limit,omitempty" url:"-"`
-	// A search query string for semantic and keyword matching. If omitted, all feature requests are returned (subject to other filters and limit).
+	// A search query string for semantic and keyword matching. Pagination covers the ranked search results when a query is provided. Omit the query to list all feature requests matching the filters.
 	Query *string `json:"query,omitempty" url:"-"`
 	// Filter by one or more request statuses. Each value can be a built-in status (new, in_progress, closed, archived) or a custom status slug.
 	RequestStatuses []string `json:"request_statuses,omitempty" url:"-"`
@@ -387,6 +390,13 @@ func (f *FeatureRequestsSearchRequest) require(field *big.Int) {
 func (f *FeatureRequestsSearchRequest) SetAccountIDs(accountIDs []string) {
 	f.AccountIDs = accountIDs
 	f.require(featureRequestsSearchRequestFieldAccountIDs)
+}
+
+// SetCursor sets the Cursor field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (f *FeatureRequestsSearchRequest) SetCursor(cursor *string) {
+	f.Cursor = cursor
+	f.require(featureRequestsSearchRequestFieldCursor)
 }
 
 // SetLimit sets the Limit field and marks it as non-optional;
@@ -1861,13 +1871,15 @@ func (m *MergeFeatureRequestsResponseBody) String() string {
 }
 
 var (
-	searchFeatureRequestsResponseBodyFieldData      = big.NewInt(1 << 0)
-	searchFeatureRequestsResponseBodyFieldRequestID = big.NewInt(1 << 1)
+	searchFeatureRequestsResponseBodyFieldData       = big.NewInt(1 << 0)
+	searchFeatureRequestsResponseBodyFieldPagination = big.NewInt(1 << 1)
+	searchFeatureRequestsResponseBodyFieldRequestID  = big.NewInt(1 << 2)
 )
 
 type SearchFeatureRequestsResponseBody struct {
-	Data      []*FeatureRequestSearchResult `json:"data" url:"data"`
-	RequestID string                        `json:"request_id" url:"request_id"`
+	Data       []*FeatureRequestSearchResult `json:"data" url:"data"`
+	Pagination *Pagination                   `json:"pagination,omitempty" url:"pagination,omitempty"`
+	RequestID  string                        `json:"request_id" url:"request_id"`
 
 	// Private bitmask of fields set to an explicit value and therefore not to be omitted
 	explicitFields *big.Int `json:"-" url:"-"`
@@ -1881,6 +1893,13 @@ func (s *SearchFeatureRequestsResponseBody) GetData() []*FeatureRequestSearchRes
 		return nil
 	}
 	return s.Data
+}
+
+func (s *SearchFeatureRequestsResponseBody) GetPagination() *Pagination {
+	if s == nil {
+		return nil
+	}
+	return s.Pagination
 }
 
 func (s *SearchFeatureRequestsResponseBody) GetRequestID() string {
@@ -1911,6 +1930,13 @@ func (s *SearchFeatureRequestsResponseBody) require(field *big.Int) {
 func (s *SearchFeatureRequestsResponseBody) SetData(data []*FeatureRequestSearchResult) {
 	s.Data = data
 	s.require(searchFeatureRequestsResponseBodyFieldData)
+}
+
+// SetPagination sets the Pagination field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (s *SearchFeatureRequestsResponseBody) SetPagination(pagination *Pagination) {
+	s.Pagination = pagination
+	s.require(searchFeatureRequestsResponseBodyFieldPagination)
 }
 
 // SetRequestID sets the RequestID field and marks it as non-optional;

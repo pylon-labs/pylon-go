@@ -75,6 +75,14 @@ func TestSettersTasksCreateRequest(t *testing.T) {
 		assert.NotNil(t, obj.explicitFields)
 	})
 
+	t.Run("SetDueDateIsDateOnly", func(t *testing.T) {
+		obj := &TasksCreateRequest{}
+		var fernTestValueDueDateIsDateOnly *bool
+		obj.SetDueDateIsDateOnly(fernTestValueDueDateIsDateOnly)
+		assert.Equal(t, fernTestValueDueDateIsDateOnly, obj.DueDateIsDateOnly)
+		assert.NotNil(t, obj.explicitFields)
+	})
+
 	t.Run("SetMilestoneID", func(t *testing.T) {
 		obj := &TasksCreateRequest{}
 		var fernTestValueMilestoneID *string
@@ -343,6 +351,37 @@ func TestSettersMarkExplicitTasksCreateRequest(t *testing.T) {
 
 		// Act
 		obj.SetDueDate(fernTestValueDueDate)
+
+		// Assert - object with explicitly set field can be marshaled/unmarshaled
+		bytes, err := json.Marshal(obj)
+		require.NoError(t, err, "marshaling should succeed for test setup")
+
+		// This test ensures JSON marshaling and unmarshaling succeed when the field has a zero/nil value
+		// Detect if marshaled JSON is an object or primitive to use correct unmarshal target
+		if len(bytes) > 0 && bytes[0] == '{' {
+			// JSON object - unmarshal into map
+			var unmarshaled map[string]interface{}
+			err = json.Unmarshal(bytes, &unmarshaled)
+			require.NoError(t, err, "unmarshaling should succeed for test verification")
+		} else {
+			// JSON primitive (string, number, boolean, null) - unmarshal into interface{}
+			var unmarshaled interface{}
+			err = json.Unmarshal(bytes, &unmarshaled)
+			require.NoError(t, err, "unmarshaling should succeed for test verification")
+		}
+
+		// Note: This does not explicitly assert the presence of a specific JSON field
+		// It verifies that setting a field via setter allows successful JSON round-trip
+	})
+
+	t.Run("SetDueDateIsDateOnly_MarksExplicit", func(t *testing.T) {
+		t.Parallel()
+		// Arrange
+		obj := &TasksCreateRequest{}
+		var fernTestValueDueDateIsDateOnly *bool
+
+		// Act
+		obj.SetDueDateIsDateOnly(fernTestValueDueDateIsDateOnly)
 
 		// Assert - object with explicitly set field can be marshaled/unmarshaled
 		bytes, err := json.Marshal(obj)
@@ -2338,6 +2377,14 @@ func TestSettersTask(t *testing.T) {
 		assert.NotNil(t, obj.explicitFields)
 	})
 
+	t.Run("SetDueDateIsDateOnly", func(t *testing.T) {
+		obj := &Task{}
+		var fernTestValueDueDateIsDateOnly bool
+		obj.SetDueDateIsDateOnly(fernTestValueDueDateIsDateOnly)
+		assert.Equal(t, fernTestValueDueDateIsDateOnly, obj.DueDateIsDateOnly)
+		assert.NotNil(t, obj.explicitFields)
+	})
+
 	t.Run("SetExternalIssues", func(t *testing.T) {
 		obj := &Task{}
 		var fernTestValueExternalIssues []*ExternalIssue
@@ -2750,6 +2797,29 @@ func TestGettersTask(t *testing.T) {
 			}
 		}()
 		_ = obj.GetDueDate() // Should return zero value
+	})
+
+	t.Run("GetDueDateIsDateOnly", func(t *testing.T) {
+		t.Parallel()
+		// Arrange
+		obj := &Task{}
+		var expected bool
+		obj.DueDateIsDateOnly = expected
+
+		// Act & Assert
+		assert.Equal(t, expected, obj.GetDueDateIsDateOnly(), "getter should return the property value")
+	})
+
+	t.Run("GetDueDateIsDateOnly_NilReceiver", func(t *testing.T) {
+		t.Parallel()
+		var obj *Task
+		// Should not panic - getters should handle nil receiver gracefully
+		defer func() {
+			if r := recover(); r != nil {
+				t.Errorf("Getter panicked on nil receiver: %v", r)
+			}
+		}()
+		_ = obj.GetDueDateIsDateOnly() // Should return zero value
 	})
 
 	t.Run("GetExternalIssues", func(t *testing.T) {
@@ -3409,6 +3479,37 @@ func TestSettersMarkExplicitTask(t *testing.T) {
 		// It verifies that setting a field via setter allows successful JSON round-trip
 	})
 
+	t.Run("SetDueDateIsDateOnly_MarksExplicit", func(t *testing.T) {
+		t.Parallel()
+		// Arrange
+		obj := &Task{}
+		var fernTestValueDueDateIsDateOnly bool
+
+		// Act
+		obj.SetDueDateIsDateOnly(fernTestValueDueDateIsDateOnly)
+
+		// Assert - object with explicitly set field can be marshaled/unmarshaled
+		bytes, err := json.Marshal(obj)
+		require.NoError(t, err, "marshaling should succeed for test setup")
+
+		// This test ensures JSON marshaling and unmarshaling succeed when the field has a zero/nil value
+		// Detect if marshaled JSON is an object or primitive to use correct unmarshal target
+		if len(bytes) > 0 && bytes[0] == '{' {
+			// JSON object - unmarshal into map
+			var unmarshaled map[string]interface{}
+			err = json.Unmarshal(bytes, &unmarshaled)
+			require.NoError(t, err, "unmarshaling should succeed for test verification")
+		} else {
+			// JSON primitive (string, number, boolean, null) - unmarshal into interface{}
+			var unmarshaled interface{}
+			err = json.Unmarshal(bytes, &unmarshaled)
+			require.NoError(t, err, "unmarshaling should succeed for test verification")
+		}
+
+		// Note: This does not explicitly assert the presence of a specific JSON field
+		// It verifies that setting a field via setter allows successful JSON round-trip
+	})
+
 	t.Run("SetExternalIssues_MarksExplicit", func(t *testing.T) {
 		t.Parallel()
 		// Arrange
@@ -3968,6 +4069,14 @@ func TestSettersTasksUpdateRequest(t *testing.T) {
 		assert.NotNil(t, obj.explicitFields)
 	})
 
+	t.Run("SetDueDateIsDateOnly", func(t *testing.T) {
+		obj := &TasksUpdateRequest{}
+		var fernTestValueDueDateIsDateOnly *bool
+		obj.SetDueDateIsDateOnly(fernTestValueDueDateIsDateOnly)
+		assert.Equal(t, fernTestValueDueDateIsDateOnly, obj.DueDateIsDateOnly)
+		assert.NotNil(t, obj.explicitFields)
+	})
+
 	t.Run("SetMilestoneID", func(t *testing.T) {
 		obj := &TasksUpdateRequest{}
 		var fernTestValueMilestoneID *string
@@ -4259,6 +4368,37 @@ func TestSettersMarkExplicitTasksUpdateRequest(t *testing.T) {
 
 		// Act
 		obj.SetDueDate(fernTestValueDueDate)
+
+		// Assert - object with explicitly set field can be marshaled/unmarshaled
+		bytes, err := json.Marshal(obj)
+		require.NoError(t, err, "marshaling should succeed for test setup")
+
+		// This test ensures JSON marshaling and unmarshaling succeed when the field has a zero/nil value
+		// Detect if marshaled JSON is an object or primitive to use correct unmarshal target
+		if len(bytes) > 0 && bytes[0] == '{' {
+			// JSON object - unmarshal into map
+			var unmarshaled map[string]interface{}
+			err = json.Unmarshal(bytes, &unmarshaled)
+			require.NoError(t, err, "unmarshaling should succeed for test verification")
+		} else {
+			// JSON primitive (string, number, boolean, null) - unmarshal into interface{}
+			var unmarshaled interface{}
+			err = json.Unmarshal(bytes, &unmarshaled)
+			require.NoError(t, err, "unmarshaling should succeed for test verification")
+		}
+
+		// Note: This does not explicitly assert the presence of a specific JSON field
+		// It verifies that setting a field via setter allows successful JSON round-trip
+	})
+
+	t.Run("SetDueDateIsDateOnly_MarksExplicit", func(t *testing.T) {
+		t.Parallel()
+		// Arrange
+		obj := &TasksUpdateRequest{}
+		var fernTestValueDueDateIsDateOnly *bool
+
+		// Act
+		obj.SetDueDateIsDateOnly(fernTestValueDueDateIsDateOnly)
 
 		// Assert - object with explicitly set field can be marshaled/unmarshaled
 		bytes, err := json.Marshal(obj)

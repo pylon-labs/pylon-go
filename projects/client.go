@@ -65,14 +65,14 @@ func (c *Client) Create(
 
 // Filterable fields and their allowed operators:
 //
-//	Field | Allowed operators |
-//	--- | --- |
-//	`account_id` | `equals`, `in`, `not_in`, `is_set` |
-//	`status` | `equals`, `in`, `not_in` |
-//	`owner_id` | `equals`, `in`, `not_in`, `is_set`, `is_unset` |
-//	`is_archived` | `equals` |
-//	`created_at` | `time_is_after`, `time_is_before`, `time_range` |
-//	`updated_at` | `time_is_after`, `time_is_before`, `time_range` |
+// Field | Allowed operators |
+// --- | --- |
+// `account_id` | `equals`, `in`, `not_in`, `is_set` |
+// `status` | `equals`, `in`, `not_in` |
+// `owner_id` | `equals`, `in`, `not_in`, `is_set`, `is_unset` |
+// `is_archived` | `equals` |
+// `created_at` | `time_is_after`, `time_is_before`, `time_range` |
+// `updated_at` | `time_is_after`, `time_is_before`, `time_range` |
 //
 // ### Filter syntax and operators
 //
@@ -84,9 +84,9 @@ func (c *Client) Create(
 //
 // `status` accepts:
 //
-// `not_started`
-// `in_progress`
-// `completed`
+// - `not_started`
+// - `in_progress`
+// - `completed`
 //
 // ### Custom fields
 //

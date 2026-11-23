@@ -5982,7 +5982,7 @@ type ErrorAPIResponseBody struct {
 	// A stable machine-readable identifier for this failure, safe to branch on
 	// instead of the message text. Omitted when the failure has no assigned code.
 	//
-	// Known values: `recipients_suppressed`, `email_bounced`, `internal_issue_reply_not_allowed`, `duplicate_object`, `invalid_authorization_header`, `invalid_api_token`, `invalid_oauth_token`, `wrong_region_token`, `organization_deactivated`, `organization_suspended`, `permission_denied`, `oauth_not_permitted`, `rate_limited`, `not_found`, `method_not_allowed`, `payload_too_large`, `invalid_request_body`, `internal_error`, `invalid_webhook_credentials`, `organization_inactive`, `invalid_filter`. This list is not exhaustive.
+	// Known values: `recipients_suppressed`, `email_bounced`, `internal_issue_reply_not_allowed`, `duplicate_object`, `invalid_authorization_header`, `invalid_api_token`, `invalid_oauth_token`, `wrong_region_token`, `organization_deactivated`, `organization_suspended`, `permission_denied`, `oauth_not_permitted`, `rate_limited`, `not_found`, `method_not_allowed`, `payload_too_large`, `invalid_request_body`, `internal_error`, `invalid_webhook_credentials`, `organization_inactive`, `invalid_filter`, `invalid_user_id`. This list is not exhaustive.
 	Code *string `json:"code,omitempty" url:"code,omitempty"`
 	// The list of errors.
 	Errors []string `json:"errors,omitempty" url:"errors,omitempty"`
@@ -9863,24 +9863,27 @@ func (i *ImportIssueMessage) String() string {
 }
 
 var (
-	importIssueRequestFieldAccountID         = big.NewInt(1 << 0)
-	importIssueRequestFieldAssigneeID        = big.NewInt(1 << 1)
-	importIssueRequestFieldAttachmentURLs    = big.NewInt(1 << 2)
-	importIssueRequestFieldCreatedAt         = big.NewInt(1 << 3)
-	importIssueRequestFieldCustomFields      = big.NewInt(1 << 4)
-	importIssueRequestFieldExternalIssues    = big.NewInt(1 << 5)
-	importIssueRequestFieldExternalRefs      = big.NewInt(1 << 6)
-	importIssueRequestFieldFirstResponseTime = big.NewInt(1 << 7)
-	importIssueRequestFieldIssueNumber       = big.NewInt(1 << 8)
-	importIssueRequestFieldMessages          = big.NewInt(1 << 9)
-	importIssueRequestFieldPartnerAccountID  = big.NewInt(1 << 10)
-	importIssueRequestFieldRequesterID       = big.NewInt(1 << 11)
-	importIssueRequestFieldResolutionTime    = big.NewInt(1 << 12)
-	importIssueRequestFieldState             = big.NewInt(1 << 13)
-	importIssueRequestFieldTags              = big.NewInt(1 << 14)
-	importIssueRequestFieldTeamID            = big.NewInt(1 << 15)
-	importIssueRequestFieldTitle             = big.NewInt(1 << 16)
-	importIssueRequestFieldUpdatedAt         = big.NewInt(1 << 17)
+	importIssueRequestFieldAccountID             = big.NewInt(1 << 0)
+	importIssueRequestFieldAssigneeID            = big.NewInt(1 << 1)
+	importIssueRequestFieldAttachmentURLs        = big.NewInt(1 << 2)
+	importIssueRequestFieldBodyHTML              = big.NewInt(1 << 3)
+	importIssueRequestFieldCreatedAt             = big.NewInt(1 << 4)
+	importIssueRequestFieldCustomFields          = big.NewInt(1 << 5)
+	importIssueRequestFieldCustomerPortalVisible = big.NewInt(1 << 6)
+	importIssueRequestFieldExternalIssues        = big.NewInt(1 << 7)
+	importIssueRequestFieldExternalRefs          = big.NewInt(1 << 8)
+	importIssueRequestFieldFirstResponseTime     = big.NewInt(1 << 9)
+	importIssueRequestFieldIdempotencyKey        = big.NewInt(1 << 10)
+	importIssueRequestFieldIssueNumber           = big.NewInt(1 << 11)
+	importIssueRequestFieldMessages              = big.NewInt(1 << 12)
+	importIssueRequestFieldPartnerAccountID      = big.NewInt(1 << 13)
+	importIssueRequestFieldRequesterID           = big.NewInt(1 << 14)
+	importIssueRequestFieldResolutionTime        = big.NewInt(1 << 15)
+	importIssueRequestFieldState                 = big.NewInt(1 << 16)
+	importIssueRequestFieldTags                  = big.NewInt(1 << 17)
+	importIssueRequestFieldTeamID                = big.NewInt(1 << 18)
+	importIssueRequestFieldTitle                 = big.NewInt(1 << 19)
+	importIssueRequestFieldUpdatedAt             = big.NewInt(1 << 20)
 )
 
 type ImportIssueRequest struct {
@@ -9890,22 +9893,29 @@ type ImportIssueRequest struct {
 	AssigneeID *string `json:"assignee_id,omitempty" url:"assignee_id,omitempty"`
 	// An array of attachment URLs to attach to this issue.
 	AttachmentURLs []string `json:"attachment_urls,omitempty" url:"attachment_urls,omitempty"`
+	// The issue description in HTML. If omitted or blank after sanitization, the description defaults to the first message's body, when present.
+	BodyHTML *string `json:"body_html,omitempty" url:"body_html,omitempty"`
 	// CreatedAt is the time the issue was created (RFC3339).
 	CreatedAt *time.Time `json:"created_at,omitempty" url:"created_at,omitempty"`
 	// An array of custom fields to be used on this issue.
 	CustomFields []*CustomFieldValue `json:"custom_fields,omitempty" url:"custom_fields,omitempty"`
+	// Whether the issue is visible in the customer portal. Defaults to true when omitted.
+	CustomerPortalVisible *bool `json:"customer_portal_visible,omitempty" url:"customer_portal_visible,omitempty"`
 	// External issues to link to this issue.
 	ExternalIssues []*ImportExternalIssue   `json:"external_issues,omitempty" url:"external_issues,omitempty"`
 	ExternalRefs   *ImportIssueExternalRefs `json:"external_refs,omitempty" url:"external_refs,omitempty"`
 	// FirstResponseTime is the time the issue was first responded to (RFC3339).
 	FirstResponseTime *time.Time `json:"first_response_time,omitempty" url:"first_response_time,omitempty"`
+	// Optional key of at most 255 bytes, scoped to the organization and retained for 14 days.
+	// Reuse the same key and request body to safely retry an import.
+	IdempotencyKey *string `json:"idempotency_key,omitempty" url:"idempotency_key,omitempty"`
 	// An optional issue number to preserve from the platform the issue is being imported from.
 	// Usually, do not set this field. Pylon normally assigns its own auto-incrementing ticket numbers.
 	// Use it only for customers who require their historical ticket numbers to be preserved.
 	// When set, it must be positive and lower than the organization's current ticket number counter.
 	IssueNumber *int64 `json:"issue_number,omitempty" url:"issue_number,omitempty"`
-	// Messages to be imported for this issue. At least one message is required.
-	Messages []*ImportIssueMessage `json:"messages" url:"messages"`
+	// Messages to import for this issue. Omit this field or pass an empty array for an issue without messages.
+	Messages []*ImportIssueMessage `json:"messages,omitempty" url:"messages,omitempty"`
 	// The ID of a partner account that serves account_id. Requires account_id.
 	PartnerAccountID *string `json:"partner_account_id,omitempty" url:"partner_account_id,omitempty"`
 	// ContactID that the issue should be on behalf of. If omitted, the issue has no requester.
@@ -9951,6 +9961,13 @@ func (i *ImportIssueRequest) GetAttachmentURLs() []string {
 	return i.AttachmentURLs
 }
 
+func (i *ImportIssueRequest) GetBodyHTML() *string {
+	if i == nil {
+		return nil
+	}
+	return i.BodyHTML
+}
+
 func (i *ImportIssueRequest) GetCreatedAt() *time.Time {
 	if i == nil {
 		return nil
@@ -9963,6 +9980,13 @@ func (i *ImportIssueRequest) GetCustomFields() []*CustomFieldValue {
 		return nil
 	}
 	return i.CustomFields
+}
+
+func (i *ImportIssueRequest) GetCustomerPortalVisible() *bool {
+	if i == nil {
+		return nil
+	}
+	return i.CustomerPortalVisible
 }
 
 func (i *ImportIssueRequest) GetExternalIssues() []*ImportExternalIssue {
@@ -9984,6 +10008,13 @@ func (i *ImportIssueRequest) GetFirstResponseTime() *time.Time {
 		return nil
 	}
 	return i.FirstResponseTime
+}
+
+func (i *ImportIssueRequest) GetIdempotencyKey() *string {
+	if i == nil {
+		return nil
+	}
+	return i.IdempotencyKey
 }
 
 func (i *ImportIssueRequest) GetIssueNumber() *int64 {
@@ -10093,6 +10124,13 @@ func (i *ImportIssueRequest) SetAttachmentURLs(attachmentURLs []string) {
 	i.require(importIssueRequestFieldAttachmentURLs)
 }
 
+// SetBodyHTML sets the BodyHTML field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (i *ImportIssueRequest) SetBodyHTML(bodyHTML *string) {
+	i.BodyHTML = bodyHTML
+	i.require(importIssueRequestFieldBodyHTML)
+}
+
 // SetCreatedAt sets the CreatedAt field and marks it as non-optional;
 // this prevents an empty or null value for this field from being omitted during serialization.
 func (i *ImportIssueRequest) SetCreatedAt(createdAt *time.Time) {
@@ -10105,6 +10143,13 @@ func (i *ImportIssueRequest) SetCreatedAt(createdAt *time.Time) {
 func (i *ImportIssueRequest) SetCustomFields(customFields []*CustomFieldValue) {
 	i.CustomFields = customFields
 	i.require(importIssueRequestFieldCustomFields)
+}
+
+// SetCustomerPortalVisible sets the CustomerPortalVisible field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (i *ImportIssueRequest) SetCustomerPortalVisible(customerPortalVisible *bool) {
+	i.CustomerPortalVisible = customerPortalVisible
+	i.require(importIssueRequestFieldCustomerPortalVisible)
 }
 
 // SetExternalIssues sets the ExternalIssues field and marks it as non-optional;
@@ -10126,6 +10171,13 @@ func (i *ImportIssueRequest) SetExternalRefs(externalRefs *ImportIssueExternalRe
 func (i *ImportIssueRequest) SetFirstResponseTime(firstResponseTime *time.Time) {
 	i.FirstResponseTime = firstResponseTime
 	i.require(importIssueRequestFieldFirstResponseTime)
+}
+
+// SetIdempotencyKey sets the IdempotencyKey field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (i *ImportIssueRequest) SetIdempotencyKey(idempotencyKey *string) {
+	i.IdempotencyKey = idempotencyKey
+	i.require(importIssueRequestFieldIdempotencyKey)
 }
 
 // SetIssueNumber sets the IssueNumber field and marks it as non-optional;
@@ -11570,50 +11622,52 @@ var (
 	issueFieldBusinessHoursActiveTimeSeconds    = big.NewInt(1 << 7)
 	issueFieldBusinessHoursFirstResponseSeconds = big.NewInt(1 << 8)
 	issueFieldBusinessHoursResolutionSeconds    = big.NewInt(1 << 9)
-	issueFieldBusinessHoursTimeInStatusSeconds  = big.NewInt(1 << 10)
-	issueFieldChatWidgetInfo                    = big.NewInt(1 << 11)
-	issueFieldChildIssues                       = big.NewInt(1 << 12)
-	issueFieldCreatedAt                         = big.NewInt(1 << 13)
-	issueFieldCsatResponses                     = big.NewInt(1 << 14)
-	issueFieldCustomFields                      = big.NewInt(1 << 15)
-	issueFieldCustomerPortalTitle               = big.NewInt(1 << 16)
-	issueFieldCustomerPortalVisible             = big.NewInt(1 << 17)
-	issueFieldExternalIncidents                 = big.NewInt(1 << 18)
-	issueFieldExternalIssues                    = big.NewInt(1 << 19)
-	issueFieldFirstResolutionTime               = big.NewInt(1 << 20)
-	issueFieldFirstResponseAssigneeIDAtBreach   = big.NewInt(1 << 21)
-	issueFieldFirstResponseBreachTime           = big.NewInt(1 << 22)
-	issueFieldFirstResponseResolvingUserID      = big.NewInt(1 << 23)
-	issueFieldFirstResponseSeconds              = big.NewInt(1 << 24)
-	issueFieldFirstResponseTime                 = big.NewInt(1 << 25)
-	issueFieldFollowUp                          = big.NewInt(1 << 26)
-	issueFieldID                                = big.NewInt(1 << 27)
-	issueFieldIsIssueGroup                      = big.NewInt(1 << 28)
-	issueFieldLatestMessageTime                 = big.NewInt(1 << 29)
-	issueFieldLink                              = big.NewInt(1 << 30)
-	issueFieldNextReply                         = big.NewInt(1 << 31)
-	issueFieldNumber                            = big.NewInt(1 << 32)
-	issueFieldNumberOfTouches                   = big.NewInt(1 << 33)
-	issueFieldParentIssueGroup                  = big.NewInt(1 << 34)
-	issueFieldRequester                         = big.NewInt(1 << 35)
-	issueFieldResolutionAssigneeIDAtBreach      = big.NewInt(1 << 36)
-	issueFieldResolutionBreachTime              = big.NewInt(1 << 37)
-	issueFieldResolutionResolvingUserID         = big.NewInt(1 << 38)
-	issueFieldResolutionSeconds                 = big.NewInt(1 << 39)
-	issueFieldResolutionTime                    = big.NewInt(1 << 40)
-	issueFieldSlack                             = big.NewInt(1 << 41)
-	issueFieldSnoozedUntilTime                  = big.NewInt(1 << 42)
-	issueFieldSource                            = big.NewInt(1 << 43)
-	issueFieldState                             = big.NewInt(1 << 44)
-	issueFieldTags                              = big.NewInt(1 << 45)
-	issueFieldTeam                              = big.NewInt(1 << 46)
-	issueFieldTeamSlas                          = big.NewInt(1 << 47)
-	issueFieldTimeInStatusSeconds               = big.NewInt(1 << 48)
-	issueFieldTitle                             = big.NewInt(1 << 49)
-	issueFieldType                              = big.NewInt(1 << 50)
-	issueFieldUpdatedAt                         = big.NewInt(1 << 51)
-	issueFieldWorkspaceEmail                    = big.NewInt(1 << 52)
-	issueFieldWorkspacePhoneNumber              = big.NewInt(1 << 53)
+	issueFieldBusinessHoursTimeInStateSeconds   = big.NewInt(1 << 10)
+	issueFieldBusinessHoursTimeInStatusSeconds  = big.NewInt(1 << 11)
+	issueFieldChatWidgetInfo                    = big.NewInt(1 << 12)
+	issueFieldChildIssues                       = big.NewInt(1 << 13)
+	issueFieldCreatedAt                         = big.NewInt(1 << 14)
+	issueFieldCsatResponses                     = big.NewInt(1 << 15)
+	issueFieldCustomFields                      = big.NewInt(1 << 16)
+	issueFieldCustomerPortalTitle               = big.NewInt(1 << 17)
+	issueFieldCustomerPortalVisible             = big.NewInt(1 << 18)
+	issueFieldExternalIncidents                 = big.NewInt(1 << 19)
+	issueFieldExternalIssues                    = big.NewInt(1 << 20)
+	issueFieldFirstResolutionTime               = big.NewInt(1 << 21)
+	issueFieldFirstResponseAssigneeIDAtBreach   = big.NewInt(1 << 22)
+	issueFieldFirstResponseBreachTime           = big.NewInt(1 << 23)
+	issueFieldFirstResponseResolvingUserID      = big.NewInt(1 << 24)
+	issueFieldFirstResponseSeconds              = big.NewInt(1 << 25)
+	issueFieldFirstResponseTime                 = big.NewInt(1 << 26)
+	issueFieldFollowUp                          = big.NewInt(1 << 27)
+	issueFieldID                                = big.NewInt(1 << 28)
+	issueFieldIsIssueGroup                      = big.NewInt(1 << 29)
+	issueFieldLatestMessageTime                 = big.NewInt(1 << 30)
+	issueFieldLink                              = big.NewInt(1 << 31)
+	issueFieldNextReply                         = big.NewInt(1 << 32)
+	issueFieldNumber                            = big.NewInt(1 << 33)
+	issueFieldNumberOfTouches                   = big.NewInt(1 << 34)
+	issueFieldParentIssueGroup                  = big.NewInt(1 << 35)
+	issueFieldRequester                         = big.NewInt(1 << 36)
+	issueFieldResolutionAssigneeIDAtBreach      = big.NewInt(1 << 37)
+	issueFieldResolutionBreachTime              = big.NewInt(1 << 38)
+	issueFieldResolutionResolvingUserID         = big.NewInt(1 << 39)
+	issueFieldResolutionSeconds                 = big.NewInt(1 << 40)
+	issueFieldResolutionTime                    = big.NewInt(1 << 41)
+	issueFieldSlack                             = big.NewInt(1 << 42)
+	issueFieldSnoozedUntilTime                  = big.NewInt(1 << 43)
+	issueFieldSource                            = big.NewInt(1 << 44)
+	issueFieldState                             = big.NewInt(1 << 45)
+	issueFieldTags                              = big.NewInt(1 << 46)
+	issueFieldTeam                              = big.NewInt(1 << 47)
+	issueFieldTeamSlas                          = big.NewInt(1 << 48)
+	issueFieldTimeInStateSeconds                = big.NewInt(1 << 49)
+	issueFieldTimeInStatusSeconds               = big.NewInt(1 << 50)
+	issueFieldTitle                             = big.NewInt(1 << 51)
+	issueFieldType                              = big.NewInt(1 << 52)
+	issueFieldUpdatedAt                         = big.NewInt(1 << 53)
+	issueFieldWorkspaceEmail                    = big.NewInt(1 << 54)
+	issueFieldWorkspacePhoneNumber              = big.NewInt(1 << 55)
 )
 
 // issueNullableFields maps the wire names of Issue's nullable fields (required or optional) to their field bits.
@@ -11649,7 +11703,9 @@ type Issue struct {
 	BusinessHoursFirstResponseSeconds *int64 `json:"business_hours_first_response_seconds,omitempty" url:"business_hours_first_response_seconds,omitempty"`
 	// The business hours time in seconds it took for the issue to be resolved, if any.
 	BusinessHoursResolutionSeconds *int64 `json:"business_hours_resolution_seconds,omitempty" url:"business_hours_resolution_seconds,omitempty"`
-	// A map of status slug to the business hours time in seconds the issue has spent in that status. Includes both base statuses (e.g. "new", "waiting_on_you") and custom statuses.
+	// A map of status slug to the business hours time in seconds the issue has spent in that status. Keys match the issue's state field and GET /issue-statuses. Includes both base statuses (e.g. "new", "waiting_on_you") and custom statuses.
+	BusinessHoursTimeInStateSeconds map[string]int64 `json:"business_hours_time_in_state_seconds,omitempty" url:"business_hours_time_in_state_seconds,omitempty"`
+	// Deprecated: Use business_hours_time_in_state_seconds. Keys use the same legacy names as time_in_status_seconds.
 	BusinessHoursTimeInStatusSeconds map[string]int64     `json:"business_hours_time_in_status_seconds,omitempty" url:"business_hours_time_in_status_seconds,omitempty"`
 	ChatWidgetInfo                   *IssueChatWidgetInfo `json:"chat_widget_info,omitempty" url:"chat_widget_info,omitempty"`
 	// The child issues in this group, if this issue is an issue group.
@@ -11711,7 +11767,7 @@ type Issue struct {
 	SnoozedUntilTime *time.Time `json:"snoozed_until_time,omitempty" url:"snoozed_until_time,omitempty"`
 	// The source of the issue.
 	//
-	// Known values: `slack`, `microsoft_teams`, `microsoft_teams_chat`, `chat_widget`, `customer_portal`, `email`, `manual`, `form`, `discord`, `google_chat`, `whatsapp`, `sms`, `telegram`, `phone`. This list is not exhaustive.
+	// Known values: `slack`, `microsoft_teams`, `microsoft_teams_chat`, `chat_widget`, `customer_portal`, `email`, `manual`, `form`, `discord`, `google_chat`, `whatsapp`, `sms`, `telegram`, `phone`, `support_api`. This list is not exhaustive.
 	Source string `json:"source" url:"source"`
 	// The state of the issue. Standard values are `new`, `waiting_on_you`, `waiting_on_customer`, `on_hold`, and `closed`; custom status slugs are also supported.
 	State string `json:"state" url:"state"`
@@ -11720,7 +11776,9 @@ type Issue struct {
 	Team *MiniTeam `json:"team,omitempty" url:"team,omitempty"`
 	// The team-scoped SLAs on the issue, if any. One entry per team, mirroring the issue-level first response and resolution SLA fields.
 	TeamSlas []*TeamSLA `json:"team_slas,omitempty" url:"team_slas,omitempty"`
-	// A map of status slug to the time in seconds the issue has spent in that status. Includes both base statuses (e.g. "new", "waiting_on_you") and custom statuses.
+	// A map of status slug to the time in seconds the issue has spent in that status. Keys match the issue's state field and GET /issue-statuses. Includes both base statuses (e.g. "new", "waiting_on_you") and custom statuses.
+	TimeInStateSeconds map[string]int64 `json:"time_in_state_seconds,omitempty" url:"time_in_state_seconds,omitempty"`
+	// Deprecated: Use time_in_state_seconds. Base statuses use legacy keys that differ from status slugs: "open" (New), "in_progress" (Waiting on You), "on_hold" (Waiting on Customer), "waiting_on_action" (On Hold), and "closed" (Closed). Custom statuses use their slug.
 	TimeInStatusSeconds map[string]int64 `json:"time_in_status_seconds,omitempty" url:"time_in_status_seconds,omitempty"`
 	// The title of the issue.
 	Title string `json:"title" url:"title"`
@@ -11810,6 +11868,13 @@ func (i *Issue) GetBusinessHoursResolutionSeconds() *int64 {
 		return nil
 	}
 	return i.BusinessHoursResolutionSeconds
+}
+
+func (i *Issue) GetBusinessHoursTimeInStateSeconds() map[string]int64 {
+	if i == nil {
+		return nil
+	}
+	return i.BusinessHoursTimeInStateSeconds
 }
 
 func (i *Issue) GetBusinessHoursTimeInStatusSeconds() map[string]int64 {
@@ -12078,6 +12143,13 @@ func (i *Issue) GetTeamSlas() []*TeamSLA {
 	return i.TeamSlas
 }
 
+func (i *Issue) GetTimeInStateSeconds() map[string]int64 {
+	if i == nil {
+		return nil
+	}
+	return i.TimeInStateSeconds
+}
+
 func (i *Issue) GetTimeInStatusSeconds() map[string]int64 {
 	if i == nil {
 		return nil
@@ -12204,6 +12276,13 @@ func (i *Issue) SetBusinessHoursFirstResponseSeconds(businessHoursFirstResponseS
 func (i *Issue) SetBusinessHoursResolutionSeconds(businessHoursResolutionSeconds *int64) {
 	i.BusinessHoursResolutionSeconds = businessHoursResolutionSeconds
 	i.require(issueFieldBusinessHoursResolutionSeconds)
+}
+
+// SetBusinessHoursTimeInStateSeconds sets the BusinessHoursTimeInStateSeconds field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (i *Issue) SetBusinessHoursTimeInStateSeconds(businessHoursTimeInStateSeconds map[string]int64) {
+	i.BusinessHoursTimeInStateSeconds = businessHoursTimeInStateSeconds
+	i.require(issueFieldBusinessHoursTimeInStateSeconds)
 }
 
 // SetBusinessHoursTimeInStatusSeconds sets the BusinessHoursTimeInStatusSeconds field and marks it as non-optional;
@@ -12470,6 +12549,13 @@ func (i *Issue) SetTeam(team *MiniTeam) {
 func (i *Issue) SetTeamSlas(teamSlas []*TeamSLA) {
 	i.TeamSlas = teamSlas
 	i.require(issueFieldTeamSlas)
+}
+
+// SetTimeInStateSeconds sets the TimeInStateSeconds field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (i *Issue) SetTimeInStateSeconds(timeInStateSeconds map[string]int64) {
+	i.TimeInStateSeconds = timeInStateSeconds
+	i.require(issueFieldTimeInStateSeconds)
 }
 
 // SetTimeInStatusSeconds sets the TimeInStatusSeconds field and marks it as non-optional;

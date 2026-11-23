@@ -167,12 +167,12 @@ func (c *Client) Merge(
 
 // Filterable fields and their allowed operators:
 //
-//	Field | Allowed operators |
-//	--- | --- |
-//	`id` | `equals`, `in`, `not_in` |
-//	`email` | `equals`, `in`, `not_in`, `string_contains`, `string_does_not_contain` |
-//	`name` | `equals`, `in`, `not_in`, `string_contains`, `string_does_not_contain` |
-//	`account_id` | `equals`, `in`, `not_in` |
+// Field | Allowed operators |
+// --- | --- |
+// `id` | `equals`, `in`, `not_in` |
+// `email` | `equals`, `in`, `not_in`, `string_contains`, `string_does_not_contain` |
+// `name` | `equals`, `in`, `not_in`, `string_contains`, `string_does_not_contain` |
+// `account_id` | `equals`, `in`, `not_in` |
 //
 // ### Filter syntax and operators
 //

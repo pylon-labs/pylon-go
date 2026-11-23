@@ -38,8 +38,8 @@ func NewClient(options *core.RequestOptions) *Client {
 
 // Returns email threads synced to the specified account from connected Gmail and Outlook inboxes, ordered by their latest email from newest to oldest.
 // The {id} parameter accepts either:
-// Internal account ID (UUID format)
-// External ID (any string format)
+// - Internal account ID (UUID format)
+// - External ID (any string format)
 //
 // **Rate limit:** 120 requests per minute
 //
