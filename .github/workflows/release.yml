@@ -6,6 +6,9 @@ on:
       version:
         description: Version to release, such as 0.1.0-alpha.1
         required: true
+      notes:
+        description: Markdown shown above the generated changelog, listing breaking changes and what's new
+        required: true
 
 permissions:
   contents: read
@@ -49,6 +52,7 @@ jobs:
         env:
           VERSION: ${{ inputs.version }}
           GH_TOKEN: ${{ github.token }}
+          NOTES: ${{ inputs.notes }}
         run: |
           # The User-Agent names the version; the next sync regenerates it from VERSION.
           previous=$(cat VERSION)
@@ -69,7 +73,8 @@ jobs:
           if [[ "$VERSION" == *-* ]]; then
             prerelease=(--prerelease)
           fi
-          gh release create "v$VERSION" --generate-notes "${prerelease[@]}"
+          printf '%s\n' "$NOTES" > "$RUNNER_TEMP/notes.md"
+          gh release create "v$VERSION" --generate-notes --notes-file "$RUNNER_TEMP/notes.md" "${prerelease[@]}"
       # Asking the module proxy for the version makes it show up on pkg.go.dev.
       - name: Index the version
         env:
