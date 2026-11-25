@@ -51,7 +51,7 @@ client := pylonclient.NewClient(
 
 ### Pagination
 
-List and search methods return a page whose iterator fetches the next page as you go:
+Paginated list methods return a page whose iterator fetches the next page as you go:
 
 ```go
 page, err := client.Accounts.List(ctx, &pylon.AccountsListRequest{Limit: pylon.Int64(100)})
@@ -64,6 +64,25 @@ for iter.Next(ctx) {
 }
 if err := iter.Err(); err != nil {
 	return err
+}
+```
+
+Search methods return the response body instead. Pass `Pagination.Cursor` back as `Cursor` while `Pagination.HasNextPage` is true:
+
+```go
+request := &pylon.FeatureRequestsSearchRequest{Limit: pylon.Int64(100)}
+for {
+	resp, err := client.FeatureRequests.Search(ctx, request)
+	if err != nil {
+		return err
+	}
+	for _, featureRequest := range resp.GetData() {
+		fmt.Println(featureRequest.GetTitle())
+	}
+	if !resp.GetPagination().GetHasNextPage() {
+		break
+	}
+	request.Cursor = pylon.String(resp.GetPagination().GetCursor())
 }
 ```
 
