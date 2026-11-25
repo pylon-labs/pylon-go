@@ -11666,8 +11666,9 @@ var (
 	issueFieldTitle                             = big.NewInt(1 << 51)
 	issueFieldType                              = big.NewInt(1 << 52)
 	issueFieldUpdatedAt                         = big.NewInt(1 << 53)
-	issueFieldWorkspaceEmail                    = big.NewInt(1 << 54)
-	issueFieldWorkspacePhoneNumber              = big.NewInt(1 << 55)
+	issueFieldWhatsappConversationType          = big.NewInt(1 << 54)
+	issueFieldWorkspaceEmail                    = big.NewInt(1 << 55)
+	issueFieldWorkspacePhoneNumber              = big.NewInt(1 << 56)
 )
 
 // issueNullableFields maps the wire names of Issue's nullable fields (required or optional) to their field bits.
@@ -11788,6 +11789,10 @@ type Issue struct {
 	Type string `json:"type" url:"type"`
 	// The time the issue was last updated.
 	UpdatedAt time.Time `json:"updated_at" url:"updated_at"`
+	// Whether a WhatsApp issue's conversation is a direct message or a group chat. Only set for WhatsApp issues; unknown when it cannot be determined.
+	//
+	// Known values: `direct`, `group`, `unknown`. This list is not exhaustive.
+	WhatsappConversationType *string `json:"whatsapp_conversation_type,omitempty" url:"whatsapp_conversation_type,omitempty"`
 	// The email address connected to the Pylon workspace through which the issue's email conversation is routed. For inbound issues, this is the address that received the original email.
 	WorkspaceEmail *string `json:"workspace_email,omitempty" url:"workspace_email,omitempty"`
 	// The WhatsApp, SMS, or voice phone number connected to the Pylon workspace through which the issue's conversation is routed. For inbound issues, this is the number the customer messaged or called.
@@ -12176,6 +12181,13 @@ func (i *Issue) GetUpdatedAt() time.Time {
 		return time.Time{}
 	}
 	return i.UpdatedAt
+}
+
+func (i *Issue) GetWhatsappConversationType() *string {
+	if i == nil {
+		return nil
+	}
+	return i.WhatsappConversationType
 }
 
 func (i *Issue) GetWorkspaceEmail() *string {
@@ -12584,6 +12596,13 @@ func (i *Issue) SetType(type_ string) {
 func (i *Issue) SetUpdatedAt(updatedAt time.Time) {
 	i.UpdatedAt = updatedAt
 	i.require(issueFieldUpdatedAt)
+}
+
+// SetWhatsappConversationType sets the WhatsappConversationType field and marks it as non-optional;
+// this prevents an empty or null value for this field from being omitted during serialization.
+func (i *Issue) SetWhatsappConversationType(whatsappConversationType *string) {
+	i.WhatsappConversationType = whatsappConversationType
+	i.require(issueFieldWhatsappConversationType)
 }
 
 // SetWorkspaceEmail sets the WorkspaceEmail field and marks it as non-optional;
